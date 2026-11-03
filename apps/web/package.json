@@ -7,15 +7,15 @@
     "dev": "vite --clearScreen false",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "lint": "eslint src"
+    "lint": "oxlint"
   },
   "dependencies": {
     "@repo/ui": "*"
   },
   "devDependencies": {
-    "@repo/eslint-config": "*",
+    "@repo/oxlint-config": "*",
     "@repo/typescript-config": "*",
-    "eslint": "10.9.1",
+    "oxlint": "^1.90.0",
     "typescript": "7.0.2",
     "vite": "8.2.2"
   }

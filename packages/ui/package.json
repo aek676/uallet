@@ -8,12 +8,12 @@
   },
   "license": "MIT",
   "scripts": {
-    "lint": "eslint ."
+    "lint": "oxlint"
   },
   "devDependencies": {
-    "@repo/eslint-config": "*",
+    "@repo/oxlint-config": "*",
     "@repo/typescript-config": "*",
-    "eslint": "10.9.1",
+    "oxlint": "^1.90.0",
     "typescript": "7.0.2"
   }
 }

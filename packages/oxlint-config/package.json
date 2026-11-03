@@ -1,0 +1,13 @@
+{
+  "name": "@repo/oxlint-config",
+  "version": "0.0.0",
+  "type": "module",
+  "main": "index.ts",
+  "license": "MIT",
+  "peerDependencies": {
+    "oxlint": "^1.90.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

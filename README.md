@@ -19,7 +19,7 @@ This Turborepo includes the following packages and apps:
 - `docs`: a vanilla [Vite](https://vite.dev) TypeScript app
 - `web`: another vanilla [Vite](https://vite.dev) TypeScript app
 - `@repo/ui`: a stub component and utility library shared by both `web` and `docs`
-- `@repo/eslint-config`: shared ESLint configuration
+- `@repo/oxlint-config`: shared [Oxlint](https://oxc.rs/docs/guide/usage/linter.html) configuration
 - `@repo/typescript-config`: shared `tsconfig.json` files
 
 Each package and app is 100% [TypeScript](https://www.typescriptlang.org/).
@@ -29,5 +29,5 @@ Each package and app is 100% [TypeScript](https://www.typescriptlang.org/).
 This Turborepo has some additional tools already set up for you:
 
 - [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
+- [Oxlint](https://oxc.rs/docs/guide/usage/linter.html) for code linting
 - [Prettier](https://prettier.io) for code formatting
