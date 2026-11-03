@@ -7,8 +7,9 @@ Shared [Oxlint](https://oxc.rs/docs/guide/usage/linter.html) configuration for t
 Add `@repo/oxlint-config`, `oxlint` and `oxlint-tsgolint` as dev dependencies of the workspace, set its `lint` script to `oxlint --type-aware`, and create an `oxlint.config.ts` (use `oxlint.config.mts` if the package has no `"type": "module"`):
 
 ```ts
-import baseConfig from "@repo/oxlint-config";
 import { defineConfig } from "oxlint";
+
+import baseConfig from "@repo/oxlint-config";
 
 export default defineConfig({
   extends: [baseConfig],
