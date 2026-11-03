@@ -1,10 +1,22 @@
 {
-  "name": "with-vite",
+  "name": "uallet",
   "private": true,
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
+  "workspaces": {
+    "packages": [
+      "apps/*",
+      "packages/*"
+    ],
+    "catalogs": {
+      "lint": {
+        "oxlint": "1.90.0",
+        "oxlint-tsgolint": "7.0.2005"
+      },
+      "build": {
+        "typescript": "7.0.2",
+        "vite": "8.2.2"
+      }
+    }
+  },
   "type": "module",
   "scripts": {
     "build": "turbo run build",
@@ -15,8 +27,8 @@
   },
   "devDependencies": {
     "oxfmt": "0.76.0",
-    "oxlint": "^1.90.0",
-    "oxlint-tsgolint": "7.0.2005",
+    "oxlint": "catalog:lint",
+    "oxlint-tsgolint": "catalog:lint",
     "turbo": "^2.11.10"
   },
   "devEngines": {

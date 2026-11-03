@@ -8,6 +8,6 @@
     "access": "public"
   },
   "peerDependencies": {
-    "oxlint": "^1.90.0"
+    "oxlint": "catalog:lint"
   }
 }

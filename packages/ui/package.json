@@ -11,10 +11,10 @@
     "lint": "oxlint --type-aware"
   },
   "devDependencies": {
-    "@repo/oxlint-config": "*",
-    "@repo/typescript-config": "*",
-    "oxlint": "^1.90.0",
-    "oxlint-tsgolint": "7.0.2005",
-    "typescript": "7.0.2"
+    "@repo/oxlint-config": "workspace:*",
+    "@repo/typescript-config": "workspace:*",
+    "oxlint": "catalog:lint",
+    "oxlint-tsgolint": "catalog:lint",
+    "typescript": "catalog:build"
   }
 }
