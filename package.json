@@ -1,16 +1,18 @@
 {
   "name": "with-vite",
   "private": true,
+  "type": "module",
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
     "lint": "turbo run lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "format": "oxfmt",
+    "format:check": "oxfmt --check"
   },
   "devDependencies": {
+    "oxfmt": "0.76.0",
     "oxlint": "^1.90.0",
     "oxlint-tsgolint": "7.0.2005",
-    "prettier": "3.9.6",
     "turbo": "^2.11.10"
   },
   "engines": {

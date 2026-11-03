@@ -30,4 +30,4 @@ This Turborepo has some additional tools already set up for you:
 
 - [TypeScript](https://www.typescriptlang.org/) for static type checking
 - [Oxlint](https://oxc.rs/docs/guide/usage/linter.html) for code linting
-- [Prettier](https://prettier.io) for code formatting
+- [Oxfmt](https://oxc.rs/docs/guide/usage/formatter.html) for code formatting
