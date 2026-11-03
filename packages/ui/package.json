@@ -8,12 +8,13 @@
   },
   "license": "MIT",
   "scripts": {
-    "lint": "oxlint"
+    "lint": "oxlint --type-aware"
   },
   "devDependencies": {
     "@repo/oxlint-config": "*",
     "@repo/typescript-config": "*",
     "oxlint": "^1.90.0",
+    "oxlint-tsgolint": "7.0.2005",
     "typescript": "7.0.2"
   }
 }
