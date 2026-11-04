@@ -4,6 +4,10 @@
   "license": "MIT",
   "type": "module",
   "main": "index.ts",
+  "exports": {
+    ".": "./index.ts",
+    "./react": "./react.ts"
+  },
   "publishConfig": {
     "access": "public"
   },

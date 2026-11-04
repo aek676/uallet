@@ -1,7 +1,8 @@
 import { defineConfig } from "oxlint";
 
-import baseConfig from "@repo/oxlint-config";
+import reactConfig from "@repo/oxlint-config/react";
 
 export default defineConfig({
-  extends: [baseConfig],
+  extends: [reactConfig],
+  ignorePatterns: ["**/dist/**", "**/node_modules/**"],
 });

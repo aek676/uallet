@@ -1,0 +1,38 @@
+import { Button } from "@repo/ui/components/button";
+import {
+  Card,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@repo/ui/components/card";
+import { Toaster } from "@repo/ui/components/sonner";
+import { ThemeProvider } from "@repo/ui/components/theme-provider";
+import { ThemeToggle } from "@repo/ui/components/theme-toggle";
+
+export function App() {
+  return (
+    <ThemeProvider>
+      <div className="flex min-h-svh flex-col">
+        <header className="flex h-14 items-center justify-between border-b px-6">
+          <span className="font-semibold">Uallet</span>
+          <ThemeToggle />
+        </header>
+        <main className="flex flex-1 items-center justify-center p-6">
+          <Card className="w-full max-w-sm">
+            <CardHeader>
+              <CardTitle>Bienvenido a Uallet</CardTitle>
+              <CardDescription>
+                Conecta tu wallet de Solana para empezar.
+              </CardDescription>
+            </CardHeader>
+            <CardFooter>
+              <Button className="w-full">Conectar wallet</Button>
+            </CardFooter>
+          </Card>
+        </main>
+      </div>
+      <Toaster />
+    </ThemeProvider>
+  );
+}
