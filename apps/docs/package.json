@@ -10,9 +10,9 @@
   },
   "scripts": {
     "dev": "vite --clearScreen false",
-    "build": "tsc && vite build",
+    "build": "vite build",
     "preview": "vite preview",
-    "lint": "oxlint --type-aware"
+    "lint": "oxlint --type-aware --type-check"
   },
   "dependencies": {
     "@repo/ui": "workspace:*",

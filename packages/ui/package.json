@@ -16,8 +16,7 @@
     "./hooks/*": "./src/hooks/*.ts"
   },
   "scripts": {
-    "lint": "oxlint --type-aware",
-    "typecheck": "tsc --noEmit"
+    "lint": "oxlint --type-aware --type-check"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",

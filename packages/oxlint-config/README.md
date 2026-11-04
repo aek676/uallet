@@ -4,7 +4,7 @@ Shared [Oxlint](https://oxc.rs/docs/guide/usage/linter.html) configuration for t
 
 ## Usage
 
-Add `@repo/oxlint-config`, `oxlint` and `oxlint-tsgolint` as dev dependencies of the workspace, set its `lint` script to `oxlint --type-aware`, and create an `oxlint.config.ts` (use `oxlint.config.mts` if the package has no `"type": "module"`):
+Add `@repo/oxlint-config`, `oxlint` and `oxlint-tsgolint` as dev dependencies of the workspace, set its `lint` script to `oxlint --type-aware --type-check`, and create an `oxlint.config.ts` (use `oxlint.config.mts` if the package has no `"type": "module"`):
 
 ```ts
 import { defineConfig } from "oxlint";
@@ -19,6 +19,6 @@ export default defineConfig({
 ## Notes
 
 - TypeScript config files require Node.js >= 22.18.
-- Type-aware rules (`typescript/no-floating-promises`, ...) only run with `--type-aware`. Use the CLI flag instead of `options.typeAware`: that option is only allowed in the root config, and these workspace configs are nested when Oxlint runs from the repo root (as editors do).
+- Type-aware rules (`typescript/no-floating-promises`, ...) only run with `--type-aware`. `--type-check` also reports TypeScript compiler errors, [replacing a separate `tsc --noEmit` step](https://oxc.rs/docs/guide/usage/linter/type-aware.html#type-checking-diagnostics). Use the CLI flags instead of `options.typeAware` / `options.typeCheck`: those options are only allowed in the root config, and these workspace configs are nested when Oxlint runs from the repo root (as editors do).
 - `oxlint-tsgolint` bundles its own TypeScript, so bump it together with `typescript` (`7.0.2` ↔ `7.0.2xxx`).
 - Only `rules`, `plugins` and `overrides` are inherited through `extends` ([docs](https://oxc.rs/docs/guide/usage/linter/nested-config.html#extending-configuration-files)). Top-level fields such as `ignorePatterns` must be redeclared in the workspace config.

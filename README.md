@@ -16,7 +16,7 @@ Each package and app is 100% [TypeScript](https://www.typescriptlang.org/).
 
 ### Utilities
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
+- [TypeScript](https://www.typescriptlang.org/) for static type checking, run by Oxlint (`--type-check`) as part of `lint`, not by `tsc`
 - [Oxlint](https://oxc.rs/docs/guide/usage/linter.html) for code linting
 - [Oxfmt](https://oxc.rs/docs/guide/usage/formatter.html) for code formatting
 
