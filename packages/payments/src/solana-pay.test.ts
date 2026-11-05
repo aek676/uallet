@@ -1,7 +1,7 @@
 import { address } from "@solana/kit";
 import { describe, expect, it } from "vitest";
 
-import { EURC } from "./config";
+import { PAYMENT_TOKEN } from "./config";
 import { createReference } from "./reference";
 import {
   encodeTransferRequest,
@@ -12,8 +12,8 @@ import {
 
 const RECIPIENT = address("DuYQKfdunafuUqS7h6gugadrAiprxwtwBZFZLAMk4A99");
 const REFERENCE = address("11111111111111111111111111111111");
-const MINT = EURC.mint;
-const DECIMALS = EURC.decimals;
+const MINT = PAYMENT_TOKEN.mint;
+const DECIMALS = PAYMENT_TOKEN.decimals;
 
 const request: TransferRequest = {
   recipient: RECIPIENT,

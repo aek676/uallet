@@ -23,7 +23,11 @@ export interface TransferRequest {
   recipient: Address;
   /** Amount in base units of `splToken`. Always greater than zero. */
   amount: bigint;
-  /** Mint of the token to transfer (EURC). */
+  /**
+   * Mint of the token to transfer. Works for both Token programs: the link
+   * only carries the mint, the program comes from the token config
+   * (`PAYMENT_TOKEN.programAddress`).
+   */
   splToken: Address;
   /** Read-only accounts added to the transaction to find it later. */
   reference: Address[];
