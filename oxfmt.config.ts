@@ -16,9 +16,7 @@ export default defineConfig({
     ],
   },
   sortTailwindcss: {
-    // Tailwind v4: the stylesheet with the design tokens and `@theme`.
     stylesheet: "./packages/ui/src/styles/globals.css",
-    // Also sort classes passed to these helpers.
     functions: ["cn", "cva"],
   },
 });
