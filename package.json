@@ -6,8 +6,8 @@
     "build": "turbo run build",
     "dev": "turbo run dev",
     "lint": "turbo run lint",
-    "format": "oxfmt",
-    "format:check": "oxfmt --check",
+    "format": "oxfmt --check",
+    "format:fix": "oxfmt",
     "test": "turbo run test"
   },
   "devDependencies": {
