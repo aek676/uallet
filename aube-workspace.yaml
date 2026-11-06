@@ -25,5 +25,27 @@ catalogs:
     sonner: 2.0.8
   solana:
     "@solana/kit": 8.6.0
+    "@solana/react-hooks": 1.4.1
+  wallet:
+    "@web3auth/no-modal": 11.4.3
 
 autoInstallPeers: true
+
+# Reviewed install scripts, not needed for browser bundles (via @web3auth/no-modal).
+allowBuilds:
+  # `postinstall` only warns about how dependents pin its version.
+  protobufjs: false
+  # Builds optional native bindings; falls back to the pure JS implementation.
+  tiny-secp256k1: false
+
+# Reviewed trust downgrades (published without provenance while earlier
+# versions had it). All come from WalletConnect, pulled in by @web3auth/no-modal.
+# Exact versions only: new releases are still checked.
+trustPolicyExclude:
+  # Pinned by @walletconnect/relay-auth. Published manually by the same
+  # maintainer (paulmillr) on 2025-01-03; 1.8.1 / 1.7.1 have provenance again.
+  - "@noble/curves@1.8.0"
+  - "@noble/hashes@1.7.0"
+  # Via pino (^0.3.0). Published manually by the pino maintainer
+  # (matteo.collina); 0.3.0 and 0.3.1 were published by GitHub Actions.
+  - "slow-redact@0.3.2"

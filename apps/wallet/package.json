@@ -16,6 +16,9 @@
   },
   "dependencies": {
     "@repo/ui": "workspace:*",
+    "@solana/kit": "catalog:solana",
+    "@solana/react-hooks": "catalog:solana",
+    "@web3auth/no-modal": "catalog:wallet",
     "react": "catalog:react",
     "react-dom": "catalog:react"
   },
