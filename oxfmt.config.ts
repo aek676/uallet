@@ -4,14 +4,11 @@ export default defineConfig({
   printWidth: 80,
   ignorePatterns: ["aube-lock.yaml"],
   sortImports: {
-    // Workspace packages. `#` imports are matched by the `subpath` selector.
     internalPattern: ["@repo/"],
     groups: [
       "builtin",
       "external",
-      // @repo/*
       "internal",
-      // #/... (package.json `imports`)
       "subpath",
       ["parent", "sibling", "index"],
       "style",
