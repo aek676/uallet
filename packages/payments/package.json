@@ -9,6 +9,7 @@
   },
   "scripts": {
     "lint": "oxlint --type-aware --type-check",
+    "lint:fix": "oxlint --type-aware --type-check --fix",
     "test": "vitest run"
   },
   "dependencies": {
