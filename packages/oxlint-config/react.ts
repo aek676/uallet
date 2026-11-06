@@ -4,7 +4,7 @@ import baseConfig from "./index.ts";
 
 export default defineConfig({
   extends: [baseConfig],
-  plugins: ["typescript", "unicorn", "oxc", "react", "jsx-a11y"],
+  plugins: ["typescript", "unicorn", "oxc", "import", "react", "jsx-a11y"],
   rules: {
     // In `suspicious` (warn); not needed with the automatic JSX runtime (`jsx: "react-jsx"`).
     "react/react-in-jsx-scope": "off",
