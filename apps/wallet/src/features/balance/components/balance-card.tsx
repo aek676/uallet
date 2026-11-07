@@ -1,9 +1,4 @@
 import type { Address } from "@solana/kit";
-import {
-  useBalance,
-  useSolanaClient,
-  useWalletSession,
-} from "@solana/react-hooks";
 import { RefreshCwIcon } from "lucide-react";
 
 import { PAYMENT_TOKEN } from "@repo/payments/config";
@@ -18,6 +13,7 @@ import {
 import { Skeleton } from "@repo/ui/components/skeleton";
 
 import { usePaymentTokenBalance } from "#/features/balance/hooks/use-payment-token-balance";
+import { useSolBalance } from "#/features/balance/hooks/use-sol-balance";
 import { formatEuros, formatSol } from "#/features/balance/utils/format-amount";
 import { solanaDevnet } from "#/lib/web3auth";
 
@@ -47,25 +43,20 @@ function LoadError({
   );
 }
 
-function SolBalance({ owner }: { owner: Address | undefined }) {
-  const client = useSolanaClient();
-  const { lamports, error, fetching } = useBalance(owner);
+function SolBalance({ owner }: { owner: Address }) {
+  const { lamports, error, refreshing, refresh } = useSolBalance(owner);
 
-  if (lamports === null) {
-    // `useBalance` doesn't retry a failed first fetch on its own.
-    if (error) {
-      return (
-        <LoadError
-          message="No se ha podido cargar el saldo de SOL."
-          retrying={fetching}
-          onRetry={() => {
-            if (!owner) return;
-            // A failure is stored in the account entry and shown here.
-            client.actions.fetchBalance(owner).catch(() => undefined);
-          }}
-        />
-      );
-    }
+  if (error) {
+    return (
+      <LoadError
+        message="No se ha podido cargar el saldo de SOL."
+        retrying={refreshing}
+        onRetry={refresh}
+      />
+    );
+  }
+
+  if (lamports === undefined) {
     return <Skeleton className="h-4 w-32" />;
   }
 
@@ -85,7 +76,7 @@ function SolBalance({ owner }: { owner: Address | undefined }) {
   );
 }
 
-function TokenBalance({ owner }: { owner: Address | undefined }) {
+function TokenBalance({ owner }: { owner: Address }) {
   const { amount, error, refreshing, refresh } = usePaymentTokenBalance(owner);
 
   // Even with a previous balance: a stale amount must not pass for current.
@@ -110,9 +101,7 @@ function TokenBalance({ owner }: { owner: Address | undefined }) {
   );
 }
 
-export function BalanceCard() {
-  const owner = useWalletSession()?.account.address;
-
+export function BalanceCard({ owner }: { owner: Address }) {
   return (
     <Card className="w-full max-w-sm">
       <CardHeader>

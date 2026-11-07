@@ -22,14 +22,15 @@
     "@repo/payments": "workspace:*",
     "@repo/ui": "workspace:*",
     "@solana/kit": "catalog:solana",
-    "@solana/react-hooks": "catalog:solana",
+    "@solana/kit-plugin-rpc": "catalog:solana",
+    "@solana/react": "catalog:solana",
     "@tanstack/react-form": "catalog:forms",
+    "@wallet-standard/features": "catalog:wallet",
     "@web3auth/no-modal": "catalog:wallet",
     "lucide-react": "catalog:ui",
     "react": "catalog:react",
     "react-dom": "catalog:react",
     "sonner": "catalog:ui",
-    "swr": "catalog:solana",
     "zod": "catalog:forms"
   },
   "devDependencies": {
