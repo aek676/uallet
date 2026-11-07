@@ -1,4 +1,4 @@
-import { fromBaseUnits } from "@repo/payments/amount";
+import { fromBaseUnits } from "./amount";
 
 /** SOL has 9 decimals: 1 SOL = 1_000_000_000 lamports. */
 export const SOL_DECIMALS = 9;
