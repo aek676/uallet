@@ -23,8 +23,11 @@
     "@repo/ui": "workspace:*",
     "@solana/kit": "catalog:solana",
     "@tanstack/react-form": "catalog:forms",
+    "lucide-react": "catalog:ui",
+    "qrcode.react": "catalog:merchant",
     "react": "catalog:react",
     "react-dom": "catalog:react",
+    "sonner": "catalog:ui",
     "zod": "catalog:forms"
   },
   "devDependencies": {
