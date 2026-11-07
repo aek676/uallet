@@ -22,6 +22,7 @@
     "@repo/payments": "workspace:*",
     "@repo/ui": "workspace:*",
     "@solana/kit": "catalog:solana",
+    "@tanstack/react-form": "catalog:forms",
     "react": "catalog:react",
     "react-dom": "catalog:react",
     "zod": "catalog:forms"
