@@ -4,9 +4,11 @@
   "private": true,
   "type": "module",
   "imports": {
-    "#components/*": "./src/components/*.tsx",
-    "#lib/*": "./src/lib/*.ts",
-    "#hooks/*": "./src/hooks/*.ts"
+    "#/*": [
+      "./src/*",
+      "./src/*.ts",
+      "./src/*.tsx"
+    ]
   },
   "scripts": {
     "dev": "vite --clearScreen false",

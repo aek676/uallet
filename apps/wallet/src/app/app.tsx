@@ -6,13 +6,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@repo/ui/components/card";
-import { Toaster } from "@repo/ui/components/sonner";
-import { ThemeProvider } from "@repo/ui/components/theme-provider";
 import { ThemeToggle } from "@repo/ui/components/theme-toggle";
+
+import { AppProvider } from "#/app/provider";
 
 export function App() {
   return (
-    <ThemeProvider>
+    <AppProvider>
       <div className="flex min-h-svh flex-col">
         <header className="flex h-14 items-center justify-between border-b px-6">
           <span className="font-semibold">Uallet</span>
@@ -32,7 +32,6 @@ export function App() {
           </Card>
         </main>
       </div>
-      <Toaster />
-    </ThemeProvider>
+    </AppProvider>
   );
 }
