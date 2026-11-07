@@ -15,9 +15,11 @@
     "build": "vite build",
     "preview": "vite preview",
     "lint": "oxlint --type-aware --type-check",
-    "lint:fix": "oxlint --type-aware --type-check --fix"
+    "lint:fix": "oxlint --type-aware --type-check --fix",
+    "test": "vitest run"
   },
   "dependencies": {
+    "@repo/payments": "workspace:*",
     "@repo/ui": "workspace:*",
     "@solana/kit": "catalog:solana",
     "@solana/react-hooks": "catalog:solana",
@@ -27,6 +29,7 @@
     "react": "catalog:react",
     "react-dom": "catalog:react",
     "sonner": "catalog:ui",
+    "swr": "catalog:solana",
     "zod": "catalog:forms"
   },
   "devDependencies": {
@@ -40,6 +43,7 @@
     "oxlint-tsgolint": "catalog:lint",
     "tailwindcss": "catalog:styles",
     "typescript": "catalog:build",
-    "vite": "catalog:build"
+    "vite": "catalog:build",
+    "vitest": "catalog:test"
   }
 }
