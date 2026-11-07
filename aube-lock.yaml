@@ -162,6 +162,52 @@ importers:
         specifier: catalog:build
         version: 8.2.2(@types/node@22.7.5)(jiti@2.7.0)
 
+  apps/merchant:
+    dependencies:
+      '@repo/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      react:
+        specifier: catalog:react
+        version: 19.3.1
+      react-dom:
+        specifier: catalog:react
+        version: 19.3.1(react@19.3.1)
+    devDependencies:
+      '@repo/oxlint-config':
+        specifier: workspace:*
+        version: link:../../packages/oxlint-config
+      '@repo/typescript-config':
+        specifier: workspace:*
+        version: link:../../packages/typescript-config
+      '@tailwindcss/vite':
+        specifier: catalog:styles
+        version: 4.3.4(vite@8.2.2(@types/node@22.7.5)(jiti@2.7.0))
+      '@types/react':
+        specifier: catalog:react
+        version: 19.3.0
+      '@types/react-dom':
+        specifier: catalog:react
+        version: 19.3.0(@types/react@19.3.0)
+      '@vitejs/plugin-react':
+        specifier: catalog:build
+        version: 6.2.1(vite@8.2.2(@types/node@22.7.5)(jiti@2.7.0))
+      oxlint:
+        specifier: catalog:lint
+        version: 1.90.0(oxlint-tsgolint@7.0.2005)
+      oxlint-tsgolint:
+        specifier: catalog:lint
+        version: 7.0.2005
+      tailwindcss:
+        specifier: catalog:styles
+        version: 4.3.4
+      typescript:
+        specifier: catalog:build
+        version: 7.0.2
+      vite:
+        specifier: catalog:build
+        version: 8.2.2(@types/node@22.7.5)(jiti@2.7.0)
+
   apps/wallet:
     dependencies:
       '@repo/payments':
