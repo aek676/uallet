@@ -16,6 +16,19 @@ export default defineConfig({
 });
 ```
 
+## Configs
+
+- `@repo/oxlint-config/base`: any TypeScript workspace.
+- `@repo/oxlint-config/react`: React workspaces. Extends `base` and the [`oxlint-tailwindcss`](https://oxlint-tailwindcss.pages.dev) recommended rules (class order is left to oxfmt). Set the CSS entry point in the workspace's own config, since oxlint drops `settings` from extended configs:
+
+```ts
+settings: {
+  tailwindcss: { entryPoint: "src/styles/globals.css" },
+},
+```
+
+Apps that use the `@repo/ui` design system have their own entry point, `src/styles.css`, which imports it (`@import "@repo/ui/globals.css";`), so the path stays local to the workspace.
+
 ## Notes
 
 - TypeScript config files require Node.js >= 22.18.

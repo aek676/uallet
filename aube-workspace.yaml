@@ -6,6 +6,7 @@ catalogs:
   lint:
     oxlint: 1.90.0
     oxlint-tsgolint: 7.0.2005
+    oxlint-tailwindcss: 1.17.1
   build:
     typescript: 7.0.2
     vite: 8.2.2

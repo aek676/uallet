@@ -1,9 +1,10 @@
 import { defineConfig } from "oxlint";
+import tailwindcss from "oxlint-tailwindcss/config";
 
 import baseConfig from "./base.ts";
 
 export default defineConfig({
-  extends: [baseConfig],
+  extends: [baseConfig, tailwindcss()],
   plugins: ["typescript", "unicorn", "oxc", "import", "react", "jsx-a11y"],
   rules: {
     // In `suspicious` (warn); not needed with the automatic JSX runtime (`jsx: "react-jsx"`).
@@ -14,6 +15,9 @@ export default defineConfig({
     "react/jsx-no-target-blank": "error",
     "react/self-closing-comp": "error",
     "react/no-unescaped-entities": "error",
+
+    // oxfmt already sorts classes (`sortTailwindcss`).
+    "tailwindcss/enforce-sort-order": "off",
   },
   overrides: [
     {

@@ -19,6 +19,9 @@ catalogs:
     oxlint:
       specifier: 1.90.0
       version: 1.90.0
+    oxlint-tailwindcss:
+      specifier: 1.17.1
+      version: 1.17.1
     oxlint-tsgolint:
       specifier: 7.0.2005
       version: 7.0.2005
@@ -200,6 +203,9 @@ importers:
       oxlint:
         specifier: catalog:lint
         version: 1.90.0(oxlint-tsgolint@7.0.2005)
+      oxlint-tailwindcss:
+        specifier: catalog:lint
+        version: 1.17.1
 
   packages/payments:
     dependencies:
@@ -4340,6 +4346,10 @@ packages:
         optional: true
       vite-plus:
         optional: true
+
+  oxlint-tailwindcss@1.17.1:
+    resolution: {integrity: sha512-fIsTVO97ruLU7GK8mNfQiE0TsjcnOccVz/w+C/lvbo54Hb/0ZZvT4cw3a0TCxM/buREd09enI+h7zfm6cG8OzA==}
+    engines: {node: ^20.19.0 || >=22.12.0}
 
   oxlint-tsgolint@7.0.2005:
     resolution: {integrity: sha512-6ccPGu4u4J9bwYPHXBFPee3RZrX3BboRdU7k14zRDDB1lvN3O7J/vPRFdaEfa1+CWx4xnQQOp4ctoaF66oO0uw==}
@@ -9564,6 +9574,11 @@ snapshots:
       '@oxfmt/binding-win32-arm64-msvc': 0.76.0
       '@oxfmt/binding-win32-ia32-msvc': 0.76.0
       '@oxfmt/binding-win32-x64-msvc': 0.76.0
+
+  oxlint-tailwindcss@1.17.1:
+    dependencies:
+      '@tailwindcss/node': 4.3.4
+      tailwindcss: 4.3.4
 
   oxlint-tsgolint@7.0.2005:
     optionalDependencies:

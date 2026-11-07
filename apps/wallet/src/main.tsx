@@ -3,11 +3,11 @@ import { SolanaProvider } from "@web3auth/no-modal/react/solana";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
-import "@repo/ui/globals.css";
-
 import { web3AuthConfig } from "#lib/web3auth";
 
 import { App } from "./app";
+
+import "./styles.css";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

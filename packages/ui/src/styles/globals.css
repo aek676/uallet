@@ -10,9 +10,12 @@
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/geist";
 
-/* Monorepo: scan this package and every app for Tailwind classes. */
+/*
+ * Scan this package's components: apps reach it through node_modules, which
+ * Tailwind's automatic detection skips. Each app's own files are scanned from
+ * its Vite root.
+ */
 @source "../**/*.{ts,tsx}";
-@source "../../../../apps/*/src/**/*.{ts,tsx}";
 
 @custom-variant dark (&:is(.dark *));
 
