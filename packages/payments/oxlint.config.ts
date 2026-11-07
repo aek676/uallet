@@ -1,6 +1,6 @@
 import { defineConfig } from "oxlint";
 
-import baseConfig from "@repo/oxlint-config";
+import baseConfig from "@repo/oxlint-config/base";
 
 export default defineConfig({
   extends: [baseConfig],

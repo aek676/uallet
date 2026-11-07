@@ -1,6 +1,6 @@
 import { defineConfig } from "oxlint";
 
-import baseConfig from "./index.ts";
+import baseConfig from "./base.ts";
 
 export default defineConfig({
   extends: [baseConfig],

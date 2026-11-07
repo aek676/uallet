@@ -3,9 +3,8 @@
   "version": "0.0.0",
   "license": "MIT",
   "type": "module",
-  "main": "index.ts",
   "exports": {
-    ".": "./index.ts",
+    "./base": "./base.ts",
     "./react": "./react.ts"
   },
   "publishConfig": {
