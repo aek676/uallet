@@ -29,6 +29,23 @@ settings: {
 
 Apps that use the `@repo/ui` design system have their own entry point, `src/styles.css`, which imports it (`@import "@repo/ui/globals.css";`), so the path stays local to the workspace.
 
+- `@repo/oxlint-config/react-app`: `bulletproofBoundaries()` for React apps organized like [bulletproof-react](https://github.com/alan2207/bulletproof-react/blob/master/docs/project-structure.md) (`src/app`, `src/features`, shared folders). Enforces shared → features → app, forbids `../` imports and requires kebab-case folders in `src` (except `__tests__`, via `eslint-plugin-check-file` as an oxlint JS plugin). Add it to the app's `extends`:
+
+```ts
+import { defineConfig } from "oxlint";
+
+import reactConfig from "@repo/oxlint-config/react";
+import { bulletproofBoundaries } from "@repo/oxlint-config/react-app";
+
+export default defineConfig({
+  extends: [reactConfig, bulletproofBoundaries(import.meta.url)],
+  ignorePatterns: ["**/dist/**", "**/node_modules/**"],
+  settings: {
+    tailwindcss: { entryPoint: "src/styles.css" },
+  },
+});
+```
+
 ## Notes
 
 - TypeScript config files require Node.js >= 22.18.

@@ -1,5 +1,5 @@
 import { defineConfig } from "oxlint";
-import tailwindcss from "oxlint-tailwindcss/config";
+import { tailwindcss } from "oxlint-tailwindcss/config";
 
 import baseConfig from "./base.ts";
 

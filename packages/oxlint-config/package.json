@@ -5,13 +5,26 @@
   "type": "module",
   "exports": {
     "./base": "./base.ts",
-    "./react": "./react.ts"
+    "./react": "./react.ts",
+    "./react-app": "./react-app.ts"
   },
   "publishConfig": {
     "access": "public"
   },
+  "scripts": {
+    "lint": "oxlint --type-aware --type-check",
+    "lint:fix": "oxlint --type-aware --type-check --fix"
+  },
   "dependencies": {
+    "eslint-plugin-check-file": "catalog:lint",
     "oxlint-tailwindcss": "catalog:lint"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "catalog:build",
+    "oxlint": "catalog:lint",
+    "oxlint-tsgolint": "catalog:lint",
+    "typescript": "catalog:build"
   },
   "peerDependencies": {
     "oxlint": "catalog:lint"
