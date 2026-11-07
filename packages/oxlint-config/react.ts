@@ -13,6 +13,7 @@ export default defineConfig({
     "react/exhaustive-deps": "warn",
     "react/jsx-no-target-blank": "error",
     "react/self-closing-comp": "error",
+    "react/no-unescaped-entities": "error",
   },
   overrides: [
     {

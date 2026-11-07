@@ -18,6 +18,7 @@ export default defineConfig({
 
     // Not in any enabled category.
     "import/no-cycle": "error",
+    "import/no-duplicates": "error",
     "oxc/no-barrel-file": ["error", { threshold: 0 }],
     "unicorn/filename-case": ["error", { case: "kebabCase" }],
     "no-array-constructor": "error",
@@ -92,6 +93,11 @@ export default defineConfig({
       plugins: ["vitest"],
       rules: {
         "vitest/no-identical-title": "error",
+        "vitest/no-import-node-test": "error",
+        "vitest/no-interpolation-in-snapshots": "error",
+        "vitest/no-mocks-import": "error",
+        "vitest/no-unneeded-async-expect-function": "error",
+        "vitest/prefer-called-exactly-once-with": "error",
       },
     },
   ],
