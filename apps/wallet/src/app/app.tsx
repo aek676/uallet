@@ -50,7 +50,7 @@ function WalletScreen() {
   return (
     <div className="flex w-full max-w-sm flex-col gap-4">
       <BalanceCard owner={account.address} />
-      <PayCard payer={account.address} />
+      <PayCard signer={account.signer} />
       <AccountCard address={account.address} />
     </div>
   );
