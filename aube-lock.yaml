@@ -56,6 +56,9 @@ catalogs:
       specifier: 19.3.1
       version: 19.3.1
   solana:
+    '@solana-program/token':
+      specifier: 0.18.0
+      version: 0.18.0
     '@solana/kit':
       specifier: 8.6.0
       version: 8.6.0
@@ -342,6 +345,9 @@ importers:
 
   packages/payments:
     dependencies:
+      '@solana-program/token':
+        specifier: catalog:solana
+        version: 0.18.0(@solana/kit@8.6.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@7.0.2))
       '@solana/kit':
         specifier: catalog:solana
         version: 8.6.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@7.0.2)
@@ -1340,12 +1346,22 @@ packages:
     peerDependencies:
       '@solana/kit': ^5.0
 
+  '@solana-program/system@0.16.0':
+    resolution: {integrity: sha512-/RG6q2E2vG/XpdOt8Jj/kbQktPlL5JyJuNGAeN9wDcxKDKQtrGTJpDrJgQUxiEy23fsPNXQbLN8XeCtYoMof3Q==}
+    peerDependencies:
+      '@solana/kit': ^8.5.0
+
   '@solana-program/token-2022@0.7.0':
     resolution: {integrity: sha512-ByQdTdbgyhjGf9JklqGRf3u0nbQF5Hbn8Wb2Ir0LZHCgo8lG+2PmBN8UvNY6ONVYb7CjLbApgghvBAEQK1aagg==}
     deprecated: This package has been deprecated
     peerDependencies:
       '@solana/kit': ^5.0
       '@solana/sysvars': ^4.0
+
+  '@solana-program/token@0.18.0':
+    resolution: {integrity: sha512-YNN13I4BxBnGPGk0NzP/LLQMCmJVdunbtgqjl7/Gfp1fDXQrKXh9df8xu+2ayNdvjGJYC4c9D5vZpVetHdyJaQ==}
+    peerDependencies:
+      '@solana/kit': ^8.5.0
 
   '@solana-program/token@0.9.0':
     resolution: {integrity: sha512-vnZxndd4ED4Fc56sw93cWZ2djEeeOFxtaPS8SPf5+a+JZjKA/EnKqzbE1y04FuMhIVrLERQ8uR8H2h72eZzlsA==}
@@ -6291,10 +6307,19 @@ snapshots:
     dependencies:
       '@solana/kit': 5.5.1(fastestsmallesttextencoderdecoder@1.0.22)(typescript@7.0.2)
 
+  '@solana-program/system@0.16.0(@solana/kit@8.6.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@7.0.2))':
+    dependencies:
+      '@solana/kit': 8.6.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@7.0.2)
+
   '@solana-program/token-2022@0.7.0(@solana/kit@5.5.1(fastestsmallesttextencoderdecoder@1.0.22)(typescript@7.0.2))(@solana/sysvars@4.0.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@7.0.2))':
     dependencies:
       '@solana/kit': 5.5.1(fastestsmallesttextencoderdecoder@1.0.22)(typescript@7.0.2)
       '@solana/sysvars': 4.0.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@7.0.2)
+
+  '@solana-program/token@0.18.0(@solana/kit@8.6.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@7.0.2))':
+    dependencies:
+      '@solana-program/system': 0.16.0(@solana/kit@8.6.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@7.0.2))
+      '@solana/kit': 8.6.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@7.0.2)
 
   '@solana-program/token@0.9.0(@solana/kit@5.5.1(fastestsmallesttextencoderdecoder@1.0.22)(typescript@7.0.2))':
     dependencies:

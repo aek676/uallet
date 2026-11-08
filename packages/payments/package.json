@@ -13,6 +13,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@solana-program/token": "catalog:solana",
     "@solana/kit": "catalog:solana"
   },
   "devDependencies": {
