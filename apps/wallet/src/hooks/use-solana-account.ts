@@ -1,13 +1,17 @@
-import { type Address, isAddress } from "@solana/kit";
+import { type Address, isAddress, type TransactionSigner } from "@solana/kit";
+import { createTransactionSignerFromWalletAccount } from "@solana/wallet-account-signer";
 import {
   StandardConnect,
   type StandardConnectFeature,
   StandardEvents,
   type StandardEventsFeature,
 } from "@wallet-standard/features";
+import { getOrCreateUiWalletAccountForStandardWalletAccount } from "@wallet-standard/ui-registry";
 import type { Connection } from "@web3auth/no-modal";
 import { useWeb3Auth } from "@web3auth/no-modal/react";
 import { useEffect, useState } from "react";
+
+import { SOLANA_CHAIN } from "#/lib/web3auth";
 
 /**
  * How long to wait for the Solana account once Web3Auth is connected.
@@ -19,7 +23,7 @@ type SolanaWallet = NonNullable<Connection["solanaWallet"]>;
 
 export type SolanaAccountState =
   | { status: "connecting" }
-  | { status: "connected"; address: Address }
+  | { status: "connected"; address: Address; signer: TransactionSigner }
   | { status: "error"; error: unknown };
 
 function hasConnect(
@@ -37,6 +41,20 @@ function hasEvents(
 function firstAddress(accounts: SolanaWallet["accounts"]): Address | undefined {
   const address = accounts[0]?.address;
   return address !== undefined && isAddress(address) ? address : undefined;
+}
+
+/**
+ * Sign only, not sign-and-send: Web3Auth would send through its own RPC. We
+ * send through ours, which also lets another account pay the fee later.
+ */
+function createWalletSigner(
+  wallet: SolanaWallet,
+  account: SolanaWallet["accounts"][number],
+): TransactionSigner {
+  return createTransactionSignerFromWalletAccount(
+    getOrCreateUiWalletAccountForStandardWalletAccount(wallet, account),
+    SOLANA_CHAIN,
+  );
 }
 
 function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
@@ -86,11 +104,20 @@ export function useSolanaAccount(): SolanaAccountState {
     function update(accounts: SolanaWallet["accounts"]) {
       if (stale) return;
       const address = firstAddress(accounts);
-      setState(
-        address
-          ? { status: "connected", address }
-          : { status: "error", error: new Error("No Solana account") },
-      );
+      const account = accounts[0];
+      if (!address || !account || !wallet) {
+        setState({ status: "error", error: new Error("No Solana account") });
+        return;
+      }
+      try {
+        setState({
+          status: "connected",
+          address,
+          signer: createWalletSigner(wallet, account),
+        });
+      } catch (error) {
+        setState({ status: "error", error });
+      }
     }
 
     const unsubscribe = hasEvents(wallet)

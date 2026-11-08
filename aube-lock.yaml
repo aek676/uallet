@@ -65,9 +65,18 @@ catalogs:
     '@solana/kit-plugin-rpc':
       specifier: 0.23.0
       version: 0.23.0
+    '@solana/kit-plugin-signer':
+      specifier: 0.23.0
+      version: 0.23.0
     '@solana/react':
       specifier: 8.6.0
       version: 8.6.0
+    '@solana/wallet-account-signer':
+      specifier: 8.6.0
+      version: 8.6.0
+    '@wallet-standard/ui-registry':
+      specifier: 1.1.1
+      version: 1.1.1
   styles:
     '@tailwindcss/vite':
       specifier: 4.3.4
@@ -253,14 +262,23 @@ importers:
       '@solana/kit-plugin-rpc':
         specifier: catalog:solana
         version: 0.23.0(@solana/kit@8.6.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@7.0.2))
+      '@solana/kit-plugin-signer':
+        specifier: catalog:solana
+        version: 0.23.0(@solana/kit@8.6.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@7.0.2))
       '@solana/react':
         specifier: catalog:solana
         version: 8.6.0(@solana/kit@8.6.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@7.0.2))(fastestsmallesttextencoderdecoder@1.0.22)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(swr@2.5.1(react@19.3.1))(typescript@7.0.2)
+      '@solana/wallet-account-signer':
+        specifier: catalog:solana
+        version: 8.6.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@7.0.2)
       '@tanstack/react-form':
         specifier: catalog:forms
         version: 1.33.5(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@wallet-standard/features':
         specifier: catalog:wallet
+        version: 1.1.1
+      '@wallet-standard/ui-registry':
+        specifier: catalog:solana
         version: 1.1.1
       '@web3auth/no-modal':
         specifier: catalog:wallet
@@ -1852,6 +1870,11 @@ packages:
     peerDependencies:
       '@solana/kit': ^8.6.0
 
+  '@solana/kit-plugin-signer@0.23.0':
+    resolution: {integrity: sha512-qLFDBYsbjWjwl4e569zSMkFRwWON9WH0sg5hVpCgrzu13uORLynYU9Vrt573a16y2Ic6Dcj4PKGmb7s7Ypm4Ig==}
+    peerDependencies:
+      '@solana/kit': ^8.6.0
+
   '@solana/kit@5.5.1':
     resolution: {integrity: sha512-irKUGiV2yRoyf+4eGQ/ZeCRxa43yjFEL1DUI5B0DkcfZw3cr0VJtVJnrG8OtVF01vT0OUfYOcUn6zJW5TROHvQ==}
     engines: {node: '>=20.18.0'}
@@ -2623,6 +2646,15 @@ packages:
 
   '@solana/transactions@8.6.0':
     resolution: {integrity: sha512-m2i0dxDtB9mGqhJd714OQpKzGFp9cQbU80kwIBFflOrHdZ2cJzZ61xjGe+vegz/WGsqPec604pUbHKXXIFkNjg==}
+    engines: {node: '>=20.18.0'}
+    peerDependencies:
+      typescript: '>=5.4.0'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+
+  '@solana/wallet-account-signer@8.6.0':
+    resolution: {integrity: sha512-+uVukecBC2+jJuWk2I4nT7eaYSSmPRePfuL/fPa+VxqKiXww58QAvxp+qymttjr4uOHgsDr7zDwU2Lv4MqlxaA==}
     engines: {node: '>=20.18.0'}
     peerDependencies:
       typescript: '>=5.4.0'
@@ -6813,6 +6845,10 @@ snapshots:
       '@solana/kit': 8.6.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@7.0.2)
       '@solana/kit-plugin-instruction-plan': 0.23.0(@solana/kit@8.6.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@7.0.2))
 
+  '@solana/kit-plugin-signer@0.23.0(@solana/kit@8.6.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@7.0.2))':
+    dependencies:
+      '@solana/kit': 8.6.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@7.0.2)
+
   '@solana/kit@5.5.1(fastestsmallesttextencoderdecoder@1.0.22)(typescript@7.0.2)':
     dependencies:
       '@solana/accounts': 5.5.1(fastestsmallesttextencoderdecoder@1.0.22)(typescript@7.0.2)
@@ -7917,6 +7953,27 @@ snapshots:
       '@solana/nominal-types': 8.6.0(typescript@7.0.2)
       '@solana/rpc-types': 8.6.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@7.0.2)
       '@solana/transaction-messages': 8.6.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@7.0.2)
+    optionalDependencies:
+      typescript: 7.0.2
+    transitivePeerDependencies:
+      - fastestsmallesttextencoderdecoder
+
+  '@solana/wallet-account-signer@8.6.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@7.0.2)':
+    dependencies:
+      '@solana/addresses': 8.6.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@7.0.2)
+      '@solana/codecs-core': 8.6.0(typescript@7.0.2)
+      '@solana/errors': 8.6.0(typescript@7.0.2)
+      '@solana/keys': 8.6.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@7.0.2)
+      '@solana/promises': 8.6.0(typescript@7.0.2)
+      '@solana/signers': 8.6.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@7.0.2)
+      '@solana/transaction-messages': 8.6.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@7.0.2)
+      '@solana/transactions': 8.6.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@7.0.2)
+      '@solana/wallet-standard-chains': 1.1.2
+      '@solana/wallet-standard-features': 1.5.0
+      '@wallet-standard/base': 1.1.1
+      '@wallet-standard/errors': 0.1.2
+      '@wallet-standard/ui': 1.0.3
+      '@wallet-standard/ui-registry': 1.1.1
     optionalDependencies:
       typescript: 7.0.2
     transitivePeerDependencies:
