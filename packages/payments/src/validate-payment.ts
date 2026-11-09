@@ -67,7 +67,7 @@ function sumReceivable(
 }
 
 /**
- * Checks that a confirmed transaction pays a Solana Pay transfer request:
+ * Checks that a finalized transaction pays a Solana Pay transfer request:
  * it succeeded, it includes every `reference`, and the recipient's token
  * accounts for the request's mint received exactly the amount.
  *
