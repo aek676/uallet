@@ -122,7 +122,11 @@ function fakeSource() {
 }
 
 function options() {
-  return { abortSignal: new AbortController().signal, retryDelaysMs: [0, 0] };
+  return {
+    abortSignal: new AbortController().signal,
+    retryDelaysMs: [0, 0],
+    lookBackIntervalMs: 1,
+  };
 }
 
 describe("waitForPayment", () => {
@@ -148,6 +152,44 @@ describe("waitForPayment", () => {
 
     expect(detected.signature).toBe(SIG_A);
     expect(source.getEarlier.mock.calls[0]?.[0]).toBe(REFERENCE);
+  });
+
+  it("finds a payment whose notification never arrived", async () => {
+    const { source } = fakeSource();
+    source.getEarlier
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([])
+      .mockResolvedValue([candidate(SIG_A)]);
+
+    const detected = await waitForPayment(source, request, EURC, options());
+
+    expect(detected.signature).toBe(SIG_A);
+    expect(source.getEarlier.mock.calls.length).toBeGreaterThanOrEqual(3);
+  });
+
+  it("tolerates failed look-backs that aren't in a row", async () => {
+    const { source } = fakeSource();
+    source.getEarlier
+      .mockRejectedValueOnce(new Error("429"))
+      .mockRejectedValueOnce(new Error("429"))
+      .mockResolvedValueOnce([])
+      .mockRejectedValueOnce(new Error("429"))
+      .mockRejectedValueOnce(new Error("429"))
+      .mockResolvedValue([candidate(SIG_A)]);
+
+    const detected = await waitForPayment(source, request, EURC, options());
+
+    expect(detected.signature).toBe(SIG_A);
+  });
+
+  it("rejects after three failed look-backs in a row", async () => {
+    const { source } = fakeSource();
+    source.getEarlier.mockRejectedValue(new Error("429"));
+
+    await expect(
+      waitForPayment(source, request, EURC, options()),
+    ).rejects.toThrow("429");
+    expect(source.getEarlier).toHaveBeenCalledTimes(3);
   });
 
   it("subscribes before looking for earlier payments", async () => {

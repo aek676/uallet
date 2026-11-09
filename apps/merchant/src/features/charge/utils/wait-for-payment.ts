@@ -50,9 +50,16 @@ export interface WaitForPaymentOptions {
    * announced. After the last one, waiting fails.
    */
   retryDelaysMs?: readonly number[];
+  /** How often to ask again for the transactions that mention the reference. */
+  lookBackIntervalMs?: number;
 }
 
 const RETRY_DELAYS_MS = [250, 500, 1000, 2000] as const;
+
+const LOOK_BACK_INTERVAL_MS = 1000;
+
+/** Failed look-backs in a row before giving up. */
+const MAX_FAILED_LOOK_BACKS = 3;
 
 function delay(ms: number, abortSignal: AbortSignal): Promise<void> {
   return getAbortablePromise(
@@ -69,8 +76,13 @@ function delay(ms: number, abortSignal: AbortSignal): Promise<void> {
  * (`validatePayment`). Anything else that mentions the reference is ignored
  * and it keeps waiting.
  *
- * Rejects if the connection drops, a request fails or `abortSignal` fires.
- * Calling it again is safe: it also looks at what landed before subscribing.
+ * It listens to the subscription and also keeps looking back: the
+ * subscription is the fast path, not a guarantee. RPCs drop notifications
+ * (devnet's public endpoint lost 11-20% of them when we measured it), and a
+ * dropped one would leave a paid charge waiting forever.
+ *
+ * Rejects if the subscription breaks, the requests fail or `abortSignal`
+ * fires. Calling it again is safe: it finds what landed in the meantime.
  */
 export async function waitForPayment(
   source: PaymentSource,
@@ -80,6 +92,7 @@ export async function waitForPayment(
     abortSignal,
     onChecking,
     retryDelaysMs = RETRY_DELAYS_MS,
+    lookBackIntervalMs = LOOK_BACK_INTERVAL_MS,
   }: WaitForPaymentOptions,
 ): Promise<DetectedPayment> {
   // The subscription takes one address. The wallet includes every reference
@@ -146,13 +159,24 @@ export async function waitForPayment(
         throw new Error("The payment subscription ended");
       })().catch(reject);
 
-      // What landed before the subscription was ready.
-      source
-        .getEarlier(reference, signal)
-        .then((earlier) => {
-          for (const candidate of earlier) handle(candidate);
-        })
-        .catch(reject);
+      // What landed before the subscription was ready, and from then on
+      // whatever the subscription didn't announce.
+      (async () => {
+        let failures = 0;
+        while (!signal.aborted) {
+          try {
+            const earlier = await source.getEarlier(reference, signal);
+            failures = 0;
+            for (const candidate of earlier) handle(candidate);
+          } catch (error) {
+            // One failed request isn't worth an error on screen while the
+            // subscription is alive.
+            failures += 1;
+            if (failures >= MAX_FAILED_LOOK_BACKS) throw error;
+          }
+          await delay(lookBackIntervalMs, signal);
+        }
+      })().catch(reject);
     });
   } catch (error) {
     // Report the caller's abort as such, whatever failed because of it.
