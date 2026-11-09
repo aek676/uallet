@@ -37,6 +37,9 @@ catalogs:
   wallet:
     "@web3auth/no-modal": 11.4.3
     "@wallet-standard/features": 1.1.1
+    barcode-detector: 3.2.3
+    # Exactly the version barcode-detector pins: we serve its .wasm from the app.
+    zxing-wasm: 3.1.6
   forms:
     "@tanstack/react-form": 1.33.5
     zod: 4.6.7

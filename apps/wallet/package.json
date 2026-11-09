@@ -30,11 +30,13 @@
     "@wallet-standard/features": "catalog:wallet",
     "@wallet-standard/ui-registry": "catalog:solana",
     "@web3auth/no-modal": "catalog:wallet",
+    "barcode-detector": "catalog:wallet",
     "lucide-react": "catalog:ui",
     "react": "catalog:react",
     "react-dom": "catalog:react",
     "sonner": "catalog:ui",
-    "zod": "catalog:forms"
+    "zod": "catalog:forms",
+    "zxing-wasm": "catalog:wallet"
   },
   "devDependencies": {
     "@repo/oxlint-config": "workspace:*",

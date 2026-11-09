@@ -1,5 +1,6 @@
 import type { Address } from "@solana/kit";
 import { revalidateLogic, useForm } from "@tanstack/react-form";
+import { ScanLineIcon } from "lucide-react";
 import { useId } from "react";
 import { z } from "zod";
 
@@ -14,15 +15,21 @@ import {
 } from "@repo/ui/components/card";
 import { Field, FieldError, FieldLabel } from "@repo/ui/components/field";
 import { Input } from "@repo/ui/components/input";
+import { Separator } from "@repo/ui/components/separator";
 
 import { createPaymentLinkSchema } from "#/features/pay/utils/payment-link";
 
 type PaymentLinkFormProps = {
   payer: Address;
   onRequest: (request: TransferRequest) => void;
+  onScan: () => void;
 };
 
-export function PaymentLinkForm({ payer, onRequest }: PaymentLinkFormProps) {
+export function PaymentLinkForm({
+  payer,
+  onRequest,
+  onScan,
+}: PaymentLinkFormProps) {
   const linkId = useId();
   const linkErrorId = useId();
 
@@ -41,9 +48,18 @@ export function PaymentLinkForm({ payer, onRequest }: PaymentLinkFormProps) {
     <Card className="w-full max-w-sm">
       <CardHeader>
         <CardTitle>Pagar</CardTitle>
-        <CardDescription>Pega el enlace de pago del comercio.</CardDescription>
+        <CardDescription>
+          Escanea el QR del comercio o pega su enlace.
+        </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex flex-col gap-4">
+        <Button onClick={onScan}>
+          <ScanLineIcon />
+          Escanear QR
+        </Button>
+        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+          <Separator className="flex-1" />o<Separator className="flex-1" />
+        </div>
         <form
           noValidate
           onSubmit={(event) => {
@@ -80,7 +96,9 @@ export function PaymentLinkForm({ payer, onRequest }: PaymentLinkFormProps) {
               );
             }}
           </form.Field>
-          <Button type="submit">Continuar</Button>
+          <Button type="submit" variant="outline">
+            Continuar
+          </Button>
         </form>
       </CardContent>
     </Card>
