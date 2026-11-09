@@ -1,0 +1,81 @@
+{
+  "signature": "BVyRxLQLRMQuW3rishL3MLF97KVXCkX2ebwZhEunC5o5ZTUHXJamkonoSpdk79Rt7uLkF14VCT3TgUm7ynCaG9g",
+  "reference": ["FB4F7rai1R7f6BUWWaZvdeni2Uses1Tz1Sm5yWEfYP5o"],
+  "slot": 520163951,
+  "meta": {
+    "err": null,
+    "fee": 5000,
+    "loadedAddresses": {
+      "readonly": [],
+      "writable": []
+    },
+    "preTokenBalances": [
+      {
+        "accountIndex": 1,
+        "mint": "HzwqbKZw8HxMN6bF2yFZNrht3c2iXXzpKcFu7uBEDKtr",
+        "owner": "xUo5vVMjVwiEGZurUHqbX27PXFjiSaKqKQ5rj8d52Ct",
+        "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+        "uiTokenAmount": {
+          "amount": "10000",
+          "decimals": 6,
+          "uiAmount": 0.01,
+          "uiAmountString": "0.01"
+        }
+      },
+      {
+        "accountIndex": 2,
+        "mint": "HzwqbKZw8HxMN6bF2yFZNrht3c2iXXzpKcFu7uBEDKtr",
+        "owner": "2sfAeaW2jwkP53mG4iaMKUJFG5Xvo5ms5Taqmne5Pyv7",
+        "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+        "uiTokenAmount": {
+          "amount": "39990000",
+          "decimals": 6,
+          "uiAmount": 39.99,
+          "uiAmountString": "39.99"
+        }
+      }
+    ],
+    "postTokenBalances": [
+      {
+        "accountIndex": 1,
+        "mint": "HzwqbKZw8HxMN6bF2yFZNrht3c2iXXzpKcFu7uBEDKtr",
+        "owner": "xUo5vVMjVwiEGZurUHqbX27PXFjiSaKqKQ5rj8d52Ct",
+        "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+        "uiTokenAmount": {
+          "amount": "20000",
+          "decimals": 6,
+          "uiAmount": 0.02,
+          "uiAmountString": "0.02"
+        }
+      },
+      {
+        "accountIndex": 2,
+        "mint": "HzwqbKZw8HxMN6bF2yFZNrht3c2iXXzpKcFu7uBEDKtr",
+        "owner": "2sfAeaW2jwkP53mG4iaMKUJFG5Xvo5ms5Taqmne5Pyv7",
+        "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+        "uiTokenAmount": {
+          "amount": "39980000",
+          "decimals": 6,
+          "uiAmount": 39.98,
+          "uiAmountString": "39.98"
+        }
+      }
+    ]
+  },
+  "transaction": {
+    "message": {
+      "accountKeys": [
+        "2sfAeaW2jwkP53mG4iaMKUJFG5Xvo5ms5Taqmne5Pyv7",
+        "5zoT3ZAYWueCPNxQsbvsCuuDLyCc8Sziqf7uDipTH9vo",
+        "CqP1qSjCngFX2nHpt5usf5u7QALoiLkj7n4jqTTkhbEW",
+        "11111111111111111111111111111111",
+        "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
+        "ComputeBudget111111111111111111111111111111",
+        "FB4F7rai1R7f6BUWWaZvdeni2Uses1Tz1Sm5yWEfYP5o",
+        "HzwqbKZw8HxMN6bF2yFZNrht3c2iXXzpKcFu7uBEDKtr",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+        "xUo5vVMjVwiEGZurUHqbX27PXFjiSaKqKQ5rj8d52Ct"
+      ]
+    }
+  }
+}
