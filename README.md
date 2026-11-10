@@ -29,7 +29,12 @@ Each package and app is 100% [TypeScript](https://www.typescriptlang.org/).
 
 ### Adding shadcn/ui components
 
-Run the CLI **from `packages/ui`**. The shadcn CLI doesn't support aube yet ([#1](https://github.com/aek676/uallet/issues/1)) and installs missing dependencies with `npm`, which fails on `catalog:` specifiers. Install them with aube first, so the CLI only has to copy files:
+Run the CLI **from `packages/ui`**. The shadcn CLI doesn't support aube yet ([#1](https://github.com/aek676/uallet/issues/1)):
+
+- It only finds workspaces through `pnpm-workspace.yaml` or `workspaces` in `package.json`, not `aube-workspace.yaml`. From the repo root it asks to create a `components.json` (answer no). From `apps/web` or `apps/docs` it fails with `Could not resolve the following aliases ... ui, utils`. The shadcn monorepo docs run `add` from the app, but that doesn't work here yet.
+- It installs missing dependencies with `npm`, which fails on `catalog:` specifiers.
+
+So install the dependencies with aube first, so the CLI only has to copy files:
 
 ```sh
 cd packages/ui
