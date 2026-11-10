@@ -22,6 +22,8 @@
     "@repo/payments": "workspace:*",
     "@repo/ui": "workspace:*",
     "@solana/kit": "catalog:solana",
+    "@solana/kit-plugin-rpc": "catalog:solana",
+    "@solana/react": "catalog:solana",
     "@tanstack/react-form": "catalog:forms",
     "lucide-react": "catalog:ui",
     "qrcode.react": "catalog:merchant",

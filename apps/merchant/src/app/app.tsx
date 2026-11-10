@@ -5,14 +5,20 @@ import { ThemeToggle } from "@repo/ui/components/theme-toggle";
 import { AppProvider } from "#/app/provider";
 import { merchant } from "#/config/merchant";
 import { ChargeForm } from "#/features/charge/components/charge-form";
-import { ChargeQr } from "#/features/charge/components/charge-qr";
+import { ChargePayment } from "#/features/charge/components/charge-payment";
 import type { Charge } from "#/features/charge/utils/create-charge";
 
 function Screen() {
   const [charge, setCharge] = useState<Charge | null>(null);
 
   if (charge) {
-    return <ChargeQr charge={charge} onCancel={() => setCharge(null)} />;
+    return (
+      <ChargePayment
+        key={charge.reference}
+        charge={charge}
+        onClose={() => setCharge(null)}
+      />
+    );
   }
 
   return <ChargeForm onCharge={setCharge} />;

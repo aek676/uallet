@@ -1,6 +1,7 @@
 import { LoaderCircleIcon } from "lucide-react";
 
 import { PAYMENT_TOKEN } from "@repo/payments/config";
+import { getExplorerTransactionUrl } from "@repo/payments/explorer";
 import { formatEuros } from "@repo/payments/format";
 import type { TransferRequest } from "@repo/payments/solana-pay";
 import { Button } from "@repo/ui/components/button";
@@ -16,7 +17,6 @@ import {
   type PaymentFailure,
   paymentFailureMessage,
 } from "#/features/pay/utils/payment-failure";
-import { getExplorerTransactionUrl } from "#/lib/explorer";
 import { solanaDevnet } from "#/lib/web3auth";
 
 type PaymentConfirmationProps = {

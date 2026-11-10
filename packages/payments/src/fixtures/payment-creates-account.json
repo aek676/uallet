@@ -1,0 +1,69 @@
+{
+  "signature": "2eQV3QW28jCTtWUjK8Fvc41Nq2k3i3iR9MXja1fBynPhmLy6qt1LBGAyfgeGtMy1zDEEeXZb2e1T3tswtE648C6v",
+  "reference": ["7HPDihqKqpaTnL3NTJko9u4LUHi36eiE1keXHbw3HX1E"],
+  "slot": 520127305,
+  "meta": {
+    "err": null,
+    "fee": 5000,
+    "loadedAddresses": {
+      "readonly": [],
+      "writable": []
+    },
+    "preTokenBalances": [
+      {
+        "accountIndex": 2,
+        "mint": "HzwqbKZw8HxMN6bF2yFZNrht3c2iXXzpKcFu7uBEDKtr",
+        "owner": "2sfAeaW2jwkP53mG4iaMKUJFG5Xvo5ms5Taqmne5Pyv7",
+        "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+        "uiTokenAmount": {
+          "amount": "40000000",
+          "decimals": 6,
+          "uiAmount": 40.0,
+          "uiAmountString": "40"
+        }
+      }
+    ],
+    "postTokenBalances": [
+      {
+        "accountIndex": 1,
+        "mint": "HzwqbKZw8HxMN6bF2yFZNrht3c2iXXzpKcFu7uBEDKtr",
+        "owner": "xUo5vVMjVwiEGZurUHqbX27PXFjiSaKqKQ5rj8d52Ct",
+        "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+        "uiTokenAmount": {
+          "amount": "10000",
+          "decimals": 6,
+          "uiAmount": 0.01,
+          "uiAmountString": "0.01"
+        }
+      },
+      {
+        "accountIndex": 2,
+        "mint": "HzwqbKZw8HxMN6bF2yFZNrht3c2iXXzpKcFu7uBEDKtr",
+        "owner": "2sfAeaW2jwkP53mG4iaMKUJFG5Xvo5ms5Taqmne5Pyv7",
+        "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+        "uiTokenAmount": {
+          "amount": "39990000",
+          "decimals": 6,
+          "uiAmount": 39.99,
+          "uiAmountString": "39.99"
+        }
+      }
+    ]
+  },
+  "transaction": {
+    "message": {
+      "accountKeys": [
+        "2sfAeaW2jwkP53mG4iaMKUJFG5Xvo5ms5Taqmne5Pyv7",
+        "5zoT3ZAYWueCPNxQsbvsCuuDLyCc8Sziqf7uDipTH9vo",
+        "CqP1qSjCngFX2nHpt5usf5u7QALoiLkj7n4jqTTkhbEW",
+        "11111111111111111111111111111111",
+        "7HPDihqKqpaTnL3NTJko9u4LUHi36eiE1keXHbw3HX1E",
+        "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
+        "ComputeBudget111111111111111111111111111111",
+        "HzwqbKZw8HxMN6bF2yFZNrht3c2iXXzpKcFu7uBEDKtr",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+        "xUo5vVMjVwiEGZurUHqbX27PXFjiSaKqKQ5rj8d52Ct"
+      ]
+    }
+  }
+}

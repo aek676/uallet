@@ -2,6 +2,7 @@ import type { Signature } from "@solana/kit";
 import { CircleCheckIcon, ExternalLinkIcon } from "lucide-react";
 
 import { PAYMENT_TOKEN } from "@repo/payments/config";
+import { getExplorerTransactionUrl } from "@repo/payments/explorer";
 import { formatEuros } from "@repo/payments/format";
 import type { TransferRequest } from "@repo/payments/solana-pay";
 import { Button } from "@repo/ui/components/button";
@@ -12,8 +13,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@repo/ui/components/card";
-
-import { getExplorerTransactionUrl } from "#/lib/explorer";
 
 type PaymentSuccessProps = {
   request: TransferRequest;

@@ -19,6 +19,19 @@ function solanaAddress(name: string, value: string): Address {
   return value;
 }
 
+function url(name: string, value: string, protocols: string[]): string {
+  let parsed: URL;
+  try {
+    parsed = new URL(value);
+  } catch (error) {
+    throw new Error(`${name} is not a valid URL: "${value}"`, { cause: error });
+  }
+  if (!protocols.includes(parsed.protocol)) {
+    throw new Error(`${name} must use ${protocols.join(" or ")}: "${value}"`);
+  }
+  return value;
+}
+
 function maxLength(name: string, value: string, max: number): string {
   if (value.length > max) {
     throw new Error(`${name} must be at most ${max} characters: "${value}"`);
@@ -37,5 +50,17 @@ export const env = {
     "VITE_MERCHANT_NAME",
     required("VITE_MERCHANT_NAME", import.meta.env.VITE_MERCHANT_NAME),
     MAX_NAME_LENGTH,
+  ),
+  /** Solana devnet RPC. Defaults to the public (rate-limited) endpoint. */
+  solanaRpcUrl: url(
+    "VITE_SOLANA_RPC_URL",
+    import.meta.env.VITE_SOLANA_RPC_URL || "https://api.devnet.solana.com",
+    ["https:", "http:"],
+  ),
+  /** Solana devnet WebSocket, to detect payments as they land. */
+  solanaWsUrl: url(
+    "VITE_SOLANA_WS_URL",
+    import.meta.env.VITE_SOLANA_WS_URL || "wss://api.devnet.solana.com",
+    ["wss:", "ws:"],
   ),
 } as const;
