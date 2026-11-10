@@ -2,6 +2,7 @@ import type { Address } from "@solana/kit";
 import { RefreshCwIcon } from "lucide-react";
 
 import { PAYMENT_TOKEN } from "@repo/payments/config";
+import { formatEuros, formatSol } from "@repo/payments/format";
 import { Button } from "@repo/ui/components/button";
 import {
   Card,
@@ -14,7 +15,6 @@ import { Skeleton } from "@repo/ui/components/skeleton";
 
 import { usePaymentTokenBalance } from "#/features/balance/hooks/use-payment-token-balance";
 import { useSolBalance } from "#/features/balance/hooks/use-sol-balance";
-import { formatEuros, formatSol } from "#/features/balance/utils/format-amount";
 import { solanaDevnet } from "#/lib/web3auth";
 
 /**

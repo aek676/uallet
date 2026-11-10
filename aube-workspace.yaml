@@ -36,6 +36,8 @@ catalogs:
   forms:
     "@tanstack/react-form": 1.33.5
     zod: 4.6.7
+  merchant:
+    qrcode.react: 4.2.0
 
 autoInstallPeers: true
 

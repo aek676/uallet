@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { formatEuros, formatSol } from "#/features/balance/utils/format-amount";
+import { formatEuros, formatSol } from "./format";
 
 // `Intl` separates the amount and the € sign with a non-breaking space.
 const normalize = (value: string) => value.replaceAll(" ", " ");

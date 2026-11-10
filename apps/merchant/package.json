@@ -1,0 +1,47 @@
+{
+  "name": "merchant",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "imports": {
+    "#/*": [
+      "./src/*",
+      "./src/*.ts",
+      "./src/*.tsx"
+    ]
+  },
+  "scripts": {
+    "dev": "vite --clearScreen false",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "oxlint --type-aware --type-check",
+    "lint:fix": "oxlint --type-aware --type-check --fix",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@repo/payments": "workspace:*",
+    "@repo/ui": "workspace:*",
+    "@solana/kit": "catalog:solana",
+    "@tanstack/react-form": "catalog:forms",
+    "lucide-react": "catalog:ui",
+    "qrcode.react": "catalog:merchant",
+    "react": "catalog:react",
+    "react-dom": "catalog:react",
+    "sonner": "catalog:ui",
+    "zod": "catalog:forms"
+  },
+  "devDependencies": {
+    "@repo/oxlint-config": "workspace:*",
+    "@repo/typescript-config": "workspace:*",
+    "@tailwindcss/vite": "catalog:styles",
+    "@types/react": "catalog:react",
+    "@types/react-dom": "catalog:react",
+    "@vitejs/plugin-react": "catalog:build",
+    "oxlint": "catalog:lint",
+    "oxlint-tsgolint": "catalog:lint",
+    "tailwindcss": "catalog:styles",
+    "typescript": "catalog:build",
+    "vite": "catalog:build",
+    "vitest": "catalog:test"
+  }
+}
