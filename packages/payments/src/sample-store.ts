@@ -15,15 +15,19 @@ export interface SampleStoreConfig<T> {
   storage?: SampleStorage | null;
 }
 
+/**
+ * Its functions don't use `this`: pass them around freely, for example to
+ * `useSyncExternalStore` or as an event handler.
+ */
 export interface SampleStore<T> {
   /**
    * The samples, oldest first. The same array until they change, as
    * `useSyncExternalStore` requires.
    */
-  getSnapshot(): readonly T[];
-  subscribe(listener: () => void): () => void;
-  add(sample: T): void;
-  clear(): void;
+  getSnapshot: () => readonly T[];
+  subscribe: (listener: () => void) => () => void;
+  add: (sample: T) => void;
+  clear: () => void;
 }
 
 function browserStorage(): SampleStorage | null {

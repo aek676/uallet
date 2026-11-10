@@ -67,3 +67,13 @@ export function formatDuration(ms: number): string {
     ? `${milliseconds.format(rounded)} ms`
     : `${seconds.format(rounded / 1000)} s`;
 }
+
+const dateTime = new Intl.DateTimeFormat("es-ES", {
+  dateStyle: "short",
+  timeStyle: "medium",
+});
+
+/** A `Date.now()` timestamp in local time: `"10/11/26, 9:05:07"`. */
+export function formatDateTime(timestamp: number): string {
+  return dateTime.format(timestamp);
+}
