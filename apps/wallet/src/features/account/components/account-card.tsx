@@ -1,4 +1,4 @@
-import { useWalletSession } from "@solana/react-hooks";
+import type { Address } from "@solana/kit";
 import {
   useWeb3AuthDisconnect,
   useWeb3AuthUser,
@@ -15,20 +15,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@repo/ui/components/card";
-import { Skeleton } from "@repo/ui/components/skeleton";
 
 import { solanaDevnet } from "#/lib/web3auth";
 import { shortenAddress } from "#/utils/shorten-address";
 
-export function AccountCard() {
+export function AccountCard({ address }: { address: Address }) {
   const { userInfo } = useWeb3AuthUser();
-  const session = useWalletSession();
   const web3AuthDisconnect = useWeb3AuthDisconnect();
 
-  const address = session?.account.address.toString();
-
   async function copyAddress() {
-    if (!address) return;
     try {
       await navigator.clipboard.writeText(address);
       toast.success("Dirección copiada");
@@ -58,23 +53,19 @@ export function AccountCard() {
         <span className="text-xs text-muted-foreground">
           Dirección en {solanaDevnet.displayName}
         </span>
-        {address ? (
-          <div className="flex items-center justify-between gap-2 rounded-lg border px-3 py-2">
-            <span className="font-mono text-sm" title={address}>
-              {shortenAddress(address)}
-            </span>
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              aria-label="Copiar dirección"
-              onClick={() => void copyAddress()}
-            >
-              <CopyIcon />
-            </Button>
-          </div>
-        ) : (
-          <Skeleton className="h-11 w-full" />
-        )}
+        <div className="flex items-center justify-between gap-2 rounded-lg border px-3 py-2">
+          <span className="font-mono text-sm" title={address}>
+            {shortenAddress(address)}
+          </span>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            aria-label="Copiar dirección"
+            onClick={() => void copyAddress()}
+          >
+            <CopyIcon />
+          </Button>
+        </div>
       </CardContent>
       <CardFooter>
         <Button

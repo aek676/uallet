@@ -1,6 +1,4 @@
-import { useWalletSession } from "@solana/react-hooks";
 import { useWeb3Auth } from "@web3auth/no-modal/react";
-import { useEffect, useState } from "react";
 
 import { Button } from "@repo/ui/components/button";
 import {
@@ -17,12 +15,7 @@ import { LoadingScreen } from "#/components/loading-screen";
 import { AccountCard } from "#/features/account/components/account-card";
 import { LoginForm } from "#/features/auth/components/login-form";
 import { BalanceCard } from "#/features/balance/components/balance-card";
-
-/**
- * How long to wait for the Solana wallet session once Web3Auth is connected.
- * Normally it takes a couple of seconds.
- */
-const WALLET_SESSION_TIMEOUT_MS = 15_000;
+import { useSolanaAccount } from "#/hooks/use-solana-account";
 
 function LoadErrorScreen() {
   return (
@@ -42,37 +35,21 @@ function LoadErrorScreen() {
   );
 }
 
-/**
- * Web3Auth can be connected while the Solana wallet session never arrives:
- * its `SolanaProvider` connects the wallet through our RPC and, if that
- * fails (RPC down, DNS error...), it only logs the error and leaves a client
- * without a wallet. Without a timeout the balance and address would show
- * skeletons forever.
- */
 function WalletScreen() {
-  const hasSession = useWalletSession() !== undefined;
-  const [timedOut, setTimedOut] = useState(false);
+  const account = useSolanaAccount();
 
-  useEffect(() => {
-    if (hasSession) return undefined;
-    const timeout = setTimeout(
-      () => setTimedOut(true),
-      WALLET_SESSION_TIMEOUT_MS,
-    );
-    return () => {
-      clearTimeout(timeout);
-      setTimedOut(false);
-    };
-  }, [hasSession]);
-
-  if (!hasSession && timedOut) {
+  if (account.status === "error") {
     return <LoadErrorScreen />;
+  }
+
+  if (account.status === "connecting") {
+    return <LoadingScreen />;
   }
 
   return (
     <div className="flex w-full max-w-sm flex-col gap-4">
-      <BalanceCard />
-      <AccountCard />
+      <BalanceCard owner={account.address} />
+      <AccountCard address={account.address} />
     </div>
   );
 }
