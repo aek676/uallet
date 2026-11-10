@@ -53,7 +53,7 @@ aubx shadcn@latest add <component>
 
 GitHub Actions runs on every pull request (stacked ones included) and on every push to `main`:
 
-- `.github/workflows/ci.yml`: format check, lint and type-check, package boundaries (`turbo boundaries`), build, `aube audit` (fails on `high` or `critical` advisories), and [TruffleHog](https://github.com/trufflesecurity/trufflehog) on the new commits to catch leaked secrets. Turborepo caches task results in the GitHub Actions cache, so unchanged packages hit cache.
+- `.github/workflows/ci.yml`: format check, lint and type-check, package boundaries (`turbo boundaries`), build, tests (`turbo run test`), `aube audit` (fails on `high` or `critical` advisories), and [TruffleHog](https://github.com/trufflesecurity/trufflehog) on the new commits to catch leaked secrets. Turborepo caches task results in the GitHub Actions cache, so unchanged packages hit cache.
 - `.github/workflows/pr-title.yml`: checks that the PR title follows [Conventional Commits](https://www.conventionalcommits.org). PRs are squash-merged, and the title becomes the commit title on `main`.
 - `.github/workflows/security.yml`: a weekly `aube audit`, and [zizmor](https://docs.zizmor.sh) on the workflows whenever `.github/` changes.
 
