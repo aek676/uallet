@@ -1,3 +1,4 @@
+import type { Signature } from "@solana/kit";
 import { LoaderCircleIcon } from "lucide-react";
 
 import { PAYMENT_TOKEN } from "@repo/payments/config";
@@ -23,6 +24,8 @@ type PaymentConfirmationProps = {
   request: TransferRequest;
   paying: boolean;
   failure: PaymentFailure | null;
+  /** A payment for this charge already on chain, if any. */
+  earlierPayment: Signature | null;
   onPay: () => void;
   onCancel: () => void;
 };
@@ -31,12 +34,15 @@ export function PaymentConfirmation({
   request,
   paying,
   failure,
+  earlierPayment,
   onPay,
   onCancel,
 }: PaymentConfirmationProps) {
   const { amount, label, message, recipient } = request;
-  // It may have gone through: paying again could charge twice.
-  const canPay = failure?.kind !== "unknown";
+  // It may have gone through, or it already did: paying again would charge
+  // twice. While paying, a payment that shows up is ours.
+  const alreadyPaid = earlierPayment !== null && !paying;
+  const canPay = failure?.kind !== "unknown" && !alreadyPaid;
 
   return (
     <Card className="w-full max-w-sm">
@@ -68,6 +74,22 @@ export function PaymentConfirmation({
             </dd>
           </div>
         </dl>
+        {alreadyPaid && !failure && (
+          <div role="alert" className="text-sm text-destructive">
+            <p>
+              Este cobro ya está pagado. Si no lo has pagado tú, pide al
+              comercio un cobro nuevo.
+            </p>
+            <a
+              href={getExplorerTransactionUrl(earlierPayment)}
+              target="_blank"
+              rel="noreferrer"
+              className="underline underline-offset-4"
+            >
+              Ver el pago en el Explorer
+            </a>
+          </div>
+        )}
         {failure && !paying && (
           <div role="alert" className="text-sm text-destructive">
             <p>{paymentFailureMessage(failure)}</p>

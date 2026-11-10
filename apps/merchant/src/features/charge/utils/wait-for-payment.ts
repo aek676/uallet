@@ -16,8 +16,8 @@ export interface PaymentCandidate {
 /** Where candidates and transactions come from: the RPC, or a fake in tests. */
 export interface PaymentSource {
   /**
-   * Resolves once subscribed, with the finalized transactions that mention
-   * `reference` from then on. Throws if the connection drops.
+   * Resolves once subscribed, with the transactions that mention `reference`
+   * from then on. Throws if the connection drops.
    */
   watch(
     reference: Address,
@@ -35,8 +35,15 @@ export interface PaymentSource {
   ): Promise<PaymentTransaction | null>;
 }
 
+/** What announced a transaction: the subscription, or looking back. */
+export type DetectionVia = "notification" | "look-back";
+
 export interface DetectedPayment {
   signature: Signature;
+  /** What announced the transaction first. */
+  via: DetectionVia;
+  /** `Date.now()` when the transaction was announced. */
+  noticedAt: number;
   /** `Date.now()` when the payment was validated. */
   detectedAt: number;
 }
@@ -61,6 +68,13 @@ const LOOK_BACK_INTERVAL_MS = 1000;
 /** Failed look-backs in a row before giving up. */
 const MAX_FAILED_LOOK_BACKS = 3;
 
+/**
+ * `logsSubscribe` also announces simulated transactions, with this all-zero
+ * signature. Wallets simulate a payment right before sending it, so it shows
+ * up just before the real one. It was never sent: there is nothing to fetch.
+ */
+const SIMULATION_SIGNATURE = "1".repeat(64);
+
 function delay(ms: number, abortSignal: AbortSignal): Promise<void> {
   return getAbortablePromise(
     new Promise<void>((resolve) => {
@@ -78,11 +92,13 @@ function delay(ms: number, abortSignal: AbortSignal): Promise<void> {
  *
  * It listens to the subscription and also keeps looking back: the
  * subscription is the fast path, not a guarantee. RPCs drop notifications
- * (devnet's public endpoint lost 11-20% of them when we measured it), and a
- * dropped one would leave a paid charge waiting forever.
+ * and limit connections (devnet's public endpoint allows 5 per IP), so a
+ * subscription that can't connect or breaks isn't an error: looking back
+ * finds the payment about a second later.
  *
- * Rejects if the subscription breaks, the requests fail or `abortSignal`
- * fires. Calling it again is safe: it finds what landed in the meantime.
+ * Rejects if looking back keeps failing, a transaction can't be read or
+ * `abortSignal` fires. Calling it again is safe: it finds what landed in the
+ * meantime.
  */
 export async function waitForPayment(
   source: PaymentSource,
@@ -120,54 +136,61 @@ export async function waitForPayment(
     throw new Error(`Transaction ${signature} is not available`);
   }
 
-  async function check({
-    signature,
-    err,
-  }: PaymentCandidate): Promise<DetectedPayment | null> {
-    // Failed transactions can't pay anything: skip the request.
-    if (err !== null || seen.has(signature)) return null;
+  async function check(
+    { signature, err }: PaymentCandidate,
+    via: DetectionVia,
+  ): Promise<DetectedPayment | null> {
+    // Failed and simulated transactions can't pay anything: skip the request.
+    if (err !== null || signature === SIMULATION_SIGNATURE) return null;
+    if (seen.has(signature)) return null;
     seen.add(signature);
+    const noticedAt = Date.now();
 
     checking += 1;
     onChecking?.(true);
+    let paid = false;
     try {
       const transaction = await fetchTransaction(signature);
-      return validatePayment(transaction, request, token).valid
-        ? { signature, detectedAt: Date.now() }
+      paid = validatePayment(transaction, request, token).valid;
+      return paid
+        ? { signature, via, noticedAt, detectedAt: Date.now() }
         : null;
     } finally {
       checking -= 1;
-      if (checking === 0) onChecking?.(false);
+      // Once paid, stay "checking" until the caller shows it: going back to
+      // waiting first flashes "Esperando pago…" before "Pagado".
+      if (checking === 0 && !paid) onChecking?.(false);
     }
   }
 
   try {
-    const candidates = await source.watch(reference, signal);
-
     return await new Promise<DetectedPayment>((resolve, reject) => {
-      function handle(candidate: PaymentCandidate) {
-        check(candidate).then((payment) => {
+      function handle(candidate: PaymentCandidate, via: DetectionVia) {
+        check(candidate, via).then((payment) => {
           if (payment) resolve(payment);
         }, reject);
       }
 
-      // Start reading before anything else: Kit drops the notifications
-      // that arrive before the first read.
+      // The fast path. Without it the payment is still found by looking
+      // back, so failing to subscribe or losing the connection is ignored.
       (async () => {
-        for await (const candidate of candidates) handle(candidate);
-        // The iterable ends when aborted, otherwise we stopped hearing.
-        throw new Error("The payment subscription ended");
-      })().catch(reject);
+        const candidates = await source.watch(reference, signal);
+        // Read right away: Kit drops the notifications that arrive before
+        // the first read.
+        for await (const candidate of candidates) {
+          handle(candidate, "notification");
+        }
+      })().catch(() => {});
 
       // What landed before the subscription was ready, and from then on
-      // whatever the subscription didn't announce.
+      // whatever it didn't announce.
       (async () => {
         let failures = 0;
         while (!signal.aborted) {
           try {
             const earlier = await source.getEarlier(reference, signal);
             failures = 0;
-            for (const candidate of earlier) handle(candidate);
+            for (const candidate of earlier) handle(candidate, "look-back");
           } catch (error) {
             // One failed request isn't worth an error on screen while the
             // subscription is alive.

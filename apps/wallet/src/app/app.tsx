@@ -15,6 +15,7 @@ import { LoadingScreen } from "#/components/loading-screen";
 import { AccountCard } from "#/features/account/components/account-card";
 import { LoginForm } from "#/features/auth/components/login-form";
 import { BalanceCard } from "#/features/balance/components/balance-card";
+import { MetricsCard } from "#/features/metrics/components/metrics-card";
 import { PayCard } from "#/features/pay/components/pay-card";
 import { useSolanaAccount } from "#/hooks/use-solana-account";
 
@@ -52,6 +53,7 @@ function WalletScreen() {
       <BalanceCard owner={account.address} />
       <PayCard signer={account.signer} />
       <AccountCard address={account.address} />
+      <MetricsCard />
     </div>
   );
 }

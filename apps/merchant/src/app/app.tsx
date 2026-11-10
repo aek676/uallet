@@ -7,6 +7,7 @@ import { merchant } from "#/config/merchant";
 import { ChargeForm } from "#/features/charge/components/charge-form";
 import { ChargePayment } from "#/features/charge/components/charge-payment";
 import type { Charge } from "#/features/charge/utils/create-charge";
+import { MetricsCard } from "#/features/metrics/components/metrics-card";
 
 function Screen() {
   const [charge, setCharge] = useState<Charge | null>(null);
@@ -35,8 +36,9 @@ export function App() {
           </span>
           <ThemeToggle />
         </header>
-        <main className="flex flex-1 items-center justify-center p-6">
+        <main className="flex flex-1 flex-col items-center justify-center gap-4 p-6">
           <Screen />
+          <MetricsCard />
         </main>
       </div>
     </AppProvider>

@@ -10,6 +10,7 @@ import {
   waitForPayment,
 } from "#/features/charge/utils/wait-for-payment";
 import type { SolanaClient } from "#/lib/solana-client";
+import { chargeTimings, toChargeTiming } from "#/stores/charge-timings";
 
 export type ChargePaymentState =
   | { status: "waiting" }
@@ -22,19 +23,24 @@ export type ChargePaymentState =
 /**
  * Watches the chain for the payment of `charge` while mounted. Mount it once
  * per charge (`key`): it doesn't start over when the charge changes.
+ *
+ * It keeps how each payment was detected in `chargeTimings`.
  */
 export function useChargePayment(charge: Charge) {
   const client = useClient<SolanaClient>();
   const [checking, setChecking] = useState(false);
 
   const { dispatch, data, isError, isRunning } = useAction(
-    (abortSignal: AbortSignal) =>
-      waitForPayment(
+    async (abortSignal: AbortSignal) => {
+      const payment = await waitForPayment(
         createRpcPaymentSource(client),
         charge.request,
         PAYMENT_TOKEN,
         { abortSignal, onChecking: setChecking },
-      ),
+      );
+      chargeTimings.add(toChargeTiming(payment));
+      return payment;
+    },
   );
 
   // Listen while mounted: `useAction` aborts the call when it unmounts.

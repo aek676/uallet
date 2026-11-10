@@ -2,7 +2,7 @@ import { CircleCheckIcon, ExternalLinkIcon } from "lucide-react";
 
 import { PAYMENT_TOKEN } from "@repo/payments/config";
 import { getExplorerTransactionUrl } from "@repo/payments/explorer";
-import { formatEuros } from "@repo/payments/format";
+import { formatDuration, formatEuros } from "@repo/payments/format";
 import { Button } from "@repo/ui/components/button";
 import {
   Card,
@@ -14,6 +14,7 @@ import {
 
 import type { Charge } from "#/features/charge/utils/create-charge";
 import type { DetectedPayment } from "#/features/charge/utils/wait-for-payment";
+import { toChargeTiming, VIA_LABELS } from "#/stores/charge-timings";
 
 type ChargePaidProps = {
   charge: Charge;
@@ -36,7 +37,7 @@ export function ChargePaid({ charge, payment, onDone }: ChargePaidProps) {
           <p className="wrap-break-word text-muted-foreground">{message}</p>
         )}
       </CardHeader>
-      <CardContent className="flex justify-center text-sm">
+      <CardContent className="flex flex-col items-center gap-2 text-sm">
         <a
           href={getExplorerTransactionUrl(payment.signature)}
           target="_blank"
@@ -46,6 +47,10 @@ export function ChargePaid({ charge, payment, onDone }: ChargePaidProps) {
           Ver en el Explorer
           <ExternalLinkIcon className="size-3.5" aria-hidden />
         </a>
+        <p className="text-xs text-muted-foreground">
+          Detectado por {VIA_LABELS[payment.via]} · comprobado en{" "}
+          {formatDuration(toChargeTiming(payment).validateMs)}
+        </p>
       </CardContent>
       <CardFooter>
         <Button size="lg" className="w-full" onClick={onDone}>

@@ -7,12 +7,13 @@ import { PaymentConfirmation } from "#/features/pay/components/payment-confirmat
 import { PaymentLinkForm } from "#/features/pay/components/payment-link-form";
 import { PaymentSuccess } from "#/features/pay/components/payment-success";
 import { QrScanner } from "#/features/pay/components/qr-scanner";
+import { useEarlierPayment } from "#/features/pay/hooks/use-earlier-payment";
 import { usePayment } from "#/features/pay/hooks/use-payment";
 
 export function PayCard({ signer }: { signer: TransactionSigner }) {
   const [request, setRequest] = useState<TransferRequest | null>(null);
   const [scanning, setScanning] = useState(false);
-  const { pay, paying, signature, failure, reset } = usePayment(signer);
+  const { pay, paying, signature, timing, failure, reset } = usePayment(signer);
 
   function close() {
     reset();
@@ -42,12 +43,17 @@ export function PayCard({ signer }: { signer: TransactionSigner }) {
 
   if (signature) {
     return (
-      <PaymentSuccess request={request} signature={signature} onDone={close} />
+      <PaymentSuccess
+        request={request}
+        signature={signature}
+        timing={timing}
+        onDone={close}
+      />
     );
   }
 
   return (
-    <PaymentConfirmation
+    <ChargeConfirmation
       request={request}
       paying={paying}
       failure={failure}
@@ -55,4 +61,12 @@ export function PayCard({ signer }: { signer: TransactionSigner }) {
       onCancel={close}
     />
   );
+}
+
+/** The confirmation, checking meanwhile whether the charge is already paid. */
+function ChargeConfirmation(
+  props: Omit<Parameters<typeof PaymentConfirmation>[0], "earlierPayment">,
+) {
+  const earlierPayment = useEarlierPayment(props.request);
+  return <PaymentConfirmation {...props} earlierPayment={earlierPayment} />;
 }

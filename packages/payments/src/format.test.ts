@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { formatEuros, formatSol } from "./format";
+import {
+  formatDateTime,
+  formatDuration,
+  formatEuros,
+  formatSol,
+} from "./format";
 
 // `Intl` separates the amount and the € sign with a non-breaking space.
 const normalize = (value: string) => value.replaceAll(" ", " ");
@@ -42,5 +47,28 @@ describe("formatSol", () => {
     [123_456_789n, "0,1234 SOL"],
   ])("formats %s lamports as %s", (lamports, expected) => {
     expect(formatSol(lamports)).toBe(expected);
+  });
+});
+
+describe("formatDuration", () => {
+  it.each([
+    [0, "0 ms"],
+    [18, "18 ms"],
+    [850, "850 ms"],
+    [999.4, "999 ms"],
+    [999.6, "1,00 s"],
+    [1000, "1,00 s"],
+    [1234, "1,23 s"],
+    [12_345, "12,35 s"],
+  ])("formats %s ms as %s", (ms, expected) => {
+    expect(formatDuration(ms)).toBe(expected);
+  });
+});
+
+describe("formatDateTime", () => {
+  it("formats a timestamp in local time, seconds included", () => {
+    const timestamp = new Date(2026, 10, 10, 9, 5, 7).getTime();
+
+    expect(formatDateTime(timestamp)).toBe("10/11/26, 9:05:07");
   });
 });
