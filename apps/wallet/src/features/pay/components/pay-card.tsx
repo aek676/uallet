@@ -7,6 +7,7 @@ import { PaymentConfirmation } from "#/features/pay/components/payment-confirmat
 import { PaymentLinkForm } from "#/features/pay/components/payment-link-form";
 import { PaymentSuccess } from "#/features/pay/components/payment-success";
 import { QrScanner } from "#/features/pay/components/qr-scanner";
+import { useEarlierPayment } from "#/features/pay/hooks/use-earlier-payment";
 import { usePayment } from "#/features/pay/hooks/use-payment";
 
 export function PayCard({ signer }: { signer: TransactionSigner }) {
@@ -52,7 +53,7 @@ export function PayCard({ signer }: { signer: TransactionSigner }) {
   }
 
   return (
-    <PaymentConfirmation
+    <ChargeConfirmation
       request={request}
       paying={paying}
       failure={failure}
@@ -60,4 +61,12 @@ export function PayCard({ signer }: { signer: TransactionSigner }) {
       onCancel={close}
     />
   );
+}
+
+/** The confirmation, checking meanwhile whether the charge is already paid. */
+function ChargeConfirmation(
+  props: Omit<Parameters<typeof PaymentConfirmation>[0], "earlierPayment">,
+) {
+  const earlierPayment = useEarlierPayment(props.request);
+  return <PaymentConfirmation {...props} earlierPayment={earlierPayment} />;
 }
