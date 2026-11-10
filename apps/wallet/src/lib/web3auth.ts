@@ -11,7 +11,7 @@ import { env } from "#/config/env";
  * Solana devnet, declared here instead of in the dashboard so the RPC comes
  * from our env. Web3Auth identifies Solana devnet as chain `0x67`.
  */
-const solanaDevnet: CustomChainConfig = {
+export const solanaDevnet: CustomChainConfig = {
   chainNamespace: CHAIN_NAMESPACES.SOLANA,
   chainId: "0x67",
   rpcTarget: env.solanaRpcUrl,

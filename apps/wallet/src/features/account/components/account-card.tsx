@@ -17,6 +17,7 @@ import {
 } from "@repo/ui/components/card";
 import { Skeleton } from "@repo/ui/components/skeleton";
 
+import { solanaDevnet } from "#/lib/web3auth";
 import { shortenAddress } from "#/utils/shorten-address";
 
 export function AccountCard() {
@@ -55,7 +56,7 @@ export function AccountCard() {
       </CardHeader>
       <CardContent className="flex flex-col gap-2">
         <span className="text-xs text-muted-foreground">
-          Dirección de Solana (devnet)
+          Dirección en {solanaDevnet.displayName}
         </span>
         {address ? (
           <div className="flex items-center justify-between gap-2 rounded-lg border px-3 py-2">
