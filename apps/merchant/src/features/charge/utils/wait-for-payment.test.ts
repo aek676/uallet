@@ -30,6 +30,9 @@ const SIG_B = signature(
   "BVyRxLQLRMQuW3rishL3MLF97KVXCkX2ebwZhEunC5o5ZTUHXJamkonoSpdk79Rt7uLkF14VCT3TgUm7ynCaG9g",
 );
 
+/** What `logsSubscribe` announces for a simulated transaction. */
+const SIMULATED = signature("1".repeat(64));
+
 const AMOUNT = 1_200_000n;
 const REFERENCE = createReference();
 
@@ -196,15 +199,24 @@ describe("waitForPayment", () => {
     expect(source.getEarlier).toHaveBeenCalledTimes(3);
   });
 
-  it("subscribes before looking for earlier payments", async () => {
-    const { source } = fakeSource();
-    source.getEarlier.mockResolvedValue([candidate(SIG_A)]);
+  it("ignores the notification of a simulated transaction", async () => {
+    const { source, notify } = fakeSource();
+    const onChecking = vi.fn<(checking: boolean) => void>();
 
-    await waitForPayment(source, request, EURC, options());
+    const paid = waitForPayment(source, request, EURC, {
+      ...options(),
+      onChecking,
+    });
+    notify(candidate(SIMULATED));
+    await vi.waitFor(() =>
+      expect(source.getEarlier.mock.calls.length).toBeGreaterThanOrEqual(3),
+    );
+    expect(source.getTransaction).not.toHaveBeenCalled();
+    expect(onChecking).not.toHaveBeenCalled();
 
-    const [subscribed] = source.watch.mock.invocationCallOrder;
-    const [lookedBack] = source.getEarlier.mock.invocationCallOrder;
-    expect(subscribed).toBeLessThan(lookedBack ?? 0);
+    notify(candidate(SIG_A));
+    expect((await paid).signature).toBe(SIG_A);
+    expect(source.getTransaction).toHaveBeenCalledTimes(1);
   });
 
   it("ignores failed transactions without fetching them", async () => {
@@ -308,23 +320,49 @@ describe("waitForPayment", () => {
     expect(source.getTransaction).toHaveBeenCalledTimes(2);
   });
 
-  it("rejects when the subscription breaks", async () => {
+  it("keeps looking back when the subscription breaks", async () => {
     const { source, notify } = fakeSource();
 
     const paid = waitForPayment(source, request, EURC, options());
     notify(new Error("socket closed"));
+    await vi.waitFor(() =>
+      expect(source.getEarlier.mock.calls.length).toBeGreaterThanOrEqual(3),
+    );
+    source.getEarlier.mockResolvedValue([candidate(SIG_A)]);
 
-    await expect(paid).rejects.toThrow("socket closed");
+    expect(await paid).toMatchObject({ signature: SIG_A, via: "look-back" });
   });
 
-  it("rejects when it can't subscribe", async () => {
+  it("finds the payment when it can't subscribe", async () => {
     const { source } = fakeSource();
     source.watch.mockRejectedValue(new Error("no connection"));
+    source.getEarlier
+      .mockResolvedValueOnce([])
+      .mockResolvedValue([candidate(SIG_A)]);
+
+    const detected = await waitForPayment(source, request, EURC, options());
+
+    expect(detected).toMatchObject({ signature: SIG_A, via: "look-back" });
+  });
+
+  it("finds the payment while subscribing never finishes", async () => {
+    const { source } = fakeSource();
+    source.watch.mockReturnValue(new Promise(() => {}));
+    source.getEarlier.mockResolvedValue([candidate(SIG_A)]);
+
+    const detected = await waitForPayment(source, request, EURC, options());
+
+    expect(detected).toMatchObject({ signature: SIG_A, via: "look-back" });
+  });
+
+  it("rejects when it can neither subscribe nor look back", async () => {
+    const { source } = fakeSource();
+    source.watch.mockRejectedValue(new Error("no connection"));
+    source.getEarlier.mockRejectedValue(new Error("offline"));
 
     await expect(
       waitForPayment(source, request, EURC, options()),
-    ).rejects.toThrow("no connection");
-    expect(source.getEarlier).not.toHaveBeenCalled();
+    ).rejects.toThrow("offline");
   });
 
   it("rejects when a request fails", async () => {
