@@ -7,6 +7,9 @@ import type { Web3AuthContextConfig } from "@web3auth/no-modal/react";
 
 import { env } from "#/config/env";
 
+/** The chain of `solanaDevnet`, as Wallet Standard names it. */
+export const SOLANA_CHAIN = "solana:devnet";
+
 /**
  * Solana devnet, declared here instead of in the dashboard so the RPC comes
  * from our env. Web3Auth identifies Solana devnet as chain `0x67`.

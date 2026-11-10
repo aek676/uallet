@@ -16,22 +16,27 @@
     "preview": "vite preview",
     "lint": "oxlint --type-aware --type-check",
     "lint:fix": "oxlint --type-aware --type-check --fix",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run"
   },
   "dependencies": {
     "@repo/payments": "workspace:*",
     "@repo/ui": "workspace:*",
     "@solana/kit": "catalog:solana",
     "@solana/kit-plugin-rpc": "catalog:solana",
+    "@solana/kit-plugin-signer": "catalog:solana",
     "@solana/react": "catalog:solana",
+    "@solana/wallet-account-signer": "catalog:solana",
     "@tanstack/react-form": "catalog:forms",
     "@wallet-standard/features": "catalog:wallet",
+    "@wallet-standard/ui-registry": "catalog:solana",
     "@web3auth/no-modal": "catalog:wallet",
+    "barcode-detector": "catalog:wallet",
     "lucide-react": "catalog:ui",
     "react": "catalog:react",
     "react-dom": "catalog:react",
     "sonner": "catalog:ui",
-    "zod": "catalog:forms"
+    "zod": "catalog:forms",
+    "zxing-wasm": "catalog:wallet"
   },
   "devDependencies": {
     "@repo/oxlint-config": "workspace:*",
