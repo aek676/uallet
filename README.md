@@ -48,3 +48,32 @@ aube add <dependencies>
 # 3. Add the component
 aubx shadcn@latest add <component>
 ```
+
+## CI
+
+GitHub Actions runs on every pull request (stacked ones included) and on every push to `main`:
+
+- `.github/workflows/ci.yml`: format check, lint and type-check, package boundaries (`turbo boundaries`), build, and `aube audit` (fails on `high` or `critical` advisories). Turborepo caches task results in the GitHub Actions cache, so unchanged packages hit cache.
+- `.github/workflows/security.yml`: a weekly `aube audit`, and [zizmor](https://docs.zizmor.sh) on the workflows whenever `.github/` changes.
+
+Branch protection only needs to require the **CI OK** check: it fails if any CI job fails.
+
+Install with a frozen lockfile, as CI does, to catch a `package.json` change without its lockfile update:
+
+```sh
+aube install --frozen-lockfile
+```
+
+## Updating dependencies
+
+Dependabot only updates the GitHub Actions. It doesn't support aube, so it can't update `aube-lock.yaml` or the catalogs in `aube-workspace.yaml`. Update npm dependencies by hand with aube:
+
+```sh
+# See what's outdated
+aube outdated -r
+
+# Pick what to update, and how far
+aube update -i -r
+```
+
+Commit `package.json`, `aube-workspace.yaml` and `aube-lock.yaml` together.
