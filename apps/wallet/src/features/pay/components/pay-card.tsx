@@ -12,7 +12,7 @@ import { usePayment } from "#/features/pay/hooks/use-payment";
 export function PayCard({ signer }: { signer: TransactionSigner }) {
   const [request, setRequest] = useState<TransferRequest | null>(null);
   const [scanning, setScanning] = useState(false);
-  const { pay, paying, signature, failure, reset } = usePayment(signer);
+  const { pay, paying, signature, timing, failure, reset } = usePayment(signer);
 
   function close() {
     reset();
@@ -42,7 +42,12 @@ export function PayCard({ signer }: { signer: TransactionSigner }) {
 
   if (signature) {
     return (
-      <PaymentSuccess request={request} signature={signature} onDone={close} />
+      <PaymentSuccess
+        request={request}
+        signature={signature}
+        timing={timing}
+        onDone={close}
+      />
     );
   }
 
