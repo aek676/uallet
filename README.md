@@ -6,8 +6,9 @@ Monorepo ([Turborepo](https://turborepo.dev) + [aube](https://aube.jdx.dev)) for
 
 ### Apps and Packages
 
-- `wallet`: the student wallet app ([Vite](https://vite.dev) + React)
+- `wallet`: the student wallet app ([Vite](https://vite.dev) + React). See its [README](apps/wallet/README.md) for setup
 - `docs`: the living style guide: design tokens and every `@repo/ui` component with its variants
+- `@repo/payments`: shared payment logic (payment token config, amounts, Solana Pay links)
 - `@repo/ui`: design system: [shadcn/ui](https://ui.shadcn.com) components (Base UI primitives) + Tailwind CSS v4 design tokens
 - `@repo/oxlint-config`: shared [Oxlint](https://oxc.rs/docs/guide/usage/linter.html) configuration (`@repo/oxlint-config/react` for React workspaces)
 - `@repo/typescript-config`: shared `tsconfig.json` files (`react.json` for React workspaces)

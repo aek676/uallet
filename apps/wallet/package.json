@@ -21,9 +21,13 @@
     "@repo/ui": "workspace:*",
     "@solana/kit": "catalog:solana",
     "@solana/react-hooks": "catalog:solana",
+    "@tanstack/react-form": "catalog:forms",
     "@web3auth/no-modal": "catalog:wallet",
+    "lucide-react": "catalog:ui",
     "react": "catalog:react",
-    "react-dom": "catalog:react"
+    "react-dom": "catalog:react",
+    "sonner": "catalog:ui",
+    "zod": "catalog:forms"
   },
   "devDependencies": {
     "@repo/oxlint-config": "workspace:*",

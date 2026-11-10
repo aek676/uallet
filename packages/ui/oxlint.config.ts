@@ -17,6 +17,14 @@ export default defineConfig({
       },
     },
     {
+      // `<Field>` groups one label and control; `<FieldSet>` is the
+      // `<fieldset>` for groups of fields.
+      files: ["src/components/field.tsx"],
+      rules: {
+        "jsx-a11y/prefer-tag-over-role": "off",
+      },
+    },
+    {
       // shadcn's `toaster` marker class has no CSS.
       files: ["src/components/sonner.tsx"],
       rules: {

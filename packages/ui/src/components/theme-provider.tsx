@@ -14,6 +14,11 @@ function ThemeProvider({ children }: { children: React.ReactNode }) {
       defaultTheme="system"
       enableSystem
       disableTransitionOnChange
+      // next-themes renders an inline <script> meant for server rendering.
+      // Our apps are client-only, where React 19 never runs it and warns.
+      // A data-block type silences the warning; next-themes still applies the
+      // theme from its own effect.
+      scriptProps={{ type: "application/json" }}
     >
       <TooltipProvider>{children}</TooltipProvider>
     </NextThemesProvider>
