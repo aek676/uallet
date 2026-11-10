@@ -113,6 +113,7 @@ jobs:
         uses: trufflesecurity/trufflehog@ea68ca03c865c5f324e86e849ced20ed3cf9dbbb # v3.99.8
         with:
           # The action pulls the `latest` CLI image by default: pin it too.
+          # Dependabot only bumps the action: keep this in sync with its tag.
           version: 3.99.8@sha256:674b2f187620a19df77f44cf9a7d77efcc581a5662accef2f2739cbb46ba4a3a
           extra_args: --results=verified,unknown
 
