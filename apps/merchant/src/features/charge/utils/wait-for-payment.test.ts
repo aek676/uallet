@@ -139,7 +139,9 @@ describe("waitForPayment", () => {
     const detected = await paid;
 
     expect(detected.signature).toBe(SIG_A);
-    expect(detected.detectedAt).toBeGreaterThanOrEqual(before);
+    expect(detected.via).toBe("notification");
+    expect(detected.noticedAt).toBeGreaterThanOrEqual(before);
+    expect(detected.detectedAt).toBeGreaterThanOrEqual(detected.noticedAt);
     expect(source.watch.mock.calls[0]?.[0]).toBe(REFERENCE);
     expect(source.getTransaction.mock.calls[0]?.[0]).toBe(SIG_A);
   });
@@ -151,6 +153,7 @@ describe("waitForPayment", () => {
     const detected = await waitForPayment(source, request, EURC, options());
 
     expect(detected.signature).toBe(SIG_A);
+    expect(detected.via).toBe("look-back");
     expect(source.getEarlier.mock.calls[0]?.[0]).toBe(REFERENCE);
   });
 
@@ -164,6 +167,7 @@ describe("waitForPayment", () => {
     const detected = await waitForPayment(source, request, EURC, options());
 
     expect(detected.signature).toBe(SIG_A);
+    expect(detected.via).toBe("look-back");
     expect(source.getEarlier.mock.calls.length).toBeGreaterThanOrEqual(3);
   });
 
@@ -248,6 +252,47 @@ describe("waitForPayment", () => {
 
     await expect(paid).rejects.toThrow("is not available");
     expect(source.getTransaction).toHaveBeenCalledTimes(3);
+  });
+
+  it("times the validation from the announcement, retries included", async () => {
+    const { source, notify } = fakeSource();
+    source.getTransaction
+      .mockResolvedValueOnce(null)
+      .mockResolvedValue(payment());
+
+    const paid = waitForPayment(source, request, EURC, {
+      ...options(),
+      retryDelaysMs: [30],
+    });
+    notify(candidate(SIG_A));
+    const detected = await paid;
+
+    // Timers may fire a little early: leave some margin.
+    expect(detected.detectedAt - detected.noticedAt).toBeGreaterThanOrEqual(25);
+  });
+
+  it("reports what announced the transaction first", async () => {
+    const { source, notify } = fakeSource();
+    let release: (() => void) | undefined;
+    source.getTransaction.mockImplementation(async () => {
+      await new Promise<void>((resolve) => {
+        release = resolve;
+      });
+      return payment();
+    });
+
+    const paid = waitForPayment(source, request, EURC, options());
+    notify(candidate(SIG_A));
+    await vi.waitFor(() => expect(release).toBeDefined());
+    // Looking back sees it too while it's being validated.
+    source.getEarlier.mockResolvedValue([candidate(SIG_A)]);
+    await vi.waitFor(() =>
+      expect(source.getEarlier.mock.calls.length).toBeGreaterThanOrEqual(3),
+    );
+    release?.();
+
+    expect((await paid).via).toBe("notification");
+    expect(source.getTransaction).toHaveBeenCalledTimes(1);
   });
 
   it("checks a transaction once, even if it arrives twice", async () => {

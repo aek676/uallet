@@ -35,8 +35,15 @@ export interface PaymentSource {
   ): Promise<PaymentTransaction | null>;
 }
 
+/** What announced a transaction: the subscription, or looking back. */
+export type DetectionVia = "notification" | "look-back";
+
 export interface DetectedPayment {
   signature: Signature;
+  /** What announced the transaction first. */
+  via: DetectionVia;
+  /** `Date.now()` when the transaction was announced. */
+  noticedAt: number;
   /** `Date.now()` when the payment was validated. */
   detectedAt: number;
 }
@@ -120,20 +127,21 @@ export async function waitForPayment(
     throw new Error(`Transaction ${signature} is not available`);
   }
 
-  async function check({
-    signature,
-    err,
-  }: PaymentCandidate): Promise<DetectedPayment | null> {
+  async function check(
+    { signature, err }: PaymentCandidate,
+    via: DetectionVia,
+  ): Promise<DetectedPayment | null> {
     // Failed transactions can't pay anything: skip the request.
     if (err !== null || seen.has(signature)) return null;
     seen.add(signature);
+    const noticedAt = Date.now();
 
     checking += 1;
     onChecking?.(true);
     try {
       const transaction = await fetchTransaction(signature);
       return validatePayment(transaction, request, token).valid
-        ? { signature, detectedAt: Date.now() }
+        ? { signature, via, noticedAt, detectedAt: Date.now() }
         : null;
     } finally {
       checking -= 1;
@@ -145,8 +153,8 @@ export async function waitForPayment(
     const candidates = await source.watch(reference, signal);
 
     return await new Promise<DetectedPayment>((resolve, reject) => {
-      function handle(candidate: PaymentCandidate) {
-        check(candidate).then((payment) => {
+      function handle(candidate: PaymentCandidate, via: DetectionVia) {
+        check(candidate, via).then((payment) => {
           if (payment) resolve(payment);
         }, reject);
       }
@@ -154,7 +162,9 @@ export async function waitForPayment(
       // Start reading before anything else: Kit drops the notifications
       // that arrive before the first read.
       (async () => {
-        for await (const candidate of candidates) handle(candidate);
+        for await (const candidate of candidates) {
+          handle(candidate, "notification");
+        }
         // The iterable ends when aborted, otherwise we stopped hearing.
         throw new Error("The payment subscription ended");
       })().catch(reject);
@@ -167,7 +177,7 @@ export async function waitForPayment(
           try {
             const earlier = await source.getEarlier(reference, signal);
             failures = 0;
-            for (const candidate of earlier) handle(candidate);
+            for (const candidate of earlier) handle(candidate, "look-back");
           } catch (error) {
             // One failed request isn't worth an error on screen while the
             // subscription is alive.
