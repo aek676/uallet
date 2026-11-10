@@ -50,3 +50,20 @@ export function formatSol(lamports: bigint): string {
   }
   return `${sol.format(toDecimal(lamports, SOL_DECIMALS))} SOL`;
 }
+
+const milliseconds = new Intl.NumberFormat("es-ES", {
+  maximumFractionDigits: 0,
+});
+
+const seconds = new Intl.NumberFormat("es-ES", {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+});
+
+/** `850` -> `"850 ms"`, `1234` -> `"1,23 s"`. */
+export function formatDuration(ms: number): string {
+  const rounded = Math.round(ms);
+  return rounded < 1000
+    ? `${milliseconds.format(rounded)} ms`
+    : `${seconds.format(rounded / 1000)} s`;
+}
