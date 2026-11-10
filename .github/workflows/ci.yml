@@ -29,7 +29,7 @@ jobs:
           persist-credentials: false
 
       - name: Setup
-        uses: ./.github/actions/setup
+        uses: $/.github/actions/setup
 
       - name: Check formatting
         run: aube exec --no-install oxfmt --check
@@ -45,12 +45,12 @@ jobs:
           persist-credentials: false
 
       - name: Setup
-        uses: ./.github/actions/setup
+        uses: $/.github/actions/setup
         with:
-          turbo-cache: false
+          turbo-cache: true
 
       - name: Lint and type-check
-        run: aube exec --no-install turbo run lint --ui=stream --continue=dependencies-successful
+        run: aube exec --no-install turbo run lint --continue=dependencies-successful
 
       - name: Check package boundaries
         run: aube exec --no-install turbo boundaries
@@ -66,12 +66,12 @@ jobs:
           persist-credentials: false
 
       - name: Setup
-        uses: ./.github/actions/setup
+        uses: $/.github/actions/setup
         with:
-          turbo-cache: "true"
+          turbo-cache: true
 
       - name: Build
-        run: aube exec --no-install turbo run build --ui=stream --continue=dependencies-successful --summarize
+        run: aube exec --no-install turbo run build --continue=dependencies-successful --summarize
 
       - name: Upload the Turborepo run summary
         if: ${{ !cancelled() }}
@@ -93,15 +93,33 @@ jobs:
           persist-credentials: false
 
       - name: Setup
-        uses: ./.github/actions/setup
+        uses: $/.github/actions/setup
 
       - name: Audit dependencies
         run: aube audit --audit-level=high
 
+  secrets:
+    name: Scan for secrets
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0 # scans the commits between the base and the head
+          persist-credentials: false
+
+      - name: Scan new commits for secrets
+        uses: trufflesecurity/trufflehog@ea68ca03c865c5f324e86e849ced20ed3cf9dbbb # v3.99.8
+        with:
+          # The action pulls the `latest` CLI image by default: pin it too.
+          version: 3.99.8@sha256:674b2f187620a19df77f44cf9a7d77efcc581a5662accef2f2739cbb46ba4a3a
+          extra_args: --results=verified,unknown
+
   ci-ok:
     name: CI OK
     if: always()
-    needs: [format, lint, build, audit]
+    needs: [format, lint, build, audit, secrets]
     runs-on: ubuntu-slim
     timeout-minutes: 5
     steps:
