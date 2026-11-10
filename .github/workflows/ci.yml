@@ -33,7 +33,7 @@ jobs:
         uses: $/.github/actions/setup
 
       - name: Check formatting
-        run: aube exec --no-install oxfmt --check
+        run: aube exec --no-install turbo run format
 
   lint:
     name: Lint and type-check

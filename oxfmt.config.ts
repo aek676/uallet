@@ -5,5 +5,18 @@ export default defineConfig({
   ignorePatterns: ["aube-lock.yaml"],
   sortImports: {
     internalPattern: ["@repo/"],
+    groups: [
+      "builtin",
+      "external",
+      "internal",
+      "subpath",
+      ["parent", "sibling", "index"],
+      "style",
+      "unknown",
+    ],
+  },
+  sortTailwindcss: {
+    stylesheet: "./packages/ui/src/styles/globals.css",
+    functions: ["cn", "cva"],
   },
 });

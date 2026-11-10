@@ -4,7 +4,7 @@ Shared [Oxlint](https://oxc.rs/docs/guide/usage/linter.html) configuration for t
 
 ## Usage
 
-Add `@repo/oxlint-config`, `oxlint` and `oxlint-tsgolint` as dev dependencies of the workspace, set its `lint` script to `oxlint --type-aware --type-check`, and create an `oxlint.config.ts` (use `oxlint.config.mts` if the package has no `"type": "module"`):
+Add `@repo/oxlint-config`, `oxlint` and `oxlint-tsgolint` as dev dependencies of the workspace, set its `lint` script to `oxlint --type-aware --type-check` and its `lint:fix` script to `oxlint --type-aware --type-check --fix`, and create an `oxlint.config.ts` (use `oxlint.config.mts` if the package has no `"type": "module"`):
 
 ```ts
 import { defineConfig } from "oxlint";

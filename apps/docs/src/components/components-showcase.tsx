@@ -6,7 +6,6 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
-import { Example, Section } from "#components/section";
 import { Badge } from "@repo/ui/components/badge";
 import { Button } from "@repo/ui/components/button";
 import {
@@ -51,6 +50,8 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@repo/ui/components/tooltip";
+
+import { Example, Section } from "#components/section";
 
 export function ComponentsSection() {
   return (

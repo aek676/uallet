@@ -1,12 +1,13 @@
+import { Toaster } from "@repo/ui/components/sonner";
+import { ThemeProvider } from "@repo/ui/components/theme-provider";
+import { ThemeToggle } from "@repo/ui/components/theme-toggle";
+
 import { ComponentsSection } from "#components/components-showcase";
 import {
   ColorsSection,
   RadiusSection,
   TypographySection,
 } from "#components/foundations";
-import { Toaster } from "@repo/ui/components/sonner";
-import { ThemeProvider } from "@repo/ui/components/theme-provider";
-import { ThemeToggle } from "@repo/ui/components/theme-toggle";
 
 const nav = [
   { href: "#colores", label: "Colores" },

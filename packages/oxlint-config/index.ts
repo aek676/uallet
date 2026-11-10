@@ -1,7 +1,7 @@
 import { defineConfig } from "oxlint";
 
 export default defineConfig({
-  plugins: ["typescript", "unicorn", "oxc"],
+  plugins: ["typescript", "unicorn", "oxc", "import"],
   categories: {
     correctness: "error",
     suspicious: "warn",
@@ -14,8 +14,12 @@ export default defineConfig({
     // In `suspicious` (warn); promoted to errors.
     "preserve-caught-error": "error",
     "typescript/no-unnecessary-type-constraint": "error",
+    "import/no-unassigned-import": ["error", { allow: ["**/*.css"] }],
 
     // Not in any enabled category.
+    "import/no-cycle": "error",
+    "oxc/no-barrel-file": ["error", { threshold: 0 }],
+    "unicorn/filename-case": ["error", { case: "kebabCase" }],
     "no-array-constructor": "error",
     "no-case-declarations": "error",
     "no-empty": "error",
@@ -81,6 +85,13 @@ export default defineConfig({
       },
       env: {
         browser: true,
+      },
+    },
+    {
+      files: ["**/*.test.ts", "**/*.test.tsx"],
+      plugins: ["vitest"],
+      rules: {
+        "vitest/no-identical-title": "error",
       },
     },
   ],

@@ -1,0 +1,9 @@
+pre-commit:
+  piped: true
+  jobs:
+    - name: format
+      run: aube exec oxfmt --no-error-on-unmatched-pattern {staged_files}
+      stage_fixed: true
+    - name: lint
+      glob: "*.{js,jsx,mjs,cjs,ts,tsx,mts,cts}"
+      run: aube exec oxlint --type-aware --type-check --no-error-on-unmatched-pattern {staged_files}

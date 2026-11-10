@@ -6,11 +6,13 @@
     "build": "turbo run build",
     "dev": "turbo run dev",
     "lint": "turbo run lint",
-    "format": "oxfmt",
-    "format:check": "oxfmt --check",
+    "lint:fix": "turbo run lint:fix",
+    "format": "oxfmt --check",
+    "format:fix": "oxfmt",
     "test": "turbo run test"
   },
   "devDependencies": {
+    "lefthook": "2.2.1",
     "oxfmt": "0.76.0",
     "oxlint": "catalog:lint",
     "oxlint-tsgolint": "catalog:lint",
