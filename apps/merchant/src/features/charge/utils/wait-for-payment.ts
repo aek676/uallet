@@ -148,14 +148,18 @@ export async function waitForPayment(
 
     checking += 1;
     onChecking?.(true);
+    let paid = false;
     try {
       const transaction = await fetchTransaction(signature);
-      return validatePayment(transaction, request, token).valid
+      paid = validatePayment(transaction, request, token).valid;
+      return paid
         ? { signature, via, noticedAt, detectedAt: Date.now() }
         : null;
     } finally {
       checking -= 1;
-      if (checking === 0) onChecking?.(false);
+      // Once paid, stay "checking" until the caller shows it: going back to
+      // waiting first flashes "Esperando pago…" before "Pagado".
+      if (checking === 0 && !paid) onChecking?.(false);
     }
   }
 

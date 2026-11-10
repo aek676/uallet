@@ -425,7 +425,8 @@ describe("waitForPayment", () => {
 
     notify(candidate(SIG_B));
     await paid;
-    expect(onChecking.mock.calls).toEqual([[true], [false], [true], [false]]);
+    // Not back to waiting once paid: the screen goes straight to "Pagado".
+    expect(onChecking.mock.calls).toEqual([[true], [false], [true]]);
   });
 
   it("throws for a charge without reference", async () => {
