@@ -1,0 +1,20 @@
+# Only GitHub Actions. npm dependencies are updated by hand with aube (see the
+# README): Dependabot doesn't support aube, so it can't update aube-lock.yaml
+# or the catalogs in aube-workspace.yaml.
+version: 2
+
+updates:
+  - package-ecosystem: github-actions
+    directories:
+      - "/"
+      - "/.github/actions/*"
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    groups:
+      github-actions:
+        patterns: ["*"]
+    commit-message:
+      prefix: chore
+      include: scope
