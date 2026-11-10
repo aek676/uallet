@@ -122,7 +122,7 @@ importers:
         specifier: catalog:build
         version: 8.2.2(jiti@2.7.0)
 
-  apps/web:
+  apps/wallet:
     dependencies:
       '@repo/ui':
         specifier: workspace:*
