@@ -5,7 +5,7 @@ import {
 } from "@web3auth/no-modal";
 import type { Web3AuthContextConfig } from "@web3auth/no-modal/react";
 
-import { env } from "#lib/env";
+import { env } from "#/config/env";
 
 /**
  * Solana devnet, declared here instead of in the dashboard so the RPC comes
