@@ -2,7 +2,12 @@
   "$schema": "https://turborepo.dev/schema.json",
   "ui": "tui",
   "globalDependencies": [".env*"],
-  "globalPassThroughEnv": ["VARLOCK_TELEMETRY_DISABLED"],
+  "globalPassThroughEnv": [
+    "VARLOCK_TELEMETRY_DISABLED",
+    "CLAUDE_CODE_SESSION_ID",
+    "CLAUDE_SESSION_ID",
+    "CODEX_THREAD_ID"
+  ],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
