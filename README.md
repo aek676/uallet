@@ -63,25 +63,21 @@ The pre-commit hook runs `varlock scan --staged`, which blocks a commit containi
 
 ### Adding shadcn/ui components
 
-Run the CLI **from `packages/ui`**. The shadcn CLI doesn't support aube yet ([#1](https://github.com/aek676/uallet/issues/1)):
-
-- It only finds workspaces through `pnpm-workspace.yaml` or `workspaces` in `package.json`, not `aube-workspace.yaml`. From the repo root it asks to create a `components.json` (answer no). From `apps/web` or `apps/docs` it fails with `Could not resolve the following aliases ... ui, utils`. The shadcn monorepo docs run `add` from the app, but that doesn't work here yet.
-- It installs missing dependencies with `npm`, which fails on `catalog:` specifiers.
-
-So install the dependencies with aube first, so the CLI only has to copy files:
+Run the CLI **from `packages/ui`**, with the shadcn binary installed there:
 
 ```sh
+eval "$(aube activate zsh)"   # once per shell, or add it to your shell rc
 cd packages/ui
-
-# 1. List the component's dependencies ("Dependencies")
-aubx shadcn@latest add <component> --dry-run
-
-# 2. Install the ones that are missing
-aube add <dependencies>
-
-# 3. Add the component
-aubx shadcn@latest add <component>
+./node_modules/.bin/shadcn add <component>
 ```
+
+The shadcn CLI doesn't support aube yet ([#1](https://github.com/aek676/uallet/issues/1)), hence these steps:
+
+- **Missing dependencies:** shadcn installs them with `npm`. `aube activate` puts aube's `npm` shim first in `PATH`, and since aube 2.10.0 the shim accepts the `--no-audit`/`--no-fund` flags that shadcn passes. The `aube` on your `PATH` has to be 2.10.0 or later itself: the shim fails with `unknown option '--no-audit'` on 2.9.0. Check it with `aube --version`.
+- **Run the binary directly:** `aube exec shadcn` and `aubx shadcn` put the real `npm` ahead of the shim, which fails on `catalog:` specifiers (`EUNSUPPORTEDPROTOCOL`).
+- **Not from the apps:** shadcn only finds workspaces through `pnpm-workspace.yaml` or `workspaces` in `package.json`, not `aube-workspace.yaml`. From the repo root it asks to create a `components.json` (answer no). From an app it fails with `Could not resolve the following aliases ... ui, utils`. aube only reads `package.json#workspaces` when there is no workspace YAML, so adding it would be a second list that nothing keeps in sync.
+
+shadcn adds new dependencies with a plain version range. Move them to a catalog in `aube-workspace.yaml` if other packages share them.
 
 ## CI
 
