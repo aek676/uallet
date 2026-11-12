@@ -1,48 +1,17 @@
 /**
- * Validated environment variables. Fails at startup instead of at payment
- * time. To be replaced by Varlock.
+ * Environment variables, loaded and validated by Varlock at build time (see
+ * `.env.schema`). A missing or invalid value fails `vite dev` / `vite build`
+ * instead of failing at payment time.
  *
  * Everything here ends up in the browser bundle: never put secrets in it.
  */
+import { ENV as VARLOCK_ENV } from "varlock/env";
 
-function required(name: string, value: string | undefined): string {
-  if (!value) {
-    throw new Error(
-      `Missing ${name}. Copy apps/wallet/.env.example to .env.local and fill it in.`,
-    );
-  }
-  return value;
-}
-
-function url(name: string, value: string, protocols: string[]): string {
-  let parsed: URL;
-  try {
-    parsed = new URL(value);
-  } catch (error) {
-    throw new Error(`${name} is not a valid URL: "${value}"`, { cause: error });
-  }
-  if (!protocols.includes(parsed.protocol)) {
-    throw new Error(`${name} must use ${protocols.join(" or ")}: "${value}"`);
-  }
-  return value;
-}
-
-export const env = {
+export const ENV = {
   /** MetaMask Embedded Wallets client ID. Public by design. */
-  web3AuthClientId: required(
-    "VITE_WEB3AUTH_CLIENT_ID",
-    import.meta.env.VITE_WEB3AUTH_CLIENT_ID,
-  ),
-  /** Solana devnet RPC. Defaults to the public (rate-limited) endpoint. */
-  solanaRpcUrl: url(
-    "VITE_SOLANA_RPC_URL",
-    import.meta.env.VITE_SOLANA_RPC_URL || "https://api.devnet.solana.com",
-    ["https:", "http:"],
-  ),
+  web3AuthClientId: VARLOCK_ENV.VITE_WEB3AUTH_CLIENT_ID,
+  /** Solana devnet RPC. */
+  solanaRpcUrl: VARLOCK_ENV.VITE_SOLANA_RPC_URL,
   /** Solana devnet WebSocket, to listen for confirmations. */
-  solanaWsUrl: url(
-    "VITE_SOLANA_WS_URL",
-    import.meta.env.VITE_SOLANA_WS_URL || "wss://api.devnet.solana.com",
-    ["wss:", "ws:"],
-  ),
+  solanaWsUrl: VARLOCK_ENV.VITE_SOLANA_WS_URL,
 } as const;

@@ -5,7 +5,7 @@ import {
 } from "@web3auth/no-modal";
 import type { Web3AuthContextConfig } from "@web3auth/no-modal/react";
 
-import { env } from "#/config/env";
+import { ENV } from "#/config/env";
 
 /** The chain of `solanaDevnet`, as Wallet Standard names it. */
 export const SOLANA_CHAIN = "solana:devnet";
@@ -17,8 +17,8 @@ export const SOLANA_CHAIN = "solana:devnet";
 export const solanaDevnet: CustomChainConfig = {
   chainNamespace: CHAIN_NAMESPACES.SOLANA,
   chainId: "0x67",
-  rpcTarget: env.solanaRpcUrl,
-  wsTarget: env.solanaWsUrl,
+  rpcTarget: ENV.solanaRpcUrl,
+  wsTarget: ENV.solanaWsUrl,
   displayName: "Solana Devnet",
   blockExplorerUrl: "https://explorer.solana.com/?cluster=devnet",
   ticker: "SOL",
@@ -34,7 +34,7 @@ export const solanaDevnet: CustomChainConfig = {
  */
 export const web3AuthConfig: Web3AuthContextConfig = {
   web3AuthOptions: {
-    clientId: env.web3AuthClientId,
+    clientId: ENV.web3AuthClientId,
     // Sapphire Mainnet doesn't allow localhost origins.
     web3AuthNetwork: WEB3AUTH_NETWORK.SAPPHIRE_DEVNET,
     chains: [solanaDevnet],
