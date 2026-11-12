@@ -7,10 +7,10 @@ inputs:
   node-version:
     description: >
       Node.js version. `auto` can't be used: mise doesn't accept the
-      `>=24.20.0` range from `devEngines.runtime`, so this is the lowest
+      `>=26.13.1` range from `devEngines.runtime`, so this is the lowest
       major that `engines.node` allows.
     required: false
-    default: "24"
+    default: "26"
   turbo-cache:
     description: Connect Turborepo to the GitHub Actions cache ("true"/"false").
     required: false
