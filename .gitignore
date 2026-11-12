@@ -9,3 +9,13 @@ dist-ssr
 .cache
 server/dist
 public/dist
+
+# Include .env.schema, .env.<dev|preview|prod|...> file
+# exclude local overrides
+.env
+.env.*
+!.env.schema
+!.env.test
+
+# Exclude generated env types file
+env.d.ts
