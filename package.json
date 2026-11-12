@@ -12,11 +12,13 @@
     "test": "turbo run test"
   },
   "devDependencies": {
+    "@varlock/infisical-plugin": "catalog:env",
     "lefthook": "2.2.1",
     "oxfmt": "0.76.0",
     "oxlint": "catalog:lint",
     "oxlint-tsgolint": "catalog:lint",
-    "turbo": "^2.11.10"
+    "turbo": "^2.11.10",
+    "varlock": "catalog:env"
   },
   "devEngines": {
     "packageManager": {

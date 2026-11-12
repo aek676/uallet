@@ -1,18 +1,24 @@
 {
   "$schema": "https://turborepo.dev/schema.json",
   "ui": "tui",
+  "globalDependencies": [".env*"],
+  "globalPassThroughEnv": ["VARLOCK_TELEMETRY_DISABLED"],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "env": ["VITE_*"],
+      "env": ["APP_ENV", "VITE_*"],
       "outputs": ["dist/**"]
     },
     "transit": {
       "dependsOn": ["^transit"]
     },
+    "codegen": {
+      "inputs": [".env.schema"],
+      "outputs": ["env.d.ts"]
+    },
     "lint": {
-      "dependsOn": ["transit"]
+      "dependsOn": ["transit", "codegen"]
     },
     "lint:fix": {
       "cache": false
@@ -22,6 +28,7 @@
       "cache": false
     },
     "dev": {
+      "env": ["APP_ENV"],
       "cache": false,
       "persistent": true
     },

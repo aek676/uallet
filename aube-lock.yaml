@@ -18,6 +18,16 @@ catalogs:
     vite:
       specifier: 8.2.2
       version: 8.2.2
+  env:
+    '@varlock/infisical-plugin':
+      specifier: 2.1.3
+      version: 2.1.3
+    '@varlock/vite-integration':
+      specifier: 1.5.5
+      version: 1.5.5
+    varlock:
+      specifier: 1.24.0
+      version: 1.24.0
   forms:
     '@tanstack/react-form':
       specifier: 1.33.5
@@ -113,6 +123,9 @@ importers:
 
   .:
     devDependencies:
+      '@varlock/infisical-plugin':
+        specifier: catalog:env
+        version: 2.1.3(varlock@1.24.0)
       lefthook:
         specifier: 2.2.1
         version: 2.2.1
@@ -131,6 +144,9 @@ importers:
       turbo:
         specifier: ^2.11.10
         version: 2.11.10
+      varlock:
+        specifier: catalog:env
+        version: 1.24.0
 
   apps/docs:
     dependencies:
@@ -219,6 +235,9 @@ importers:
       sonner:
         specifier: catalog:ui
         version: 2.0.8(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      varlock:
+        specifier: catalog:env
+        version: 1.24.0
       zod:
         specifier: catalog:forms
         version: 4.6.7
@@ -238,6 +257,12 @@ importers:
       '@types/react-dom':
         specifier: catalog:react
         version: 19.3.0(@types/react@19.3.0)
+      '@varlock/infisical-plugin':
+        specifier: catalog:env
+        version: 2.1.3(varlock@1.24.0)
+      '@varlock/vite-integration':
+        specifier: catalog:env
+        version: 1.5.5(varlock@1.24.0)(vite@8.2.2(@types/node@22.7.5)(jiti@2.7.0))
       '@vitejs/plugin-react':
         specifier: catalog:build
         version: 6.2.1(vite@8.2.2(@types/node@22.7.5)(jiti@2.7.0))
@@ -310,6 +335,9 @@ importers:
       sonner:
         specifier: catalog:ui
         version: 2.0.8(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      varlock:
+        specifier: catalog:env
+        version: 1.24.0
       zod:
         specifier: catalog:forms
         version: 4.6.7
@@ -332,6 +360,12 @@ importers:
       '@types/react-dom':
         specifier: catalog:react
         version: 19.3.0(@types/react@19.3.0)
+      '@varlock/infisical-plugin':
+        specifier: catalog:env
+        version: 2.1.3(varlock@1.24.0)
+      '@varlock/vite-integration':
+        specifier: catalog:env
+        version: 1.5.5(varlock@1.24.0)(vite@8.2.2(@types/node@22.7.5)(jiti@2.7.0))
       '@vitejs/plugin-react':
         specifier: catalog:build
         version: 6.2.1(vite@8.2.2(@types/node@22.7.5)(jiti@2.7.0))
@@ -3094,6 +3128,37 @@ packages:
     cpu: [x64]
     os: [win32]
 
+  '@varlock/infisical-plugin@2.1.3':
+    resolution: {integrity: sha512-Hb/PVOMSA08/L1WOteYXLZuzl7O2Pq7fy+nrFUgYilPfBCXAoTxWmQqcEY60nafonUPt/+fj8PD8Cx1MJD7tkg==}
+    engines: {node: '>=22'}
+    peerDependencies:
+      varlock: ^1.22.0
+
+  '@varlock/native-helper-darwin@1.24.0':
+    resolution: {integrity: sha512-/uMRBzTZxdtlwyszdPbamFojDfRQYTNY0l20SoX8UoTXrI+Kq7B3tt2ZDP0WfOhb9EAP1egAewBuGLj8NzemMQ==}
+    os: [darwin]
+
+  '@varlock/native-helper-linux-arm64@1.24.0':
+    resolution: {integrity: sha512-o2cMTiRtFNMNijxQxb8I7L6aQnEOTxB4QKYIZKAqbjoUCAFhStCwl1n2hj1J/rvCegSSaJT040T7r4culNZEqg==}
+    cpu: [arm64]
+    os: [linux]
+
+  '@varlock/native-helper-linux-x64@1.24.0':
+    resolution: {integrity: sha512-gToIgVYiYBf5rEdgM2nUV+r/5pPdQWZu6/GW4uZQqYQ0ApRL3ZTPXF2D9FWnDXDhI5CyXnckxokzP5azcSRDBA==}
+    cpu: [x64]
+    os: [linux]
+
+  '@varlock/native-helper-win32-x64@1.24.0':
+    resolution: {integrity: sha512-qudkH54KfX8dBmsQyAlC8BYlPwrxF0Drg6q4MHHVC7l7taTClYNqf6M6xRdIoNynyPDKTTPNjpOvoHwvRanEpg==}
+    os: [win32, linux]
+
+  '@varlock/vite-integration@1.5.5':
+    resolution: {integrity: sha512-Dq3V/g2Kxxoj4eb6igBXgH7RdS1yn6bnoCWLPc0HiXN+wMnFHwR+vWRqZbeak7lgTYpiEWIQcde0S4Ig1r5nAA==}
+    engines: {node: '>=22'}
+    peerDependencies:
+      varlock: ^1.24.0
+      vite: '>=5'
+
   '@vitejs/plugin-react@6.2.1':
     resolution: {integrity: sha512-9KyWCij3r0+qLG3Q62vBmv0VyevmYibAtxaCIVK9o0k6CXgaajZRIe8tpfchQcdZArJ5b/7OrIz4W3b2uxVRDA==}
     engines: {node: ^20.19.0 || >=22.12.0}
@@ -5271,6 +5336,11 @@ packages:
   validate-npm-package-name@7.0.2:
     resolution: {integrity: sha512-hVDIBwsRruT73PbK7uP5ebUt+ezEtCmzZz3F59BSr2F6OVFnJ/6h8liuvdLrQ88Xmnk6/+xGGuq+pG9WwTuy3A==}
     engines: {node: ^20.17.0 || >=22.9.0}
+
+  varlock@1.24.0:
+    resolution: {integrity: sha512-BSns65LcQUfW8jzx/4wKfL7CYlfEzK8YwhGBS5OOzzmAyK/zooNCERvDhnjVOcFqWDcZVBSxB3tmo1FWeHRqMA==}
+    engines: {bun: '>=1.3.3', node: '>=22.3.0'}
+    hasBin: true
 
   viem@2.57.16:
     resolution: {integrity: sha512-+4uaUw3NfkqjaqsZp8Zci94K33oc9rv7mIUgvPduJxsY/tI0ASi2YkaXoUVSBGfdIw/QPWuVnIf9LTFf35IoMg==}
@@ -8438,6 +8508,27 @@ snapshots:
   '@typescript/typescript-win32-x64@7.0.2':
     optional: true
 
+  '@varlock/infisical-plugin@2.1.3(varlock@1.24.0)':
+    dependencies:
+      varlock: 1.24.0
+
+  '@varlock/native-helper-darwin@1.24.0':
+    optional: true
+
+  '@varlock/native-helper-linux-arm64@1.24.0':
+    optional: true
+
+  '@varlock/native-helper-linux-x64@1.24.0':
+    optional: true
+
+  '@varlock/native-helper-win32-x64@1.24.0':
+    optional: true
+
+  '@varlock/vite-integration@1.5.5(varlock@1.24.0)(vite@8.2.2(@types/node@22.7.5)(jiti@2.7.0))':
+    dependencies:
+      varlock: 1.24.0
+      vite: 8.2.2(@types/node@22.7.5)(jiti@2.7.0)
+
   '@vitejs/plugin-react@6.2.1(vite@8.2.2(@types/node@22.7.5)(jiti@2.7.0))':
     dependencies:
       '@rolldown/pluginutils': 1.0.1
@@ -10700,6 +10791,13 @@ snapshots:
   uuid@9.0.1: {}
 
   validate-npm-package-name@7.0.2: {}
+
+  varlock@1.24.0:
+    optionalDependencies:
+      '@varlock/native-helper-darwin': 1.24.0
+      '@varlock/native-helper-linux-arm64': 1.24.0
+      '@varlock/native-helper-linux-x64': 1.24.0
+      '@varlock/native-helper-win32-x64': 1.24.0
 
   viem@2.57.16(typescript@7.0.2)(zod@4.6.7):
     dependencies:

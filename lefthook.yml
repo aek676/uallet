@@ -1,9 +1,14 @@
 pre-commit:
   piped: true
   jobs:
+    - name: secrets
+      run: _VARLOCK_FILTER=INFISICAL_CLIENT_SECRET aube exec varlock scan --staged
     - name: format
       run: aube exec oxfmt --no-error-on-unmatched-pattern {staged_files}
       stage_fixed: true
+    - name: codegen
+      glob: "*.{js,jsx,mjs,cjs,ts,tsx,mts,cts}"
+      run: aube exec turbo run codegen --output-logs=errors-only --ui=stream
     - name: lint
       glob: "*.{js,jsx,mjs,cjs,ts,tsx,mts,cts}"
       run: aube exec oxlint --type-aware --type-check --no-error-on-unmatched-pattern {staged_files}
