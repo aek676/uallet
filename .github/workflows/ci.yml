@@ -15,6 +15,9 @@ permissions: {}
 env:
   FORCE_COLOR: 3
   TURBO_TELEMETRY_DISABLED: 1
+  VARLOCK_TELEMETRY_DISABLED: 1
+  # Varlock loads the committed .env.test files: no Infisical access in CI.
+  APP_ENV: test
 
 jobs:
   format:
