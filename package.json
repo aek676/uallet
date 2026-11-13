@@ -12,24 +12,26 @@
     "test": "turbo run test"
   },
   "devDependencies": {
+    "@varlock/infisical-plugin": "catalog:env",
     "lefthook": "2.2.1",
-    "oxfmt": "0.76.0",
+    "oxfmt": "0.78.0",
     "oxlint": "catalog:lint",
     "oxlint-tsgolint": "catalog:lint",
-    "turbo": "^2.11.10"
+    "turbo": "^2.11.10",
+    "varlock": "catalog:env"
   },
   "devEngines": {
     "packageManager": {
       "name": "aube",
-      "version": "2.9.0"
+      "version": "2.10.0"
     },
     "runtime": {
       "name": "node",
-      "version": ">=24.20.0",
+      "version": ">=26.13.1",
       "onFail": "download"
     }
   },
   "engines": {
-    "node": ">=24.20.0"
+    "node": ">=26.13.1"
   }
 }

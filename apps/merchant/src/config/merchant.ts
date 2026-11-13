@@ -1,6 +1,6 @@
 import type { Address } from "@solana/kit";
 
-import { env } from "#/config/env";
+import { ENV } from "#/config/env";
 
 export interface Merchant {
   address: Address;
@@ -15,6 +15,6 @@ export interface Merchant {
  * registry in the backend, after the merchant logs in.
  */
 export const merchant: Merchant = {
-  address: env.merchantAddress,
-  name: env.merchantName,
+  address: ENV.merchantAddress,
+  name: ENV.merchantName,
 };

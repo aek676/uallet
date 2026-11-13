@@ -14,18 +14,16 @@ It doesn't need any funds: it only receives.
 
 ### 2. Environment variables
 
-```sh
-cp apps/merchant/.env.example apps/merchant/.env.local
-```
+In development they come from Infisical: follow the one-time setup in the [root README](../../README.md#environment-variables). They are declared in [`.env.schema`](.env.schema):
 
-| Variable                | Required | Notes                                                                                   |
-| ----------------------- | -------- | --------------------------------------------------------------------------------------- |
-| `VITE_MERCHANT_ADDRESS` | Yes      | Solana address that receives the payments.                                              |
-| `VITE_MERCHANT_NAME`    | Yes      | Shown to the student when paying (Solana Pay `label`). At most 40 characters.           |
-| `VITE_SOLANA_RPC_URL`   | No       | To detect payments. Defaults to `https://api.devnet.solana.com` (public, rate-limited). |
-| `VITE_SOLANA_WS_URL`    | No       | Defaults to `wss://api.devnet.solana.com`.                                              |
+| Variable                | Notes                                                                                                             |
+| ----------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `VITE_MERCHANT_ADDRESS` | Solana address that receives the payments. From Infisical; to use your own, set it in `apps/merchant/.env.local`. |
+| `VITE_MERCHANT_NAME`    | Shown to the student when paying (Solana Pay `label`). At most 40 characters. Set in the schema.                  |
+| `VITE_SOLANA_RPC_URL`   | Solana devnet RPC, to detect payments (shared with wallet, in the root schema).                                   |
+| `VITE_SOLANA_WS_URL`    | Solana devnet WebSocket (shared, in the root schema).                                                             |
 
-`src/config/env.ts` validates them at startup. **Everything here ends up in the browser bundle.** The address and the name are public anyway (they go in the QR code). A dedicated RPC URL embeds an API key: restrict it to your domains in the provider's dashboard.
+Varlock validates them when Vite starts. **Everything here ends up in the browser bundle.** The address and the name are public anyway (they go in the QR code). A dedicated RPC URL embeds an API key: restrict it to your domains in the provider's dashboard.
 
 ### 3. Run
 

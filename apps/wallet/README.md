@@ -16,17 +16,15 @@ Solana devnet doesn't need to be enabled in the dashboard: the chain is declared
 
 ### 2. Environment variables
 
-```sh
-cp apps/wallet/.env.example apps/wallet/.env.local
-```
+In development they come from Infisical: follow the one-time setup in the [root README](../../README.md#environment-variables). They are declared in [`.env.schema`](.env.schema):
 
-| Variable                  | Required | Notes                                                               |
-| ------------------------- | -------- | ------------------------------------------------------------------- |
-| `VITE_WEB3AUTH_CLIENT_ID` | Yes      | Client ID from the dashboard.                                       |
-| `VITE_SOLANA_RPC_URL`     | No       | Defaults to `https://api.devnet.solana.com` (public, rate-limited). |
-| `VITE_SOLANA_WS_URL`      | No       | Defaults to `wss://api.devnet.solana.com`.                          |
+| Variable                  | Notes                                                         |
+| ------------------------- | ------------------------------------------------------------- |
+| `VITE_WEB3AUTH_CLIENT_ID` | Client ID from the dashboard.                                 |
+| `VITE_SOLANA_RPC_URL`     | Solana devnet RPC (shared with merchant, in the root schema). |
+| `VITE_SOLANA_WS_URL`      | Solana devnet WebSocket (shared, in the root schema).         |
 
-`src/config/env.ts` validates them at startup: the app fails to load instead of failing at payment time.
+Varlock validates them when Vite starts: `dev` and `build` fail instead of the app failing at payment time.
 
 **Everything here ends up in the browser bundle.** The client ID is public by design (the allowed origins protect it). A dedicated RPC URL embeds an API key: restrict it to your domains in the provider's dashboard.
 

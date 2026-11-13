@@ -2,7 +2,7 @@ import { createClient, type TransactionSigner } from "@solana/kit";
 import { solanaRpc } from "@solana/kit-plugin-rpc";
 import { signer } from "@solana/kit-plugin-signer";
 
-import { env } from "#/config/env";
+import { ENV } from "#/config/env";
 
 /**
  * Kit client that can send transactions for `paymentSigner`: it plans them
@@ -17,8 +17,8 @@ export function createPaymentClient(paymentSigner: TransactionSigner) {
     .use(signer(paymentSigner))
     .use(
       solanaRpc({
-        rpcUrl: env.solanaRpcUrl,
-        rpcSubscriptionsUrl: env.solanaWsUrl,
+        rpcUrl: ENV.solanaRpcUrl,
+        rpcSubscriptionsUrl: ENV.solanaWsUrl,
         transactionConfig: { version: 0 },
       }),
     );

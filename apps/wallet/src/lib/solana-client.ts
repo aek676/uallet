@@ -1,7 +1,7 @@
 import { createClient } from "@solana/kit";
 import { solanaRpcConnection } from "@solana/kit-plugin-rpc";
 
-import { env } from "#/config/env";
+import { ENV } from "#/config/env";
 
 /**
  * Read-only Kit client for the whole app: RPC and WebSocket subscriptions,
@@ -9,8 +9,8 @@ import { env } from "#/config/env";
  */
 export const solanaClient = createClient().use(
   solanaRpcConnection({
-    rpcUrl: env.solanaRpcUrl,
-    rpcSubscriptionsUrl: env.solanaWsUrl,
+    rpcUrl: ENV.solanaRpcUrl,
+    rpcSubscriptionsUrl: ENV.solanaWsUrl,
   }),
 );
 

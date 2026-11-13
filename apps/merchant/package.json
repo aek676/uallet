@@ -14,9 +14,10 @@
     "dev": "vite --clearScreen false",
     "build": "vite build",
     "preview": "vite preview",
+    "codegen": "APP_ENV=test varlock codegen",
     "lint": "oxlint --type-aware --type-check",
     "lint:fix": "oxlint --type-aware --type-check --fix",
-    "test": "vitest run"
+    "test": "APP_ENV=test vitest run"
   },
   "dependencies": {
     "@repo/payments": "workspace:*",
@@ -30,6 +31,7 @@
     "react": "catalog:react",
     "react-dom": "catalog:react",
     "sonner": "catalog:ui",
+    "varlock": "catalog:env",
     "zod": "catalog:forms"
   },
   "devDependencies": {
@@ -38,6 +40,8 @@
     "@tailwindcss/vite": "catalog:styles",
     "@types/react": "catalog:react",
     "@types/react-dom": "catalog:react",
+    "@varlock/infisical-plugin": "catalog:env",
+    "@varlock/vite-integration": "catalog:env",
     "@vitejs/plugin-react": "catalog:build",
     "oxlint": "catalog:lint",
     "oxlint-tsgolint": "catalog:lint",

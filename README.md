@@ -21,6 +21,38 @@ Each package and app is 100% [TypeScript](https://www.typescriptlang.org/).
 - [TypeScript](https://www.typescriptlang.org/) for static type checking, run by Oxlint (`--type-check`) as part of `lint`, not by `tsc`
 - [Oxlint](https://oxc.rs/docs/guide/usage/linter.html) for code linting
 - [Oxfmt](https://oxc.rs/docs/guide/usage/formatter.html) for code formatting
+- [Varlock](https://varlock.dev) for environment variables, with development values in [Infisical](https://infisical.com)
+
+## Environment variables
+
+Each app declares its variables in a committed `.env.schema` (types, validation, docs) and imports the shared ones from the root [`.env.schema`](.env.schema). The Vite plugin loads and validates them on `dev`, `build` and `test`, and generates the types in `apps/*/env.d.ts` (git-ignored; `lint` regenerates them first with `varlock codegen`).
+
+| Environment  | `APP_ENV`               | Values from                                    |
+| ------------ | ----------------------- | ---------------------------------------------- |
+| Development  | `development` (default) | Infisical, project `uallet`, environment `dev` |
+| Tests and CI | `test`                  | The committed `.env.test` files                |
+
+### Setup (once per machine)
+
+Ask the team for the Infisical client secret, then create a `.env.local` at the repo root (git-ignored):
+
+```sh
+echo 'INFISICAL_CLIENT_SECRET=varlock(prompt)' > .env.local
+aube exec varlock load
+```
+
+Varlock prompts for the secret and writes it back encrypted for this device (Secure Enclave and Touch ID on macOS). Values from Infisical are cached for an hour: run `aube exec varlock load --clear-cache` to pick up a change right away.
+
+To override a value locally, set it in that app's `.env.local` (e.g. your own `VITE_MERCHANT_ADDRESS` in `apps/merchant/.env.local`). It takes precedence over Infisical.
+
+Useful commands (run from the repo root or an app directory):
+
+```sh
+aube exec varlock load            # validate and show the values (secrets masked)
+aube exec varlock reveal NAME     # show a secret without leaving it in the scrollback
+```
+
+The pre-commit hook runs `varlock scan --staged`, which blocks a commit containing the client secret.
 
 ## Design system
 
@@ -31,25 +63,21 @@ Each package and app is 100% [TypeScript](https://www.typescriptlang.org/).
 
 ### Adding shadcn/ui components
 
-Run the CLI **from `packages/ui`**. The shadcn CLI doesn't support aube yet ([#1](https://github.com/aek676/uallet/issues/1)):
-
-- It only finds workspaces through `pnpm-workspace.yaml` or `workspaces` in `package.json`, not `aube-workspace.yaml`. From the repo root it asks to create a `components.json` (answer no). From `apps/web` or `apps/docs` it fails with `Could not resolve the following aliases ... ui, utils`. The shadcn monorepo docs run `add` from the app, but that doesn't work here yet.
-- It installs missing dependencies with `npm`, which fails on `catalog:` specifiers.
-
-So install the dependencies with aube first, so the CLI only has to copy files:
+Run the CLI **from `packages/ui`**, with the shadcn binary installed there:
 
 ```sh
+eval "$(aube activate zsh)"   # once per shell, or add it to your shell rc
 cd packages/ui
-
-# 1. List the component's dependencies ("Dependencies")
-aubx shadcn@latest add <component> --dry-run
-
-# 2. Install the ones that are missing
-aube add <dependencies>
-
-# 3. Add the component
-aubx shadcn@latest add <component>
+./node_modules/.bin/shadcn add <component>
 ```
+
+The shadcn CLI doesn't support aube yet ([#1](https://github.com/aek676/uallet/issues/1)), hence these steps:
+
+- **Missing dependencies:** shadcn installs them with `npm`. `aube activate` puts aube's `npm` shim first in `PATH`, and since aube 2.10.0 the shim accepts the `--no-audit`/`--no-fund` flags that shadcn passes. The `aube` on your `PATH` has to be 2.10.0 or later itself: the shim fails with `unknown option '--no-audit'` on 2.9.0. Check it with `aube --version`.
+- **Run the binary directly:** `aube exec shadcn` and `aubx shadcn` put the real `npm` ahead of the shim, which fails on `catalog:` specifiers (`EUNSUPPORTEDPROTOCOL`).
+- **Not from the apps:** shadcn only finds workspaces through `pnpm-workspace.yaml` or `workspaces` in `package.json`, not `aube-workspace.yaml`. From the repo root it asks to create a `components.json` (answer no). From an app it fails with `Could not resolve the following aliases ... ui, utils`. aube only reads `package.json#workspaces` when there is no workspace YAML, so adding it would be a second list that nothing keeps in sync.
+
+shadcn adds new dependencies with a plain version range. Move them to a catalog in `aube-workspace.yaml` if other packages share them.
 
 ## CI
 
