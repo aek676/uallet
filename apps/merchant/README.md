@@ -41,21 +41,32 @@ File-based routes with [TanStack Router](https://tanstack.com/router), in `src/a
 | --------------------------------------------------- | ----------------------------- |
 | `/`                                                 | New charge form.              |
 | `/charges/$reference?amount=<base units>&concept=…` | The QR code, until it's paid. |
-| Anything else, or an invalid `reference`            | "Esta página no existe".      |
+| Anything else, or an invalid `reference`            | "This page doesn't exist".    |
 
-The URL holds what a charge needs besides config: its `reference`, the `amount` in base units of `PAYMENT_TOKEN` (`1200000` is 1,20 €) and the optional `concept`. The recipient, token and label always come from config, so an edited link can't send the payment elsewhere. An amount or concept the form wouldn't accept shows "Este cobro no es válido".
+The URL holds what a charge needs besides config: its `reference`, the `amount` in base units of `PAYMENT_TOKEN` (`1200000` is €1.20) and the optional `concept`. The recipient, token and label always come from config, so an edited link can't send the payment elsewhere. An amount or concept the form wouldn't accept shows "This charge isn't valid".
 
-So reloading the QR page shows the same charge and keeps watching for its payment, and finds one that landed meanwhile (the watcher looks back). A reloaded paid charge shows "Pagado" again, without counting it twice in the metrics. Back from the QR is like "Cancelar"; "Cancelar" and "Nuevo cobro" replace the history entry, so back or forward never bring a closed charge back.
+So reloading the QR page shows the same charge and keeps watching for its payment, and finds one that landed meanwhile (the watcher looks back). A reloaded paid charge shows "Paid" again, without counting it twice in the metrics. Back from the QR is like "Cancel"; "Cancel" and "New charge" replace the history entry, so back or forward never bring a closed charge back.
 
 `vite dev` and `vite preview` serve `index.html` for every path. A static deploy needs the same SPA fallback, or reloading `/charges/…` gives a 404.
 
+## Languages
+
+English by default, Spanish as an option. The language is the one picked in the header menu, else the browser's if it's Spanish, else English. Changing it reloads the page.
+
+- The texts and the [Paraglide JS](https://paraglidejs.com) project live in [`@repo/i18n`](../../packages/i18n/README.md), with the `merchant_` prefix for this app's. This app compiles them into `src/paraglide` (git-ignored): the Vite plugin on `dev`, `build` and `test`, and `codegen` for `lint`.
+- `m.<key>()` from `#/paraglide/messages.js` returns a text in the current language.
+- Amounts, numbers and dates go through `#/lib/format`, in `en-US` or `es-ES`.
+- Texts built outside a render (Zod errors, lookup tables) are functions, so they come out in the language at the time they're used.
+- Tests run outside a browser, so they get English.
+- Paraglide also saves the detected language on the first visit (`localStorage`, `uallet:locale`): a device keeps the language it first opened with until someone picks another.
+
 ## Charges
 
-- Amount: up to 2 decimals, at most 100 € (`MAX_CHARGE_EUROS`), so a typo can't become a big charge.
+- Amount: up to 2 decimals, at most €100 (`MAX_CHARGE_EUROS`), so a typo can't become a big charge.
 - Concept: optional, at most 60 characters. It goes in the Solana Pay `message`: the student sees it, but it isn't stored on-chain.
 - Every charge gets a new `reference`, the address the merchant uses to find the payment.
 
-The QR code is always black on white, even in dark mode: many phone cameras can't read an inverted QR. "Copiar enlace" copies the `solana:` link, in case a camera fails.
+The QR code is always black on white, even in dark mode: many phone cameras can't read an inverted QR. "Copy link" copies the `solana:` link, in case a camera fails.
 
 ## Payment detection
 
@@ -65,7 +76,7 @@ While the QR code is on screen, the app watches the chain for the payment (`wait
 2. It also asks for them every second (`getSignaturesForAddress`): RPCs drop notifications and connections, and this finds what landed before subscribing too. If the subscription can't connect or breaks, this keeps going on its own.
 3. Each transaction is fetched at `finalized` and checked with `validatePayment` (`@repo/payments`): it succeeded, it includes the `reference`, and the merchant's token accounts for `PAYMENT_TOKEN` received **exactly** the amount. Anything else is ignored and the charge keeps waiting.
 
-So "Pagado" means the payment can't be reverted. On devnet and mainnet `finalized` reports the same slot as `confirmed`, so it costs no time.
+So "Paid" means the payment can't be reverted. On devnet and mainnet `finalized` reports the same slot as `confirmed`, so it costs no time.
 
 ### `confirmed` or `finalized` for the subscription
 
@@ -73,28 +84,28 @@ Measured with a probe that subscribed at both levels to each of 39 real payments
 
 - Both notifications arrive at the same time: `finalized` minus `confirmed` is −1 ms (median), never more than 7 ms apart.
 - `finalized` loses more: 6 of 32 notifications against 4 of 39 for `confirmed` (11-20% against 2-5% on a busy address).
-- A `finalized` subscription also gets the notification of the wallet's **simulation**, ~200 ms after the tap, in 12 of 39 payments. It's not a payment: before skipping it, it showed "Comprobando el pago…" too early.
+- A `finalized` subscription also gets the notification of the wallet's **simulation**, ~200 ms after the tap, in 12 of 39 payments. It's not a payment: before skipping it, it showed "Checking the payment…" too early.
 - The transaction could always be fetched at `finalized` as soon as the notification arrived (32 of 32 where the probe could check).
 
 Hence: announce at `confirmed`, read and validate at `finalized`.
 
-| Screen                      | Meaning                                                                                                                         |
-| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| "Esperando pago…"           | Listening.                                                                                                                      |
-| "Comprobando el pago…"      | A transaction mentions the charge and is being validated. Cancel is disabled meanwhile.                                         |
-| "Pagado"                    | Paid, with how it was detected and a link to the Explorer. "Nuevo cobro" starts over.                                           |
-| "Hemos dejado de escuchar…" | The RPC stopped answering (3 failed look-backs in a row). "Reintentar" listens again and finds a payment that landed meanwhile. |
+| Screen                  | Meaning                                                                                                                    |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| "Waiting for payment…"  | Listening.                                                                                                                 |
+| "Checking the payment…" | A transaction mentions the charge and is being validated. Cancel is disabled meanwhile.                                    |
+| "Paid"                  | Paid, with how it was detected and a link to the Explorer. "New charge" starts over.                                       |
+| "We stopped listening…" | The RPC stopped answering (3 failed look-backs in a row). "Retry" listens again and finds a payment that landed meanwhile. |
 
 ## Metrics
 
-Each detected payment records how it was announced (subscription or look-back) and how long fetching and validating it took. The last 50 stay on the device and the **Métricas** card at the bottom shows them, with a button to clear them.
+Each detected payment records how it was announced (subscription or look-back) and how long fetching and validating it took. The last 50 stay on the device and the **Metrics** card at the bottom shows them, with a button to clear them.
 
-The end-to-end time (the student's tap to "Pagado") can't be computed in the apps: they run on different devices with different clocks. It was measured with both apps in one browser, on devnet's public RPC (39 payments of 0.01 EURC):
+The end-to-end time (the student's tap to "Paid") can't be computed in the apps: they run on different devices with different clocks. It was measured with both apps in one browser, on devnet's public RPC (39 payments of 0.01 EURC):
 
-| Detected by                   | Payments | "Pagado" after the wallet's "Pago realizado" | Tap to "Pagado" (p50) |
-| ----------------------------- | -------- | -------------------------------------------- | --------------------- |
-| Notification                  | 33       | ~70 ms (p95 84 ms)                           | ~1.0 s                |
-| Look-back (notification lost) | 6        | 1.0-1.8 s                                    | ~2.3 s                |
+| Detected by                   | Payments | "Paid" after the wallet's "Payment complete" | Tap to "Paid" (p50) |
+| ----------------------------- | -------- | -------------------------------------------- | ------------------- |
+| Notification                  | 33       | ~70 ms (p95 84 ms)                           | ~1.0 s              |
+| Look-back (notification lost) | 6        | 1.0-1.8 s                                    | ~2.3 s              |
 
 Validating takes ~70 ms (p95 82 ms). With a notification, the merchant knows within ~0.1 s of the student.
 

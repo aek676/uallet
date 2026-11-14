@@ -49,7 +49,7 @@ describe("createPaymentLinkSchema", () => {
   });
 
   it.each(["", "   "])("asks for the link when it is %j", (input) => {
-    expect(messagesOf(input)).toEqual(["Pega el enlace de pago."]);
+    expect(messagesOf(input)).toEqual(["Paste the payment link."]);
   });
 
   it.each([
@@ -59,30 +59,30 @@ describe("createPaymentLinkSchema", () => {
     ["a transaction request", "solana:https://example.com/pay"],
     ["no amount", `solana:${MERCHANT}?spl-token=${PAYMENT_TOKEN.mint}`],
   ])("rejects %s", (_, input) => {
-    expect(messagesOf(input)).toEqual(["Este enlace no es un cobro válido."]);
+    expect(messagesOf(input)).toEqual(["This link isn't a valid charge."]);
   });
 
   it("rejects another token", () => {
     expect(messagesOf(link({ splToken: createReference() }))).toEqual([
-      `Este cobro no es en ${PAYMENT_TOKEN.symbol}.`,
+      `This charge isn't in ${PAYMENT_TOKEN.symbol}.`,
     ]);
   });
 
   it("rejects a request without reference", () => {
     expect(messagesOf(link({ reference: [] }))).toEqual([
-      "Este cobro no tiene referencia: el comercio no podría confirmarlo.",
+      "This charge has no reference: the merchant couldn't confirm it.",
     ]);
   });
 
   it("rejects a request with a memo", () => {
     expect(messagesOf(link({ memo: "order-42" }))).toEqual([
-      "Este cobro incluye un memo y Uallet no lo admite.",
+      "This charge includes a memo, which Uallet doesn't support.",
     ]);
   });
 
   it("rejects paying yourself", () => {
     expect(messagesOf(link({ recipient: PAYER }))).toEqual([
-      "No puedes pagarte a ti mismo.",
+      "You can't pay yourself.",
     ]);
   });
 });
@@ -98,14 +98,14 @@ describe("checkPaymentLink", () => {
   it.each(["", "   "])("calls a %j link invalid", (input) => {
     expect(checkPaymentLink(input, PAYER)).toEqual({
       success: false,
-      message: "Este enlace no es un cobro válido.",
+      message: "This link isn't a valid charge.",
     });
   });
 
   it("says why the wallet can't pay it", () => {
     expect(checkPaymentLink(link({ recipient: PAYER }), PAYER)).toEqual({
       success: false,
-      message: "No puedes pagarte a ti mismo.",
+      message: "You can't pay yourself.",
     });
   });
 });

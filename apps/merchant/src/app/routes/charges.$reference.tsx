@@ -13,6 +13,7 @@ import {
   validateChargeSearch,
 } from "#/features/charge/utils/charge-search";
 import { createCharge } from "#/features/charge/utils/create-charge";
+import { m } from "#/paraglide/messages.js";
 
 export const Route = createFileRoute("/charges/$reference")({
   params: {
@@ -44,8 +45,8 @@ function ChargeScreen() {
   if (!charge) {
     return (
       <DeadEndCard
-        title="Este cobro no es válido"
-        description="Al enlace le falta el importe o se ha modificado. Crea el cobro de nuevo."
+        title={m.merchant_invalid_charge_title()}
+        description={m.merchant_invalid_charge_description()}
       />
     );
   }

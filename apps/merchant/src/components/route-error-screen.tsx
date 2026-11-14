@@ -1,10 +1,11 @@
 import { DeadEndCard } from "#/components/dead-end-card";
+import { m } from "#/paraglide/messages.js";
 
 export function RouteErrorScreen() {
   return (
     <DeadEndCard
-      title="Algo ha fallado"
-      description="No hemos podido mostrar esta pantalla. Vuelve a empezar el cobro."
+      title={m.route_error_title()}
+      description={m.merchant_route_error_description()}
     />
   );
 }

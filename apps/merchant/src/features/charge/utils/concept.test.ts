@@ -24,7 +24,7 @@ describe("conceptSchema", () => {
 
     expect(result.success).toBe(false);
     expect(result.error?.issues.map((issue) => issue.message)).toEqual([
-      `Usa como mucho ${MAX_CONCEPT_LENGTH} caracteres.`,
+      `Use at most ${MAX_CONCEPT_LENGTH} characters.`,
     ]);
   });
 });

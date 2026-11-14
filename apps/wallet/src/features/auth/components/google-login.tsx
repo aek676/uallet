@@ -3,6 +3,7 @@ import { LoaderCircleIcon } from "lucide-react";
 import { Button } from "@repo/ui/components/button";
 
 import { GoogleIcon } from "#/features/auth/components/google-icon";
+import { m } from "#/paraglide/messages.js";
 
 type GoogleLoginProps = {
   onClick: () => Promise<void>;
@@ -18,7 +19,7 @@ export function GoogleLogin({ onClick, disabled, pending }: GoogleLoginProps) {
       onClick={() => void onClick()}
     >
       {pending ? <LoaderCircleIcon className="animate-spin" /> : <GoogleIcon />}
-      Continuar con Google
+      {m.wallet_login_with_google()}
     </Button>
   );
 }

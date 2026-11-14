@@ -3,7 +3,6 @@ import { CircleCheckIcon, ExternalLinkIcon } from "lucide-react";
 
 import { PAYMENT_TOKEN } from "@repo/payments/config";
 import { getExplorerTransactionUrl } from "@repo/payments/explorer";
-import { formatDuration, formatEuros } from "@repo/payments/format";
 import type { TransferRequest } from "@repo/payments/solana-pay";
 import { Button } from "@repo/ui/components/button";
 import {
@@ -14,6 +13,8 @@ import {
   CardTitle,
 } from "@repo/ui/components/card";
 
+import { formatDuration, formatEuros } from "#/lib/format";
+import { m } from "#/paraglide/messages.js";
 import { type PaymentTiming, totalMs } from "#/stores/payment-timings";
 
 type PaymentSuccessProps = {
@@ -33,10 +34,12 @@ export function PaymentSuccess({
     <Card className="w-full max-w-sm">
       <CardHeader className="flex flex-col items-center gap-2 text-center">
         <CircleCheckIcon className="size-12 text-primary" aria-hidden />
-        <CardTitle>Pago realizado</CardTitle>
+        <CardTitle>{m.wallet_success_title()}</CardTitle>
         {timing && (
           <p className="text-sm text-muted-foreground">
-            en {formatDuration(totalMs(timing))}
+            {m.wallet_success_duration({
+              duration: formatDuration(totalMs(timing)),
+            })}
           </p>
         )}
         <p className="text-5xl font-semibold tabular-nums">
@@ -55,13 +58,13 @@ export function PaymentSuccess({
           rel="noreferrer"
           className="inline-flex items-center gap-1 underline underline-offset-4"
         >
-          Ver en el Explorer
+          {m.view_in_explorer()}
           <ExternalLinkIcon className="size-3.5" aria-hidden />
         </a>
       </CardContent>
       <CardFooter>
         <Button className="w-full" onClick={onDone}>
-          Hecho
+          {m.wallet_success_done()}
         </Button>
       </CardFooter>
     </Card>

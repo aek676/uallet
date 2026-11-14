@@ -1,3 +1,4 @@
+import { paraglideVitePlugin } from "@inlang/paraglide-js";
 import tailwindcss from "@tailwindcss/vite";
 import { tanstackRouter } from "@tanstack/router-plugin/vite";
 import { varlockVitePlugin } from "@varlock/vite-integration";
@@ -7,6 +8,7 @@ import { defineConfig } from "vite";
 export default defineConfig({
   plugins: [
     varlockVitePlugin(),
+    paraglideVitePlugin({ project: "../../packages/i18n/project.inlang" }),
     tanstackRouter({
       target: "react",
       autoCodeSplitting: true,

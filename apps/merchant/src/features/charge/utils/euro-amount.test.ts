@@ -2,11 +2,12 @@ import { describe, expect, it } from "vitest";
 
 import { euroAmountSchema } from "#/features/charge/utils/euro-amount";
 
-const EMPTY = "Escribe un importe.";
-const INVALID = "Escribe un importe válido, por ejemplo 1,20.";
-const TOO_MANY_DECIMALS = "Usa como mucho 2 decimales.";
-const ZERO = "El importe tiene que ser mayor que 0.";
-const TOO_LARGE = "El máximo por cobro es 100 €.";
+// Tests run outside a browser: messages are in the base language, English.
+const EMPTY = "Enter an amount.";
+const INVALID = "Enter a valid amount, for example 1.20.";
+const TOO_MANY_DECIMALS = "Use at most 2 decimals.";
+const ZERO = "The amount must be greater than 0.";
+const TOO_LARGE = "The maximum per charge is €100.00.";
 
 describe("euroAmountSchema", () => {
   it.each([

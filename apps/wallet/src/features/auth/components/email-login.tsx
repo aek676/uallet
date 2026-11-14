@@ -8,6 +8,7 @@ import { Field, FieldError, FieldLabel } from "@repo/ui/components/field";
 import { Input } from "@repo/ui/components/input";
 
 import { universityEmailSchema } from "#/features/auth/utils/university-email";
+import { m } from "#/paraglide/messages.js";
 
 const emailLoginSchema = z.object({ email: universityEmailSchema });
 
@@ -48,14 +49,16 @@ export function EmailLogin({ onSubmit, disabled, pending }: EmailLoginProps) {
             field.state.meta.isTouched && !field.state.meta.isValid;
           return (
             <Field data-invalid={isInvalid}>
-              <FieldLabel htmlFor={emailId}>Correo</FieldLabel>
+              <FieldLabel htmlFor={emailId}>
+                {m.wallet_login_email_label()}
+              </FieldLabel>
               <Input
                 id={emailId}
                 name={field.name}
                 type="email"
                 autoComplete="email"
                 inputMode="email"
-                placeholder="tu@inlumine.ual.es"
+                placeholder={m.wallet_login_email_placeholder()}
                 value={field.state.value}
                 onChange={(event) => field.handleChange(event.target.value)}
                 onBlur={field.handleBlur}
@@ -75,7 +78,7 @@ export function EmailLogin({ onSubmit, disabled, pending }: EmailLoginProps) {
       </form.Field>
       <Button type="submit" disabled={disabled}>
         {pending && <LoaderCircleIcon className="animate-spin" />}
-        Continuar
+        {m.wallet_continue()}
       </Button>
     </form>
   );

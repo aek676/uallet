@@ -9,6 +9,8 @@ import {
   CardTitle,
 } from "@repo/ui/components/card";
 
+import { m } from "#/paraglide/messages.js";
+
 type DeadEndCardProps = {
   title: string;
   description: string;
@@ -32,7 +34,7 @@ export function DeadEndCard({ title, description }: DeadEndCardProps) {
           nativeButton={false}
           render={<Link to="/" replace />}
         >
-          Nuevo cobro
+          {m.merchant_new_charge()}
         </Button>
       </CardFooter>
     </Card>

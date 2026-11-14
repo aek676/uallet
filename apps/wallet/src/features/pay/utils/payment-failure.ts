@@ -11,6 +11,8 @@ import {
   type Signature,
 } from "@solana/kit";
 
+import { m } from "#/paraglide/messages.js";
+
 /**
  * - `no-funds`, `no-sol`, `failed`: the money didn't move, trying again is safe.
  * - `unknown`: the transaction was signed and may have been sent, but we don't
@@ -116,14 +118,13 @@ export function classifyPaymentFailure(error: unknown): PaymentFailure {
   return { kind: "failed" };
 }
 
-const FAILURE_MESSAGES: Record<PaymentFailure["kind"], string> = {
-  "no-funds": "No tienes saldo suficiente para este pago.",
-  "no-sol": "No tienes SOL suficiente para la comisión de red.",
-  failed: "El pago no se ha realizado. Inténtalo de nuevo.",
-  unknown:
-    "No sabemos si el pago se ha completado. Comprueba tu saldo antes de repetirlo.",
+const FAILURE_MESSAGES: Record<PaymentFailure["kind"], () => string> = {
+  "no-funds": m.wallet_payment_failure_no_funds,
+  "no-sol": m.wallet_payment_failure_no_sol,
+  failed: m.wallet_payment_failure_failed,
+  unknown: m.wallet_payment_failure_unknown,
 };
 
 export function paymentFailureMessage(failure: PaymentFailure): string {
-  return FAILURE_MESSAGES[failure.kind];
+  return FAILURE_MESSAGES[failure.kind]();
 }

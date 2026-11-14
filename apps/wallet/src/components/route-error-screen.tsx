@@ -1,4 +1,5 @@
 import { LoadErrorScreen } from "#/components/load-error-screen";
+import { m } from "#/paraglide/messages.js";
 
 /**
  * Any error while showing a route: a bug, or route code that didn't load
@@ -7,8 +8,8 @@ import { LoadErrorScreen } from "#/components/load-error-screen";
 export function RouteErrorScreen() {
   return (
     <LoadErrorScreen
-      title="Algo ha fallado"
-      description="No hemos podido mostrar esta pantalla. Vuelve a intentarlo."
+      title={m.route_error_title()}
+      description={m.wallet_route_error_description()}
     />
   );
 }

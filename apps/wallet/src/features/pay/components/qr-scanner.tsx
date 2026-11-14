@@ -18,14 +18,13 @@ import {
   useQrScanner,
 } from "#/features/pay/hooks/use-qr-scanner";
 import { createPaymentLinkSchema } from "#/features/pay/utils/payment-link";
+import { m } from "#/paraglide/messages.js";
 
-const ERROR_MESSAGES: Record<QrScannerError, string> = {
-  "insecure-context":
-    "La cámara solo funciona en una conexión segura (HTTPS). Pega el enlace.",
-  "permission-denied":
-    "Permite el acceso a la cámara en tu navegador o pega el enlace.",
-  "no-camera": "No encontramos ninguna cámara. Pega el enlace.",
-  failed: "No se ha podido iniciar el lector de QR. Pega el enlace.",
+const ERROR_MESSAGES: Record<QrScannerError, () => string> = {
+  "insecure-context": m.wallet_scan_error_insecure_context,
+  "permission-denied": m.wallet_scan_error_permission_denied,
+  "no-camera": m.wallet_scan_error_no_camera,
+  failed: m.wallet_scan_error_failed,
 };
 
 type QrScannerProps = {
@@ -50,7 +49,7 @@ export function QrScanner({ payer, onRequest, onCancel }: QrScannerProps) {
     // Keeps scanning in both rejections: the student can point at another code.
     if (requests.length > 1) {
       // Choosing one could pay the wrong code: a sticker next to the real one.
-      setRejection("Hay varios códigos de pago a la vista. Apunta solo a uno.");
+      setRejection(m.wallet_scan_multiple_codes());
     } else if (request) {
       onRequest(request);
     } else {
@@ -61,15 +60,13 @@ export function QrScanner({ payer, onRequest, onCancel }: QrScannerProps) {
   return (
     <Card className="w-full max-w-sm">
       <CardHeader>
-        <CardTitle>Escanea el QR</CardTitle>
-        <CardDescription>
-          Apunta al código que muestra el comercio.
-        </CardDescription>
+        <CardTitle>{m.wallet_scan_title()}</CardTitle>
+        <CardDescription>{m.wallet_scan_description()}</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
         {error ? (
           <p role="alert" className="text-sm text-destructive">
-            {ERROR_MESSAGES[error]}
+            {ERROR_MESSAGES[error]()}
           </p>
         ) : (
           <div className="relative aspect-square overflow-hidden rounded-xl bg-muted">
@@ -94,7 +91,7 @@ export function QrScanner({ payer, onRequest, onCancel }: QrScannerProps) {
       </CardContent>
       <CardFooter>
         <Button variant="outline" className="w-full" onClick={onCancel}>
-          {error ? "Volver" : "Cancelar"}
+          {error ? m.wallet_back() : m.cancel()}
         </Button>
       </CardFooter>
     </Card>

@@ -9,6 +9,7 @@ export default defineConfig({
     "**/dist/**",
     "**/node_modules/**",
     "src/app/route-tree.gen.ts",
+    "src/paraglide/**",
   ],
   settings: {
     tailwindcss: { entryPoint: "src/styles.css" },

@@ -3,7 +3,6 @@ import { QRCodeSVG } from "qrcode.react";
 import { toast } from "sonner";
 
 import { PAYMENT_TOKEN } from "@repo/payments/config";
-import { formatEuros } from "@repo/payments/format";
 import { Button } from "@repo/ui/components/button";
 import {
   Card,
@@ -13,6 +12,8 @@ import {
 } from "@repo/ui/components/card";
 
 import type { Charge } from "#/features/charge/utils/create-charge";
+import { formatEuros } from "#/lib/format";
+import { m } from "#/paraglide/messages.js";
 
 type ChargeQrProps = {
   charge: Charge;
@@ -27,9 +28,9 @@ export function ChargeQr({ charge, status, onRetry, onCancel }: ChargeQrProps) {
   async function copyLink() {
     try {
       await navigator.clipboard.writeText(charge.url);
-      toast.success("Enlace copiado");
+      toast.success(m.merchant_charge_qr_link_copied());
     } catch {
-      toast.error("No se ha podido copiar el enlace");
+      toast.error(m.merchant_charge_qr_link_copy_failed());
     }
   }
 
@@ -47,7 +48,7 @@ export function ChargeQr({ charge, status, onRetry, onCancel }: ChargeQrProps) {
         <div className="w-full max-w-64 rounded-xl bg-white p-3">
           <QRCodeSVG
             value={charge.url}
-            title="QR de pago con Uallet"
+            title={m.merchant_charge_qr_title()}
             level="M"
             marginSize={2}
             bgColor="#ffffff"
@@ -61,18 +62,19 @@ export function ChargeQr({ charge, status, onRetry, onCancel }: ChargeQrProps) {
             className="flex flex-col items-center gap-2 text-center text-sm"
           >
             <p className="text-destructive">
-              Hemos dejado de escuchar si llega el pago. Si el estudiante ya ha
-              pagado, aparecerá al reintentar.
+              {m.merchant_charge_qr_listen_error()}
             </p>
             <Button variant="outline" size="sm" onClick={onRetry}>
               <RefreshCwIcon />
-              Reintentar
+              {m.retry()}
             </Button>
           </div>
         ) : (
           <output className="flex items-center gap-2 text-sm text-muted-foreground">
             <LoaderCircleIcon className="size-4 animate-spin" />
-            {status === "checking" ? "Comprobando el pago…" : "Esperando pago…"}
+            {status === "checking"
+              ? m.merchant_charge_qr_checking()
+              : m.merchant_charge_qr_waiting()}
           </output>
         )}
       </CardContent>
@@ -83,7 +85,7 @@ export function ChargeQr({ charge, status, onRetry, onCancel }: ChargeQrProps) {
           onClick={() => void copyLink()}
         >
           <CopyIcon />
-          Copiar enlace
+          {m.merchant_charge_qr_copy_link()}
         </Button>
         {/* Not while checking: it would discard a charge that's being paid. */}
         <Button
@@ -92,7 +94,7 @@ export function ChargeQr({ charge, status, onRetry, onCancel }: ChargeQrProps) {
           disabled={status === "checking"}
           onClick={onCancel}
         >
-          Cancelar
+          {m.cancel()}
         </Button>
       </CardFooter>
     </Card>

@@ -18,6 +18,7 @@ import { Input } from "@repo/ui/components/input";
 import { Separator } from "@repo/ui/components/separator";
 
 import { createPaymentLinkSchema } from "#/features/pay/utils/payment-link";
+import { m } from "#/paraglide/messages.js";
 
 type PaymentLinkFormProps = {
   payer: Address;
@@ -47,18 +48,18 @@ export function PaymentLinkForm({
   return (
     <Card className="w-full max-w-sm">
       <CardHeader>
-        <CardTitle>Pagar</CardTitle>
-        <CardDescription>
-          Escanea el QR del comercio o pega su enlace.
-        </CardDescription>
+        <CardTitle>{m.wallet_pay_title()}</CardTitle>
+        <CardDescription>{m.wallet_pay_description()}</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
         <Button onClick={onScan}>
           <ScanLineIcon />
-          Escanear QR
+          {m.wallet_pay_scan_qr()}
         </Button>
         <div className="flex items-center gap-3 text-xs text-muted-foreground">
-          <Separator className="flex-1" />o<Separator className="flex-1" />
+          <Separator className="flex-1" />
+          {m.wallet_or()}
+          <Separator className="flex-1" />
         </div>
         <form
           noValidate
@@ -74,7 +75,9 @@ export function PaymentLinkForm({
                 field.state.meta.isTouched && !field.state.meta.isValid;
               return (
                 <Field data-invalid={isInvalid}>
-                  <FieldLabel htmlFor={linkId}>Enlace de pago</FieldLabel>
+                  <FieldLabel htmlFor={linkId}>
+                    {m.wallet_pay_link_label()}
+                  </FieldLabel>
                   <Input
                     id={linkId}
                     name={field.name}
@@ -97,7 +100,7 @@ export function PaymentLinkForm({
             }}
           </form.Field>
           <Button type="submit" variant="outline">
-            Continuar
+            {m.wallet_continue()}
           </Button>
         </form>
       </CardContent>

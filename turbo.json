@@ -19,8 +19,12 @@
       "dependsOn": ["^transit"]
     },
     "codegen": {
-      "inputs": [".env.schema"],
-      "outputs": ["env.d.ts"]
+      "inputs": [
+        ".env.schema",
+        "$TURBO_ROOT$/packages/i18n/project.inlang/**",
+        "$TURBO_ROOT$/packages/i18n/messages/**"
+      ],
+      "outputs": ["env.d.ts", "src/paraglide/**"]
     },
     "lint": {
       "dependsOn": ["transit", "codegen"]

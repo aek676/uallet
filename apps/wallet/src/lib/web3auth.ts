@@ -6,6 +6,7 @@ import {
 import type { Web3AuthContextConfig } from "@web3auth/no-modal/react";
 
 import { ENV } from "#/config/env";
+import { getLocale } from "#/paraglide/runtime.js";
 
 /** The chain of `solanaDevnet`, as Wallet Standard names it. */
 export const SOLANA_CHAIN = "solana:devnet";
@@ -42,5 +43,8 @@ export const web3AuthConfig: Web3AuthContextConfig = {
     // Social / email login only: don't look for browser extension wallets.
     multiInjectedProviderDiscovery: false,
     disableAnalytics: true,
+    // Web3Auth's own screens (the email code) in the app's language, not the
+    // browser's.
+    uiConfig: { defaultLanguage: getLocale() },
   },
 };

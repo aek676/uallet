@@ -6,6 +6,7 @@ export default defineConfig({
     "aube-lock.yaml",
     "apps/*/env.d.ts",
     "apps/*/src/app/route-tree.gen.ts",
+    "apps/*/src/paraglide/**",
   ],
   sortImports: {
     internalPattern: ["@repo/"],
