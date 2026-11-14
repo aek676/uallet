@@ -76,6 +76,23 @@ describe("createCharge", () => {
     expect(references.size).toBe(50);
   });
 
+  it("rebuilds the same charge from its reference", () => {
+    const charge = createCharge({
+      merchant,
+      amount: 1_200_000n,
+      concept: "Café con leche",
+    });
+
+    expect(
+      createCharge({
+        merchant,
+        amount: 1_200_000n,
+        concept: "Café con leche",
+        reference: charge.reference,
+      }),
+    ).toEqual(charge);
+  });
+
   it("supports other payment tokens", () => {
     const token = {
       mint: address("11111111111111111111111111111111"),

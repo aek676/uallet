@@ -5,7 +5,10 @@ import { PAYMENT_TOKEN } from "@repo/payments/config";
 
 export const MAX_CHARGE_EUROS = "100";
 
-const MAX_CHARGE_UNITS = toBaseUnits(MAX_CHARGE_EUROS, PAYMENT_TOKEN.decimals);
+export const MAX_CHARGE_UNITS = toBaseUnits(
+  MAX_CHARGE_EUROS,
+  PAYMENT_TOKEN.decimals,
+);
 
 // Digits with an optional comma or dot and up to 2 decimals (cents). At
 // least one digit before the separator. No thousands separators: "1.000"
