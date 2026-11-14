@@ -26,26 +26,26 @@ const STAGES: readonly {
 }[] = [
   {
     id: "total",
-    label: m.metrics_stage_total,
-    hint: m.metrics_stage_total_hint,
+    label: m.wallet_metrics_stage_total,
+    hint: m.wallet_metrics_stage_total_hint,
     duration: totalMs,
   },
   {
     id: "prepare",
-    label: m.metrics_stage_prepare,
-    hint: m.metrics_stage_prepare_hint,
+    label: m.wallet_metrics_stage_prepare,
+    hint: m.wallet_metrics_stage_prepare_hint,
     duration: (timing) => timing.prepareMs,
   },
   {
     id: "sign",
-    label: m.metrics_stage_sign,
-    hint: m.metrics_stage_sign_hint,
+    label: m.wallet_metrics_stage_sign,
+    hint: m.wallet_metrics_stage_sign_hint,
     duration: (timing) => timing.signMs,
   },
   {
     id: "confirm",
-    label: m.metrics_stage_confirm,
-    hint: m.metrics_stage_confirm_hint,
+    label: m.wallet_metrics_stage_confirm,
+    hint: m.wallet_metrics_stage_confirm_hint,
     duration: (timing) => timing.confirmMs,
   },
 ];
@@ -96,26 +96,26 @@ export function MetricsCard() {
       <CollapsibleCardTrigger>
         {m.metrics_title()}
         <span className="ml-auto text-sm font-normal text-muted-foreground">
-          {m.metrics_payment_count({ count: timings.length })}
+          {m.wallet_metrics_payment_count({ count: timings.length })}
         </span>
       </CollapsibleCardTrigger>
       <CollapsibleCardContent>
         {timings.length === 0 ? (
-          <p className="text-muted-foreground">{m.metrics_empty()}</p>
+          <p className="text-muted-foreground">{m.wallet_metrics_empty()}</p>
         ) : (
           <>
             <table className="w-full">
               <thead>
                 <tr className="text-xs text-muted-foreground">
                   <th scope="col" className="pb-1 text-left font-normal">
-                    {m.metrics_stage_header()}
+                    {m.wallet_metrics_stage_header()}
                   </th>
                   <th scope="col" className="pb-1 text-right font-normal">
                     {m.metrics_median_header()}
                   </th>
                   <th
                     scope="col"
-                    title={m.metrics_p95_hint()}
+                    title={m.wallet_metrics_p95_hint()}
                     className="pb-1 text-right font-normal"
                   >
                     p95
@@ -136,7 +136,7 @@ export function MetricsCard() {
 
             <div className="flex flex-col gap-1">
               <h3 className="text-xs text-muted-foreground">
-                {m.metrics_recent()}
+                {m.wallet_metrics_recent()}
               </h3>
               <ul className="flex flex-col gap-1">
                 {recent.map((timing) => (
@@ -163,7 +163,7 @@ export function MetricsCard() {
             </div>
 
             <p className="text-xs text-muted-foreground">
-              {m.metrics_footnote()}
+              {m.wallet_metrics_footnote()}
             </p>
             <Button
               variant="outline"

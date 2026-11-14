@@ -66,7 +66,7 @@ function NotFound() {
   return (
     <DeadEndCard
       title={m.not_found_title()}
-      description={m.not_found_description()}
+      description={m.merchant_not_found_description()}
     />
   );
 }

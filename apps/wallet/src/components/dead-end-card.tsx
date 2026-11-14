@@ -33,7 +33,7 @@ export function DeadEndCard({ title, description }: DeadEndCardProps) {
           nativeButton={false}
           render={<Link to="/" replace />}
         >
-          {m.go_home()}
+          {m.wallet_go_home()}
         </Button>
       </CardFooter>
     </Card>

@@ -9,5 +9,5 @@ export const conceptSchema = z
   .string()
   .trim()
   .max(MAX_CONCEPT_LENGTH, {
-    error: () => m.concept_too_long({ max: MAX_CONCEPT_LENGTH }),
+    error: () => m.merchant_concept_too_long({ max: MAX_CONCEPT_LENGTH }),
   });

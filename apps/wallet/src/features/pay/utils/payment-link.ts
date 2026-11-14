@@ -31,17 +31,17 @@ function parseLink(value: string): TransferRequest | null {
 /** Why the wallet can't pay this request, or `null` if it can. */
 function rejectionOf(request: TransferRequest, payer: Address): string | null {
   if (request.splToken !== PAYMENT_TOKEN.mint) {
-    return m.link_wrong_token({ token: PAYMENT_TOKEN.symbol });
+    return m.wallet_link_wrong_token({ token: PAYMENT_TOKEN.symbol });
   }
   if (request.reference.length === 0) {
-    return m.link_no_reference();
+    return m.wallet_link_no_reference();
   }
   // `buildPaymentInstructions` doesn't support memos.
   if (request.memo !== undefined) {
-    return m.link_memo();
+    return m.wallet_link_memo();
   }
   if (request.recipient === payer) {
-    return m.link_self();
+    return m.wallet_link_self();
   }
   return null;
 }
@@ -55,10 +55,12 @@ export function createPaymentLinkSchema(payer: Address) {
   return z
     .string()
     .trim()
-    .min(1, { error: () => m.link_required(), abort: true })
+    .min(1, { error: () => m.wallet_link_required(), abort: true })
     .transform((value, ctx) => {
       const request = parseLink(value);
-      const message = request ? rejectionOf(request, payer) : m.link_invalid();
+      const message = request
+        ? rejectionOf(request, payer)
+        : m.wallet_link_invalid();
       if (!request || message) {
         ctx.issues.push({
           code: "custom",
@@ -83,12 +85,13 @@ export function checkPaymentLink(
   link: string,
   payer: Address,
 ): PaymentLinkCheck {
-  if (link.trim() === "") return { success: false, message: m.link_invalid() };
+  if (link.trim() === "")
+    return { success: false, message: m.wallet_link_invalid() };
   const result = createPaymentLinkSchema(payer).safeParse(link);
   return result.success
     ? { success: true, request: result.data }
     : {
         success: false,
-        message: result.error.issues[0]?.message ?? m.link_invalid(),
+        message: result.error.issues[0]?.message ?? m.wallet_link_invalid(),
       };
 }

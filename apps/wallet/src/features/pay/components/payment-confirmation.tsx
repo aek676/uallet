@@ -48,7 +48,7 @@ export function PaymentConfirmation({
   return (
     <Card className="w-full max-w-sm">
       <CardHeader className="text-center">
-        <CardTitle>{m.confirm_title()}</CardTitle>
+        <CardTitle>{m.wallet_confirm_title()}</CardTitle>
         <p className="text-5xl font-semibold tabular-nums">
           {formatEuros(amount, PAYMENT_TOKEN.decimals)}
         </p>
@@ -59,21 +59,21 @@ export function PaymentConfirmation({
       <CardContent className="flex flex-col gap-3">
         <dl className="flex flex-col gap-3 text-sm">
           <div>
-            <dt className="text-muted-foreground">{m.confirm_to()}</dt>
+            <dt className="text-muted-foreground">{m.wallet_confirm_to()}</dt>
             <dd className="font-medium wrap-break-word">
-              {label ?? m.confirm_unnamed()}
+              {label ?? m.wallet_confirm_unnamed()}
             </dd>
             <dd className="font-mono text-xs break-all">{recipient}</dd>
             <dd className="text-xs text-muted-foreground">
-              {m.confirm_name_unverified()}
+              {m.wallet_confirm_name_unverified()}
             </dd>
           </div>
           <div>
             <dt className="text-muted-foreground">
-              {m.confirm_token_and_network()}
+              {m.wallet_confirm_token_and_network()}
             </dt>
             <dd>
-              {m.token_on_network({
+              {m.wallet_token_on_network({
                 token: PAYMENT_TOKEN.symbol,
                 network: solanaDevnet.displayName,
               })}
@@ -82,14 +82,14 @@ export function PaymentConfirmation({
         </dl>
         {alreadyPaid && !failure && (
           <div role="alert" className="text-sm text-destructive">
-            <p>{m.confirm_already_paid()}</p>
+            <p>{m.wallet_confirm_already_paid()}</p>
             <a
               href={getExplorerTransactionUrl(earlierPayment)}
               target="_blank"
               rel="noreferrer"
               className="underline underline-offset-4"
             >
-              {m.confirm_view_payment()}
+              {m.wallet_confirm_view_payment()}
             </a>
           </div>
         )}
@@ -116,12 +116,12 @@ export function PaymentConfirmation({
           disabled={paying}
           onClick={onCancel}
         >
-          {canPay ? m.cancel() : m.back()}
+          {canPay ? m.cancel() : m.wallet_back()}
         </Button>
         {canPay && (
           <Button className="flex-1" disabled={paying} onClick={onPay}>
             {paying && <LoaderCircleIcon className="animate-spin" />}
-            {paying ? m.confirm_paying() : m.confirm_pay()}
+            {paying ? m.wallet_confirm_paying() : m.wallet_confirm_pay()}
           </Button>
         )}
       </CardFooter>

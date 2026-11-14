@@ -22,8 +22,8 @@ export interface ChargeTiming {
 }
 
 export const VIA_LABELS: Record<ChargeTiming["via"], () => string> = {
-  notification: m.via_notification,
-  "look-back": m.via_look_back,
+  notification: m.merchant_via_notification,
+  "look-back": m.merchant_via_look_back,
 };
 
 export function toChargeTiming(payment: {

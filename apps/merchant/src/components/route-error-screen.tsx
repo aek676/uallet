@@ -5,7 +5,7 @@ export function RouteErrorScreen() {
   return (
     <DeadEndCard
       title={m.route_error_title()}
-      description={m.route_error_description()}
+      description={m.merchant_route_error_description()}
     />
   );
 }

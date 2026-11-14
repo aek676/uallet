@@ -27,9 +27,9 @@ export function AccountCard({ address }: { address: Address }) {
   async function copyAddress() {
     try {
       await navigator.clipboard.writeText(address);
-      toast.success(m.account_address_copied());
+      toast.success(m.wallet_account_address_copied());
     } catch {
-      toast.error(m.account_address_copy_failed());
+      toast.error(m.wallet_account_address_copy_failed());
     }
   }
 
@@ -45,14 +45,14 @@ export function AccountCard({ address }: { address: Address }) {
   return (
     <Card className="w-full max-w-sm">
       <CardHeader>
-        <CardTitle>{m.account_title()}</CardTitle>
+        <CardTitle>{m.wallet_account_title()}</CardTitle>
         <CardDescription>
-          {userInfo?.email ?? userInfo?.name ?? m.account_signed_in()}
+          {userInfo?.email ?? userInfo?.name ?? m.wallet_account_signed_in()}
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-2">
         <span className="text-xs text-muted-foreground">
-          {m.account_address_on({ network: solanaDevnet.displayName })}
+          {m.wallet_account_address_on({ network: solanaDevnet.displayName })}
         </span>
         <div className="flex items-center justify-between gap-2 rounded-lg border px-3 py-2">
           <span className="font-mono text-sm" title={address}>
@@ -61,7 +61,7 @@ export function AccountCard({ address }: { address: Address }) {
           <Button
             variant="ghost"
             size="icon-sm"
-            aria-label={m.account_copy_address()}
+            aria-label={m.wallet_account_copy_address()}
             onClick={() => void copyAddress()}
           >
             <CopyIcon />
@@ -80,7 +80,7 @@ export function AccountCard({ address }: { address: Address }) {
           ) : (
             <LogOutIcon />
           )}
-          {m.account_log_out()}
+          {m.wallet_account_log_out()}
         </Button>
       </CardFooter>
     </Card>

@@ -50,7 +50,7 @@ function SolBalance({ owner }: { owner: Address }) {
   if (error) {
     return (
       <LoadError
-        message={m.sol_balance_load_failed()}
+        message={m.wallet_sol_balance_load_failed()}
         retrying={refreshing}
         onRetry={refresh}
       />
@@ -64,11 +64,13 @@ function SolBalance({ owner }: { owner: Address }) {
   return (
     <div className="flex flex-col gap-1 text-sm">
       <span className="text-muted-foreground">
-        {m.sol_balance_for_fees({ amount: formatSol(lamports) })}
+        {m.wallet_sol_balance_for_fees({ amount: formatSol(lamports) })}
       </span>
       {lamports < LOW_SOL_LAMPORTS && (
         <span className="text-destructive">
-          {lamports === 0n ? m.sol_balance_empty() : m.sol_balance_low()}
+          {lamports === 0n
+            ? m.wallet_sol_balance_empty()
+            : m.wallet_sol_balance_low()}
         </span>
       )}
     </div>
@@ -82,7 +84,7 @@ function TokenBalance({ owner }: { owner: Address }) {
   if (error) {
     return (
       <LoadError
-        message={m.balance_load_failed()}
+        message={m.wallet_balance_load_failed()}
         retrying={refreshing}
         onRetry={refresh}
       />
@@ -104,9 +106,9 @@ export function BalanceCard({ owner }: { owner: Address }) {
   return (
     <Card className="w-full max-w-sm">
       <CardHeader>
-        <CardTitle>{m.balance_title()}</CardTitle>
+        <CardTitle>{m.wallet_balance_title()}</CardTitle>
         <CardDescription>
-          {m.token_on_network({
+          {m.wallet_token_on_network({
             token: PAYMENT_TOKEN.symbol,
             network: solanaDevnet.displayName,
           })}

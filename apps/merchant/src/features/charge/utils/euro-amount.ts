@@ -29,22 +29,22 @@ const HAS_MORE_DECIMALS = /^\d+[.,]\d{3,}$/;
 export const euroAmountSchema = z
   .string()
   .trim()
-  .min(1, { error: () => m.amount_required(), abort: true })
+  .min(1, { error: () => m.merchant_amount_required(), abort: true })
   .refine((value) => !HAS_MORE_DECIMALS.test(value), {
-    error: () => m.amount_too_many_decimals(),
+    error: () => m.merchant_amount_too_many_decimals(),
     abort: true,
   })
-  .regex(EURO_AMOUNT, { error: () => m.amount_invalid() })
+  .regex(EURO_AMOUNT, { error: () => m.merchant_amount_invalid() })
   .transform((value) =>
     toBaseUnits(value.replace(",", "."), PAYMENT_TOKEN.decimals),
   )
   .pipe(
     z
       .bigint()
-      .positive({ error: () => m.amount_not_positive() })
+      .positive({ error: () => m.merchant_amount_not_positive() })
       .max(MAX_CHARGE_UNITS, {
         error: () =>
-          m.amount_too_large({
+          m.merchant_amount_too_large({
             max: formatEuros(MAX_CHARGE_UNITS, PAYMENT_TOKEN.decimals),
           }),
       }),

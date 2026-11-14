@@ -34,10 +34,12 @@ export function PaymentSuccess({
     <Card className="w-full max-w-sm">
       <CardHeader className="flex flex-col items-center gap-2 text-center">
         <CircleCheckIcon className="size-12 text-primary" aria-hidden />
-        <CardTitle>{m.success_title()}</CardTitle>
+        <CardTitle>{m.wallet_success_title()}</CardTitle>
         {timing && (
           <p className="text-sm text-muted-foreground">
-            {m.success_duration({ duration: formatDuration(totalMs(timing)) })}
+            {m.wallet_success_duration({
+              duration: formatDuration(totalMs(timing)),
+            })}
           </p>
         )}
         <p className="text-5xl font-semibold tabular-nums">
@@ -62,7 +64,7 @@ export function PaymentSuccess({
       </CardContent>
       <CardFooter>
         <Button className="w-full" onClick={onDone}>
-          {m.success_done()}
+          {m.wallet_success_done()}
         </Button>
       </CardFooter>
     </Card>

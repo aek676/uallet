@@ -19,7 +19,7 @@ export function GoogleLogin({ onClick, disabled, pending }: GoogleLoginProps) {
       onClick={() => void onClick()}
     >
       {pending ? <LoaderCircleIcon className="animate-spin" /> : <GoogleIcon />}
-      {m.login_with_google()}
+      {m.wallet_login_with_google()}
     </Button>
   );
 }

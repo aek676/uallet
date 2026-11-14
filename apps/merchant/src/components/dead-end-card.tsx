@@ -34,7 +34,7 @@ export function DeadEndCard({ title, description }: DeadEndCardProps) {
           nativeButton={false}
           render={<Link to="/" replace />}
         >
-          {m.new_charge()}
+          {m.merchant_new_charge()}
         </Button>
       </CardFooter>
     </Card>

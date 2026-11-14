@@ -14,12 +14,13 @@
     "dev": "vite --clearScreen false",
     "build": "vite build",
     "preview": "vite preview",
-    "codegen": "APP_ENV=test varlock codegen && paraglide-js compile --project ./project.inlang",
+    "codegen": "APP_ENV=test varlock codegen && paraglide-js compile --project ../../packages/i18n/project.inlang",
     "lint": "oxlint --type-aware --type-check",
     "lint:fix": "oxlint --type-aware --type-check --fix",
     "test": "APP_ENV=test vitest run"
   },
   "dependencies": {
+    "@repo/i18n": "workspace:*",
     "@repo/payments": "workspace:*",
     "@repo/ui": "workspace:*",
     "@solana/kit": "catalog:solana",
@@ -37,7 +38,6 @@
   },
   "devDependencies": {
     "@inlang/paraglide-js": "catalog:i18n",
-    "@inlang/plugin-message-format": "catalog:i18n",
     "@repo/oxlint-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
     "@tailwindcss/vite": "catalog:styles",

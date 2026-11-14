@@ -31,7 +31,7 @@ export function PayCharge({ request, signer, onClose }: PayChargeProps) {
   // how it ended, which decides whether paying again is safe.
   useBlocker({
     shouldBlockFn: () => {
-      toast.info(m.payment_in_progress());
+      toast.info(m.wallet_payment_in_progress());
       return true;
     },
     enableBeforeUnload: true,

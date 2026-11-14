@@ -25,13 +25,13 @@ const VIAS: readonly {
 }[] = [
   {
     via: "notification",
-    label: m.metrics_via_notification_label,
-    hint: m.metrics_via_notification_hint,
+    label: m.merchant_metrics_via_notification_label,
+    hint: m.merchant_metrics_via_notification_hint,
   },
   {
     via: "look-back",
-    label: m.metrics_via_look_back_label,
-    hint: m.metrics_via_look_back_hint,
+    label: m.merchant_metrics_via_look_back_label,
+    hint: m.merchant_metrics_via_look_back_hint,
   },
 ];
 
@@ -90,33 +90,33 @@ export function MetricsCard() {
       <CollapsibleCardTrigger>
         {m.metrics_title()}
         <span className="ml-auto text-sm font-normal text-muted-foreground">
-          {m.metrics_charge_count({ count: timings.length })}
+          {m.merchant_metrics_charge_count({ count: timings.length })}
         </span>
       </CollapsibleCardTrigger>
       <CollapsibleCardContent>
         {timings.length === 0 ? (
-          <p className="text-muted-foreground">{m.metrics_empty()}</p>
+          <p className="text-muted-foreground">{m.merchant_metrics_empty()}</p>
         ) : (
           <>
             <table className="w-full">
               <thead>
                 <tr className="text-xs text-muted-foreground">
                   <th scope="col" className="pb-1 text-left font-normal">
-                    {m.metrics_detected_header()}
+                    {m.merchant_metrics_detected_header()}
                   </th>
                   <th scope="col" className="pb-1 text-right font-normal">
-                    {m.metrics_charges_header()}
+                    {m.merchant_metrics_charges_header()}
                   </th>
                   <th
                     scope="col"
-                    title={m.metrics_median_hint()}
+                    title={m.merchant_metrics_median_hint()}
                     className="pb-1 text-right font-normal"
                   >
                     {m.metrics_median_header()}
                   </th>
                   <th
                     scope="col"
-                    title={m.metrics_p95_hint()}
+                    title={m.merchant_metrics_p95_hint()}
                     className="pb-1 text-right font-normal"
                   >
                     p95
@@ -138,7 +138,7 @@ export function MetricsCard() {
 
             <div className="flex flex-col gap-1">
               <h3 className="text-xs text-muted-foreground">
-                {m.metrics_recent()}
+                {m.merchant_metrics_recent()}
               </h3>
               <ul className="flex flex-col gap-1">
                 {recent.map((timing) => (
@@ -166,7 +166,7 @@ export function MetricsCard() {
             </div>
 
             <p className="text-xs text-muted-foreground">
-              {m.metrics_footnote()}
+              {m.merchant_metrics_footnote()}
             </p>
             <Button
               variant="outline"

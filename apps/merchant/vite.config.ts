@@ -8,8 +8,8 @@ import { defineConfig } from "vite";
 export default defineConfig({
   plugins: [
     varlockVitePlugin(),
-    // Options in `project.inlang/paraglide.config.ts`, shared with `codegen`.
-    paraglideVitePlugin({ project: "./project.inlang" }),
+    // Messages and options in `@repo/i18n`, shared with `codegen`.
+    paraglideVitePlugin({ project: "../../packages/i18n/project.inlang" }),
     tanstackRouter({
       target: "react",
       autoCodeSplitting: true,

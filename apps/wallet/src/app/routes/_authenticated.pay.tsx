@@ -27,7 +27,10 @@ function Pay() {
 
   if (!result.success) {
     return (
-      <DeadEndCard title={m.cannot_pay_title()} description={result.message} />
+      <DeadEndCard
+        title={m.wallet_cannot_pay_title()}
+        description={result.message}
+      />
     );
   }
 

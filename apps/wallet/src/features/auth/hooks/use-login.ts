@@ -38,7 +38,7 @@ export function useLogin() {
       );
     } catch (error) {
       if (!isCancelled(error)) {
-        toast.error(m.login_failed());
+        toast.error(m.wallet_login_failed());
       }
     } finally {
       setPending(null);

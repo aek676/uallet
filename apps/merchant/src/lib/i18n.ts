@@ -1,25 +1,15 @@
-import { m } from "#/paraglide/messages.js";
-import { getLocale, type Locale, locales } from "#/paraglide/runtime.js";
+import { INTL_LOCALES, LANGUAGE_NAMES } from "@repo/i18n/locales";
 
-/**
- * The tag `Intl` formats with for each language of the app: US English
- * ("€1.20"), Spanish from Spain ("1,20 €").
- */
-const INTL_LOCALES: Record<Locale, string> = {
-  en: "en-US",
-  es: "es-ES",
-};
+import { m } from "#/paraglide/messages.js";
+import { getLocale, locales } from "#/paraglide/runtime.js";
+
+// Indexing with this app's `Locale` fails type-checking if it compiles a
+// language `@repo/i18n/locales` doesn't know.
 
 /** The BCP 47 tag to format numbers and dates in the app's language. */
 export function intlLocale(): string {
   return INTL_LOCALES[getLocale()];
 }
-
-/** Each language in its own name, so anyone finds theirs. */
-const LANGUAGE_NAMES: Record<Locale, string> = {
-  en: "English",
-  es: "Español",
-};
 
 export const LANGUAGES = locales.map((locale) => ({
   value: locale,
@@ -32,5 +22,5 @@ export const LANGUAGES = locales.map((locale) => ({
  */
 export function localizeDocument() {
   document.documentElement.lang = getLocale();
-  document.title = m.document_title();
+  document.title = m.merchant_document_title();
 }

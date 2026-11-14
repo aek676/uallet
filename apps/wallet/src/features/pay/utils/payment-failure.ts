@@ -119,10 +119,10 @@ export function classifyPaymentFailure(error: unknown): PaymentFailure {
 }
 
 const FAILURE_MESSAGES: Record<PaymentFailure["kind"], () => string> = {
-  "no-funds": m.payment_failure_no_funds,
-  "no-sol": m.payment_failure_no_sol,
-  failed: m.payment_failure_failed,
-  unknown: m.payment_failure_unknown,
+  "no-funds": m.wallet_payment_failure_no_funds,
+  "no-sol": m.wallet_payment_failure_no_sol,
+  failed: m.wallet_payment_failure_failed,
+  unknown: m.wallet_payment_failure_unknown,
 };
 
 export function paymentFailureMessage(failure: PaymentFailure): string {

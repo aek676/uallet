@@ -223,6 +223,9 @@ importers:
 
   apps/merchant:
     dependencies:
+      '@repo/i18n':
+        specifier: workspace:*
+        version: link:../../packages/i18n
       '@repo/payments':
         specifier: workspace:*
         version: link:../../packages/payments
@@ -269,9 +272,6 @@ importers:
       '@inlang/paraglide-js':
         specifier: catalog:i18n
         version: 3.2.2(typescript@7.0.2)(vite@8.3.8(@types/node@26.6.6)(jiti@2.7.0))
-      '@inlang/plugin-message-format':
-        specifier: catalog:i18n
-        version: 4.6.0
       '@repo/oxlint-config':
         specifier: workspace:*
         version: link:../../packages/oxlint-config
@@ -326,6 +326,9 @@ importers:
 
   apps/wallet:
     dependencies:
+      '@repo/i18n':
+        specifier: workspace:*
+        version: link:../../packages/i18n
       '@repo/payments':
         specifier: workspace:*
         version: link:../../packages/payments
@@ -390,9 +393,6 @@ importers:
       '@inlang/paraglide-js':
         specifier: catalog:i18n
         version: 3.2.2(typescript@7.0.2)(vite@8.3.8(@types/node@26.6.6)(jiti@2.7.0))
-      '@inlang/plugin-message-format':
-        specifier: catalog:i18n
-        version: 4.6.0
       '@repo/oxlint-config':
         specifier: workspace:*
         version: link:../../packages/oxlint-config
@@ -435,6 +435,36 @@ importers:
       tailwindcss:
         specifier: catalog:styles
         version: 4.3.5
+      typescript:
+        specifier: catalog:build
+        version: 7.0.2
+      vite:
+        specifier: catalog:build
+        version: 8.3.8(@types/node@26.6.6)(jiti@2.7.0)
+      vitest:
+        specifier: catalog:test
+        version: 5.1.0(@types/node@26.6.6)(vite@8.3.8(@types/node@26.6.6)(jiti@2.7.0))
+
+  packages/i18n:
+    devDependencies:
+      '@inlang/paraglide-js':
+        specifier: catalog:i18n
+        version: 3.2.2(typescript@7.0.2)(vite@8.3.8(@types/node@26.6.6)(jiti@2.7.0))
+      '@inlang/plugin-message-format':
+        specifier: catalog:i18n
+        version: 4.6.0
+      '@repo/oxlint-config':
+        specifier: workspace:*
+        version: link:../oxlint-config
+      '@repo/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
+      oxlint:
+        specifier: catalog:lint
+        version: 1.93.0(oxlint-tsgolint@7.0.2006)
+      oxlint-tsgolint:
+        specifier: catalog:lint
+        version: 7.0.2006
       typescript:
         specifier: catalog:build
         version: 7.0.2

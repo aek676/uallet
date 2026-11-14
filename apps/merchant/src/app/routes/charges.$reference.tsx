@@ -45,8 +45,8 @@ function ChargeScreen() {
   if (!charge) {
     return (
       <DeadEndCard
-        title={m.invalid_charge_title()}
-        description={m.invalid_charge_description()}
+        title={m.merchant_invalid_charge_title()}
+        description={m.merchant_invalid_charge_description()}
       />
     );
   }

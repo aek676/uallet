@@ -59,8 +59,10 @@ export function ChargeForm({ onCharge }: ChargeFormProps) {
   return (
     <Card className="w-full max-w-sm">
       <CardHeader>
-        <CardTitle>{m.charge_form_title()}</CardTitle>
-        <CardDescription>{m.charge_form_description()}</CardDescription>
+        <CardTitle>{m.merchant_charge_form_title()}</CardTitle>
+        <CardDescription>
+          {m.merchant_charge_form_description()}
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <form
@@ -78,14 +80,14 @@ export function ChargeForm({ onCharge }: ChargeFormProps) {
               return (
                 <Field data-invalid={isInvalid}>
                   <FieldLabel htmlFor={amountId}>
-                    {m.charge_form_amount_label()}
+                    {m.merchant_charge_form_amount_label()}
                   </FieldLabel>
                   <Input
                     id={amountId}
                     name={field.name}
                     inputMode="decimal"
                     autoComplete="off"
-                    placeholder={m.charge_form_amount_placeholder()}
+                    placeholder={m.merchant_charge_form_amount_placeholder()}
                     className="h-14 text-right text-3xl tabular-nums md:text-3xl"
                     value={field.state.value}
                     onChange={(event) => field.handleChange(event.target.value)}
@@ -110,13 +112,13 @@ export function ChargeForm({ onCharge }: ChargeFormProps) {
               return (
                 <Field data-invalid={isInvalid}>
                   <FieldLabel htmlFor={conceptId}>
-                    {m.charge_form_concept_label()}
+                    {m.merchant_charge_form_concept_label()}
                   </FieldLabel>
                   <Input
                     id={conceptId}
                     name={field.name}
                     autoComplete="off"
-                    placeholder={m.charge_form_concept_placeholder()}
+                    placeholder={m.merchant_charge_form_concept_placeholder()}
                     value={field.state.value}
                     onChange={(event) => field.handleChange(event.target.value)}
                     onBlur={field.handleBlur}
@@ -132,7 +134,7 @@ export function ChargeForm({ onCharge }: ChargeFormProps) {
                     />
                   ) : (
                     <FieldDescription id={conceptHintId}>
-                      {m.charge_form_concept_hint()}
+                      {m.merchant_charge_form_concept_hint()}
                     </FieldDescription>
                   )}
                 </Field>
@@ -140,7 +142,7 @@ export function ChargeForm({ onCharge }: ChargeFormProps) {
             }}
           </form.Field>
           <Button type="submit" size="lg">
-            {m.charge_form_submit()}
+            {m.merchant_charge_form_submit()}
           </Button>
         </form>
       </CardContent>

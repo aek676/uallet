@@ -48,17 +48,17 @@ export function PaymentLinkForm({
   return (
     <Card className="w-full max-w-sm">
       <CardHeader>
-        <CardTitle>{m.pay_title()}</CardTitle>
-        <CardDescription>{m.pay_description()}</CardDescription>
+        <CardTitle>{m.wallet_pay_title()}</CardTitle>
+        <CardDescription>{m.wallet_pay_description()}</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
         <Button onClick={onScan}>
           <ScanLineIcon />
-          {m.pay_scan_qr()}
+          {m.wallet_pay_scan_qr()}
         </Button>
         <div className="flex items-center gap-3 text-xs text-muted-foreground">
           <Separator className="flex-1" />
-          {m.or()}
+          {m.wallet_or()}
           <Separator className="flex-1" />
         </div>
         <form
@@ -75,7 +75,9 @@ export function PaymentLinkForm({
                 field.state.meta.isTouched && !field.state.meta.isValid;
               return (
                 <Field data-invalid={isInvalid}>
-                  <FieldLabel htmlFor={linkId}>{m.pay_link_label()}</FieldLabel>
+                  <FieldLabel htmlFor={linkId}>
+                    {m.wallet_pay_link_label()}
+                  </FieldLabel>
                   <Input
                     id={linkId}
                     name={field.name}
@@ -98,7 +100,7 @@ export function PaymentLinkForm({
             }}
           </form.Field>
           <Button type="submit" variant="outline">
-            {m.continue()}
+            {m.wallet_continue()}
           </Button>
         </form>
       </CardContent>

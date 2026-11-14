@@ -15,8 +15,8 @@ type LoadErrorScreenProps = {
 };
 
 export function LoadErrorScreen({
-  title = m.load_error_title(),
-  description = m.load_error_description(),
+  title = m.wallet_load_error_title(),
+  description = m.wallet_load_error_description(),
 }: LoadErrorScreenProps) {
   return (
     <Card className="w-full max-w-sm">

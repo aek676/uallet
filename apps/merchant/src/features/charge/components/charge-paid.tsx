@@ -30,7 +30,9 @@ export function ChargePaid({ charge, payment, onDone }: ChargePaidProps) {
     <Card className="w-full max-w-sm">
       <CardHeader className="flex flex-col items-center gap-2 text-center">
         <CircleCheckIcon className="size-16 text-primary" aria-hidden />
-        <CardTitle className="text-2xl">{m.charge_paid_title()}</CardTitle>
+        <CardTitle className="text-2xl">
+          {m.merchant_charge_paid_title()}
+        </CardTitle>
         <p className="text-5xl font-semibold tabular-nums">
           {formatEuros(amount, PAYMENT_TOKEN.decimals)}
         </p>
@@ -49,7 +51,7 @@ export function ChargePaid({ charge, payment, onDone }: ChargePaidProps) {
           <ExternalLinkIcon className="size-3.5" aria-hidden />
         </a>
         <p className="text-xs text-muted-foreground">
-          {m.charge_paid_detected({
+          {m.merchant_charge_paid_detected({
             via: VIA_LABELS[payment.via](),
             duration: formatDuration(toChargeTiming(payment).validateMs),
           })}
@@ -57,7 +59,7 @@ export function ChargePaid({ charge, payment, onDone }: ChargePaidProps) {
       </CardContent>
       <CardFooter>
         <Button size="lg" className="w-full" onClick={onDone}>
-          {m.new_charge()}
+          {m.merchant_new_charge()}
         </Button>
       </CardFooter>
     </Card>

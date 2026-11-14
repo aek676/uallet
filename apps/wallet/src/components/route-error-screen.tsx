@@ -9,7 +9,7 @@ export function RouteErrorScreen() {
   return (
     <LoadErrorScreen
       title={m.route_error_title()}
-      description={m.route_error_description()}
+      description={m.wallet_route_error_description()}
     />
   );
 }

@@ -61,14 +61,14 @@ A static deploy must serve `index.html` for every path (SPA fallback), or a refr
 
 ## Languages
 
-English by default, Spanish as an option, with [Paraglide JS](https://paraglidejs.com). The language is the one picked in the header menu, else the browser's if it's Spanish, else English. Changing it reloads the page.
+English by default, Spanish as an option. The language is the one picked in the header menu, else the browser's if it's Spanish, else English. Changing it reloads the page.
 
-- Texts live in `messages/en.json` and `messages/es.json`: add every key to both. `m.<key>()` from `#/paraglide/messages.js` returns it in the current language, and a misspelled key fails type-checking.
-- `src/paraglide` is generated and git-ignored. The Vite plugin compiles it on `dev`, `build` and `test`; `codegen` does it for `lint`. Options are in `project.inlang/paraglide.config.ts`.
+- The texts and the [Paraglide JS](https://paraglidejs.com) project live in [`@repo/i18n`](../../packages/i18n/README.md), with the `wallet_` prefix for this app's. This app compiles them into `src/paraglide` (git-ignored): the Vite plugin on `dev`, `build` and `test`, and `codegen` for `lint`.
+- `m.<key>()` from `#/paraglide/messages.js` returns a text in the current language.
 - Amounts, numbers and dates go through `#/lib/format`, in `en-US` or `es-ES`.
 - Texts built outside a render (Zod errors, lookup tables) are functions, so they come out in the language at the time they're used.
 - Tests run outside a browser, so they get English.
-- Paraglide also saves the detected language on the first visit (`localStorage`, `uallet:wallet:locale`): a device keeps the language it first opened with until someone picks another.
+- Paraglide also saves the detected language on the first visit (`localStorage`, `uallet:locale`): a device keeps the language it first opened with until someone picks another.
 - Web3Auth's own screens (the email code) get the app's language through `uiConfig.defaultLanguage`.
 
 ## Paying

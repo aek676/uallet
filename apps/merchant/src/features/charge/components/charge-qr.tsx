@@ -28,9 +28,9 @@ export function ChargeQr({ charge, status, onRetry, onCancel }: ChargeQrProps) {
   async function copyLink() {
     try {
       await navigator.clipboard.writeText(charge.url);
-      toast.success(m.charge_qr_link_copied());
+      toast.success(m.merchant_charge_qr_link_copied());
     } catch {
-      toast.error(m.charge_qr_link_copy_failed());
+      toast.error(m.merchant_charge_qr_link_copy_failed());
     }
   }
 
@@ -48,7 +48,7 @@ export function ChargeQr({ charge, status, onRetry, onCancel }: ChargeQrProps) {
         <div className="w-full max-w-64 rounded-xl bg-white p-3">
           <QRCodeSVG
             value={charge.url}
-            title={m.charge_qr_title()}
+            title={m.merchant_charge_qr_title()}
             level="M"
             marginSize={2}
             bgColor="#ffffff"
@@ -61,7 +61,9 @@ export function ChargeQr({ charge, status, onRetry, onCancel }: ChargeQrProps) {
             role="alert"
             className="flex flex-col items-center gap-2 text-center text-sm"
           >
-            <p className="text-destructive">{m.charge_qr_listen_error()}</p>
+            <p className="text-destructive">
+              {m.merchant_charge_qr_listen_error()}
+            </p>
             <Button variant="outline" size="sm" onClick={onRetry}>
               <RefreshCwIcon />
               {m.retry()}
@@ -71,8 +73,8 @@ export function ChargeQr({ charge, status, onRetry, onCancel }: ChargeQrProps) {
           <output className="flex items-center gap-2 text-sm text-muted-foreground">
             <LoaderCircleIcon className="size-4 animate-spin" />
             {status === "checking"
-              ? m.charge_qr_checking()
-              : m.charge_qr_waiting()}
+              ? m.merchant_charge_qr_checking()
+              : m.merchant_charge_qr_waiting()}
           </output>
         )}
       </CardContent>
@@ -83,7 +85,7 @@ export function ChargeQr({ charge, status, onRetry, onCancel }: ChargeQrProps) {
           onClick={() => void copyLink()}
         >
           <CopyIcon />
-          {m.charge_qr_copy_link()}
+          {m.merchant_charge_qr_copy_link()}
         </Button>
         {/* Not while checking: it would discard a charge that's being paid. */}
         <Button

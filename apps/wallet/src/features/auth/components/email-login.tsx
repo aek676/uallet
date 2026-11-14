@@ -49,14 +49,16 @@ export function EmailLogin({ onSubmit, disabled, pending }: EmailLoginProps) {
             field.state.meta.isTouched && !field.state.meta.isValid;
           return (
             <Field data-invalid={isInvalid}>
-              <FieldLabel htmlFor={emailId}>{m.login_email_label()}</FieldLabel>
+              <FieldLabel htmlFor={emailId}>
+                {m.wallet_login_email_label()}
+              </FieldLabel>
               <Input
                 id={emailId}
                 name={field.name}
                 type="email"
                 autoComplete="email"
                 inputMode="email"
-                placeholder={m.login_email_placeholder()}
+                placeholder={m.wallet_login_email_placeholder()}
                 value={field.state.value}
                 onChange={(event) => field.handleChange(event.target.value)}
                 onBlur={field.handleBlur}
@@ -76,7 +78,7 @@ export function EmailLogin({ onSubmit, disabled, pending }: EmailLoginProps) {
       </form.Field>
       <Button type="submit" disabled={disabled}>
         {pending && <LoaderCircleIcon className="animate-spin" />}
-        {m.continue()}
+        {m.wallet_continue()}
       </Button>
     </form>
   );

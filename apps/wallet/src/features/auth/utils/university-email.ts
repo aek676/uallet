@@ -21,11 +21,15 @@ export const universityEmailSchema = z
     z
       .email({
         error: (issue) =>
-          issue.input === "" ? m.email_required() : m.email_invalid(),
+          issue.input === ""
+            ? m.wallet_email_required()
+            : m.wallet_email_invalid(),
         abort: true,
       })
       .refine(isUniversityEmail, {
         error: () =>
-          m.email_not_university({ domain: UNIVERSITY_EMAIL_DOMAINS[0] }),
+          m.wallet_email_not_university({
+            domain: UNIVERSITY_EMAIL_DOMAINS[0],
+          }),
       }),
   );

@@ -21,10 +21,10 @@ import { createPaymentLinkSchema } from "#/features/pay/utils/payment-link";
 import { m } from "#/paraglide/messages.js";
 
 const ERROR_MESSAGES: Record<QrScannerError, () => string> = {
-  "insecure-context": m.scan_error_insecure_context,
-  "permission-denied": m.scan_error_permission_denied,
-  "no-camera": m.scan_error_no_camera,
-  failed: m.scan_error_failed,
+  "insecure-context": m.wallet_scan_error_insecure_context,
+  "permission-denied": m.wallet_scan_error_permission_denied,
+  "no-camera": m.wallet_scan_error_no_camera,
+  failed: m.wallet_scan_error_failed,
 };
 
 type QrScannerProps = {
@@ -49,7 +49,7 @@ export function QrScanner({ payer, onRequest, onCancel }: QrScannerProps) {
     // Keeps scanning in both rejections: the student can point at another code.
     if (requests.length > 1) {
       // Choosing one could pay the wrong code: a sticker next to the real one.
-      setRejection(m.scan_multiple_codes());
+      setRejection(m.wallet_scan_multiple_codes());
     } else if (request) {
       onRequest(request);
     } else {
@@ -60,8 +60,8 @@ export function QrScanner({ payer, onRequest, onCancel }: QrScannerProps) {
   return (
     <Card className="w-full max-w-sm">
       <CardHeader>
-        <CardTitle>{m.scan_title()}</CardTitle>
-        <CardDescription>{m.scan_description()}</CardDescription>
+        <CardTitle>{m.wallet_scan_title()}</CardTitle>
+        <CardDescription>{m.wallet_scan_description()}</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
         {error ? (
@@ -91,7 +91,7 @@ export function QrScanner({ payer, onRequest, onCancel }: QrScannerProps) {
       </CardContent>
       <CardFooter>
         <Button variant="outline" className="w-full" onClick={onCancel}>
-          {error ? m.back() : m.cancel()}
+          {error ? m.wallet_back() : m.cancel()}
         </Button>
       </CardFooter>
     </Card>
