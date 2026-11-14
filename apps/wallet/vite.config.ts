@@ -7,7 +7,6 @@ import { defineConfig } from "vite";
 export default defineConfig({
   plugins: [
     varlockVitePlugin(),
-    // Must come before `react()`.
     tanstackRouter({
       target: "react",
       autoCodeSplitting: true,
