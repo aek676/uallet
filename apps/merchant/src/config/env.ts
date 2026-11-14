@@ -3,20 +3,25 @@
  * `.env.schema`). A missing or invalid value fails `vite dev` / `vite build`.
  *
  * Everything here ends up in the browser bundle: never put secrets in it.
+ *
+ * Varlock's Vite plugin inlines the values by rewriting the literal text
+ * `ENV.<KEY>`: keep the import named `ENV`, an alias isn't rewritten.
  */
 import { address } from "@solana/kit";
-import { ENV as VARLOCK_ENV } from "varlock/env";
+import { ENV } from "varlock/env";
 
-export const ENV = {
+const config = {
   /**
    * Wallet that receives the payments. `address()` checks it decodes to 32
    * bytes (the schema's regex can't) and brands it as Kit's `Address`.
    */
-  merchantAddress: address(VARLOCK_ENV.VITE_MERCHANT_ADDRESS),
+  merchantAddress: address(ENV.VITE_MERCHANT_ADDRESS),
   /** Shown to the student when paying, e.g. "Cafetería Central". */
-  merchantName: VARLOCK_ENV.VITE_MERCHANT_NAME,
+  merchantName: ENV.VITE_MERCHANT_NAME,
   /** Solana devnet RPC. */
-  solanaRpcUrl: VARLOCK_ENV.VITE_SOLANA_RPC_URL,
+  solanaRpcUrl: ENV.VITE_SOLANA_RPC_URL,
   /** Solana devnet WebSocket, to detect payments as they land. */
-  solanaWsUrl: VARLOCK_ENV.VITE_SOLANA_WS_URL,
+  solanaWsUrl: ENV.VITE_SOLANA_WS_URL,
 } as const;
+
+export { config as ENV };
