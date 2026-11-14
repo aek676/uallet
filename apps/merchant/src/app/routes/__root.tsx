@@ -3,18 +3,24 @@ import { lazy, Suspense } from "react";
 
 import { ThemeToggle } from "@repo/ui/components/theme-toggle";
 
-import { DeadEndCard } from "#/app/dead-end-card";
+import { DeadEndCard } from "#/components/dead-end-card";
 import { merchant } from "#/config/merchant";
 import { MetricsCard } from "#/features/metrics/components/metrics-card";
 
-// `import.meta.env.DEV` is `false` in the build, so the devtools (dev
-// dependencies) are left out of the bundle.
+// TanStack Devtools with a tab per library. `import.meta.env.DEV` is `false`
+// in the build, so the devtools (dev dependencies) are left out of the bundle.
 const Devtools = import.meta.env.DEV
-  ? lazy(() =>
-      import("#/app/devtools").then((module) => ({
-        default: module.Devtools,
-      })),
-    )
+  ? lazy(async () => {
+      const [{ TanStackDevtools }, { TanStackRouterDevtoolsPanel }] =
+        await Promise.all([
+          import("@tanstack/react-devtools"),
+          import("@tanstack/react-router-devtools"),
+        ]);
+      const plugins = [
+        { name: "TanStack Router", render: <TanStackRouterDevtoolsPanel /> },
+      ];
+      return { default: () => <TanStackDevtools plugins={plugins} /> };
+    })
   : () => null;
 
 export const Route = createRootRoute({

@@ -5,12 +5,12 @@ import {
 } from "@tanstack/react-router";
 import { describe, expect, it } from "vitest";
 
+import type { Merchant } from "#/config/merchant";
 import {
   toChargeDetails,
   toChargeSearch,
   validateChargeSearch,
-} from "#/app/charge-search";
-import type { Merchant } from "#/config/merchant";
+} from "#/features/charge/utils/charge-search";
 import { MAX_CONCEPT_LENGTH } from "#/features/charge/utils/concept";
 import { createCharge } from "#/features/charge/utils/create-charge";
 

@@ -1,7 +1,7 @@
 import { createRouter } from "@tanstack/react-router";
 
-import { DeadEndCard } from "#/app/dead-end-card";
 import { routeTree } from "#/app/route-tree.gen";
+import { DeadEndCard } from "#/components/dead-end-card";
 
 export const router = createRouter({
   routeTree,

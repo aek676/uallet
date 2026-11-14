@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { toChargeSearch } from "#/app/charge-search";
 import { ChargeForm } from "#/features/charge/components/charge-form";
+import { toChargeSearch } from "#/features/charge/utils/charge-search";
 
 export const Route = createFileRoute("/")({
   component: NewCharge,

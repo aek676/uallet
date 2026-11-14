@@ -5,14 +5,14 @@ import {
 } from "@tanstack/react-router";
 import { useMemo } from "react";
 
+import { DeadEndCard } from "#/components/dead-end-card";
+import { merchant } from "#/config/merchant";
+import { ChargePayment } from "#/features/charge/components/charge-payment";
 import {
   type ChargeSearch,
   toChargeDetails,
   validateChargeSearch,
-} from "#/app/charge-search";
-import { DeadEndCard } from "#/app/dead-end-card";
-import { merchant } from "#/config/merchant";
-import { ChargePayment } from "#/features/charge/components/charge-payment";
+} from "#/features/charge/utils/charge-search";
 import { createCharge } from "#/features/charge/utils/create-charge";
 
 /**
