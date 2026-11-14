@@ -2,7 +2,6 @@ import { ExternalLinkIcon } from "lucide-react";
 import { useSyncExternalStore } from "react";
 
 import { getExplorerTransactionUrl } from "@repo/payments/explorer";
-import { formatDateTime, formatDuration } from "@repo/payments/format";
 import { summarize } from "@repo/payments/metrics";
 import { Button } from "@repo/ui/components/button";
 import {
@@ -11,6 +10,8 @@ import {
   CollapsibleCardTrigger,
 } from "@repo/ui/components/collapsible-card";
 
+import { formatDateTime, formatDuration } from "#/lib/format";
+import { m } from "#/paraglide/messages.js";
 import {
   type PaymentTiming,
   paymentTimings,
@@ -18,28 +19,33 @@ import {
 } from "#/stores/payment-timings";
 
 const STAGES: readonly {
-  label: string;
-  hint: string;
+  id: string;
+  label: () => string;
+  hint: () => string;
   duration: (timing: PaymentTiming) => number;
 }[] = [
   {
-    label: "Total",
-    hint: "Desde que pulsas «Pagar» hasta «Pago realizado»",
+    id: "total",
+    label: m.metrics_stage_total,
+    hint: m.metrics_stage_total_hint,
     duration: totalMs,
   },
   {
-    label: "Preparar",
-    hint: "Montar la transacción, pedir el blockhash y simularla",
+    id: "prepare",
+    label: m.metrics_stage_prepare,
+    hint: m.metrics_stage_prepare_hint,
     duration: (timing) => timing.prepareMs,
   },
   {
-    label: "Firmar",
-    hint: "La wallet firma la transacción",
+    id: "sign",
+    label: m.metrics_stage_sign,
+    hint: m.metrics_stage_sign_hint,
     duration: (timing) => timing.signMs,
   },
   {
-    label: "Confirmar",
-    hint: "Enviarla y esperar a que la red la confirme",
+    id: "confirm",
+    label: m.metrics_stage_confirm,
+    hint: m.metrics_stage_confirm_hint,
     duration: (timing) => timing.confirmMs,
   },
 ];
@@ -88,30 +94,28 @@ export function MetricsCard() {
   return (
     <CollapsibleCard className="w-full max-w-sm">
       <CollapsibleCardTrigger>
-        Métricas
+        {m.metrics_title()}
         <span className="ml-auto text-sm font-normal text-muted-foreground">
-          {timings.length === 1 ? "1 pago" : `${timings.length} pagos`}
+          {m.metrics_payment_count({ count: timings.length })}
         </span>
       </CollapsibleCardTrigger>
       <CollapsibleCardContent>
         {timings.length === 0 ? (
-          <p className="text-muted-foreground">
-            Aquí verás cuánto tardan los pagos que hagas desde este dispositivo.
-          </p>
+          <p className="text-muted-foreground">{m.metrics_empty()}</p>
         ) : (
           <>
             <table className="w-full">
               <thead>
                 <tr className="text-xs text-muted-foreground">
                   <th scope="col" className="pb-1 text-left font-normal">
-                    Etapa
+                    {m.metrics_stage_header()}
                   </th>
                   <th scope="col" className="pb-1 text-right font-normal">
-                    Mediana
+                    {m.metrics_median_header()}
                   </th>
                   <th
                     scope="col"
-                    title="El 95 % de los pagos tarda esto o menos"
+                    title={m.metrics_p95_hint()}
                     className="pb-1 text-right font-normal"
                   >
                     p95
@@ -119,11 +123,11 @@ export function MetricsCard() {
                 </tr>
               </thead>
               <tbody>
-                {STAGES.map(({ label, hint, duration }) => (
+                {STAGES.map(({ id, label, hint, duration }) => (
                   <StageRow
-                    key={label}
-                    label={label}
-                    hint={hint}
+                    key={id}
+                    label={label()}
+                    hint={hint()}
                     durations={timings.map(duration)}
                   />
                 ))}
@@ -131,7 +135,9 @@ export function MetricsCard() {
             </table>
 
             <div className="flex flex-col gap-1">
-              <h3 className="text-xs text-muted-foreground">Últimos pagos</h3>
+              <h3 className="text-xs text-muted-foreground">
+                {m.metrics_recent()}
+              </h3>
               <ul className="flex flex-col gap-1">
                 {recent.map((timing) => (
                   <li
@@ -149,7 +155,7 @@ export function MetricsCard() {
                     >
                       {formatDuration(totalMs(timing))}
                       <ExternalLinkIcon className="size-3.5" aria-hidden />
-                      <span className="sr-only">Ver en el Explorer</span>
+                      <span className="sr-only">{m.view_in_explorer()}</span>
                     </a>
                   </li>
                 ))}
@@ -157,8 +163,7 @@ export function MetricsCard() {
             </div>
 
             <p className="text-xs text-muted-foreground">
-              Medido en este dispositivo, desde que pulsas «Pagar». Se guardan
-              los últimos 50 pagos.
+              {m.metrics_footnote()}
             </p>
             <Button
               variant="outline"
@@ -166,7 +171,7 @@ export function MetricsCard() {
               className="self-start"
               onClick={paymentTimings.clear}
             >
-              Borrar métricas
+              {m.metrics_clear()}
             </Button>
           </>
         )}

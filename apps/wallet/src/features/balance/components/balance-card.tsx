@@ -2,7 +2,6 @@ import type { Address } from "@solana/kit";
 import { RefreshCwIcon } from "lucide-react";
 
 import { PAYMENT_TOKEN } from "@repo/payments/config";
-import { formatEuros, formatSol } from "@repo/payments/format";
 import { Button } from "@repo/ui/components/button";
 import {
   Card,
@@ -15,7 +14,9 @@ import { Skeleton } from "@repo/ui/components/skeleton";
 
 import { usePaymentTokenBalance } from "#/features/balance/hooks/use-payment-token-balance";
 import { useSolBalance } from "#/features/balance/hooks/use-sol-balance";
+import { formatEuros, formatSol } from "#/lib/format";
 import { solanaDevnet } from "#/lib/web3auth";
+import { m } from "#/paraglide/messages.js";
 
 /**
  * Below this, warn that network fees may fail. A payment costs ~5,000
@@ -37,7 +38,7 @@ function LoadError({
       <span className="text-sm text-destructive">{message}</span>
       <Button variant="outline" size="sm" disabled={retrying} onClick={onRetry}>
         <RefreshCwIcon className={retrying ? "animate-spin" : undefined} />
-        Reintentar
+        {m.retry()}
       </Button>
     </div>
   );
@@ -49,7 +50,7 @@ function SolBalance({ owner }: { owner: Address }) {
   if (error) {
     return (
       <LoadError
-        message="No se ha podido cargar el saldo de SOL."
+        message={m.sol_balance_load_failed()}
         retrying={refreshing}
         onRetry={refresh}
       />
@@ -63,13 +64,11 @@ function SolBalance({ owner }: { owner: Address }) {
   return (
     <div className="flex flex-col gap-1 text-sm">
       <span className="text-muted-foreground">
-        Para comisiones de red: {formatSol(lamports)}
+        {m.sol_balance_for_fees({ amount: formatSol(lamports) })}
       </span>
       {lamports < LOW_SOL_LAMPORTS && (
         <span className="text-destructive">
-          {lamports === 0n
-            ? "Necesitas SOL para pagar la comisión de red."
-            : "Te queda poco SOL para las comisiones de red."}
+          {lamports === 0n ? m.sol_balance_empty() : m.sol_balance_low()}
         </span>
       )}
     </div>
@@ -83,7 +82,7 @@ function TokenBalance({ owner }: { owner: Address }) {
   if (error) {
     return (
       <LoadError
-        message="No se ha podido cargar el saldo."
+        message={m.balance_load_failed()}
         retrying={refreshing}
         onRetry={refresh}
       />
@@ -105,9 +104,12 @@ export function BalanceCard({ owner }: { owner: Address }) {
   return (
     <Card className="w-full max-w-sm">
       <CardHeader>
-        <CardTitle>Saldo</CardTitle>
+        <CardTitle>{m.balance_title()}</CardTitle>
         <CardDescription>
-          {PAYMENT_TOKEN.symbol} en {solanaDevnet.displayName}
+          {m.token_on_network({
+            token: PAYMENT_TOKEN.symbol,
+            network: solanaDevnet.displayName,
+          })}
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-3">

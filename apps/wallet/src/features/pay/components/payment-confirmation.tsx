@@ -3,7 +3,6 @@ import { LoaderCircleIcon } from "lucide-react";
 
 import { PAYMENT_TOKEN } from "@repo/payments/config";
 import { getExplorerTransactionUrl } from "@repo/payments/explorer";
-import { formatEuros } from "@repo/payments/format";
 import type { TransferRequest } from "@repo/payments/solana-pay";
 import { Button } from "@repo/ui/components/button";
 import {
@@ -18,7 +17,9 @@ import {
   type PaymentFailure,
   paymentFailureMessage,
 } from "#/features/pay/utils/payment-failure";
+import { formatEuros } from "#/lib/format";
 import { solanaDevnet } from "#/lib/web3auth";
+import { m } from "#/paraglide/messages.js";
 
 type PaymentConfirmationProps = {
   request: TransferRequest;
@@ -47,7 +48,7 @@ export function PaymentConfirmation({
   return (
     <Card className="w-full max-w-sm">
       <CardHeader className="text-center">
-        <CardTitle>Confirma el pago</CardTitle>
+        <CardTitle>{m.confirm_title()}</CardTitle>
         <p className="text-5xl font-semibold tabular-nums">
           {formatEuros(amount, PAYMENT_TOKEN.decimals)}
         </p>
@@ -58,35 +59,37 @@ export function PaymentConfirmation({
       <CardContent className="flex flex-col gap-3">
         <dl className="flex flex-col gap-3 text-sm">
           <div>
-            <dt className="text-muted-foreground">Para</dt>
+            <dt className="text-muted-foreground">{m.confirm_to()}</dt>
             <dd className="font-medium wrap-break-word">
-              {label ?? "Sin nombre"}
+              {label ?? m.confirm_unnamed()}
             </dd>
             <dd className="font-mono text-xs break-all">{recipient}</dd>
             <dd className="text-xs text-muted-foreground">
-              El nombre lo escribe quien cobra: no está verificado.
+              {m.confirm_name_unverified()}
             </dd>
           </div>
           <div>
-            <dt className="text-muted-foreground">Token y red</dt>
+            <dt className="text-muted-foreground">
+              {m.confirm_token_and_network()}
+            </dt>
             <dd>
-              {PAYMENT_TOKEN.symbol} en {solanaDevnet.displayName}
+              {m.token_on_network({
+                token: PAYMENT_TOKEN.symbol,
+                network: solanaDevnet.displayName,
+              })}
             </dd>
           </div>
         </dl>
         {alreadyPaid && !failure && (
           <div role="alert" className="text-sm text-destructive">
-            <p>
-              Este cobro ya está pagado. Si no lo has pagado tú, pide al
-              comercio un cobro nuevo.
-            </p>
+            <p>{m.confirm_already_paid()}</p>
             <a
               href={getExplorerTransactionUrl(earlierPayment)}
               target="_blank"
               rel="noreferrer"
               className="underline underline-offset-4"
             >
-              Ver el pago en el Explorer
+              {m.confirm_view_payment()}
             </a>
           </div>
         )}
@@ -100,7 +103,7 @@ export function PaymentConfirmation({
                 rel="noreferrer"
                 className="underline underline-offset-4"
               >
-                Ver en el Explorer
+                {m.view_in_explorer()}
               </a>
             )}
           </div>
@@ -113,12 +116,12 @@ export function PaymentConfirmation({
           disabled={paying}
           onClick={onCancel}
         >
-          {canPay ? "Cancelar" : "Volver"}
+          {canPay ? m.cancel() : m.back()}
         </Button>
         {canPay && (
           <Button className="flex-1" disabled={paying} onClick={onPay}>
             {paying && <LoaderCircleIcon className="animate-spin" />}
-            {paying ? "Pagando…" : "Pagar"}
+            {paying ? m.confirm_paying() : m.confirm_pay()}
           </Button>
         )}
       </CardFooter>

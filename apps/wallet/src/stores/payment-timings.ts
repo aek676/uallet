@@ -6,7 +6,7 @@ import { createSampleStore } from "@repo/payments/sample-store";
 /** How long each stage of a payment took, as the student lived it. */
 export interface PaymentTiming {
   signature: Signature;
-  /** `Date.now()` when the student tapped "Pagar". */
+  /** `Date.now()` when the student tapped "Pay". */
   startedAt: number;
   /** Tap to ready to sign: instructions, blockhash and simulation. */
   prepareMs: number;
@@ -16,7 +16,7 @@ export interface PaymentTiming {
   confirmMs: number;
 }
 
-/** From the tap to "Pago realizado". */
+/** From the tap to "Payment complete". */
 export function totalMs(timing: PaymentTiming): number {
   return timing.prepareMs + timing.signMs + timing.confirmMs;
 }

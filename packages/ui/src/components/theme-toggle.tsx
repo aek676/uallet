@@ -3,7 +3,12 @@ import { useTheme } from "next-themes";
 
 import { Button } from "#components/button";
 
-function ThemeToggle() {
+type ThemeToggleProps = {
+  /** Accessible names, already translated by the app. */
+  labels: { toLight: string; toDark: string };
+};
+
+function ThemeToggle({ labels }: ThemeToggleProps) {
   const { resolvedTheme, setTheme } = useTheme();
   const isDark = resolvedTheme === "dark";
 
@@ -11,7 +16,7 @@ function ThemeToggle() {
     <Button
       variant="ghost"
       size="icon"
-      aria-label={isDark ? "Cambiar a tema claro" : "Cambiar a tema oscuro"}
+      aria-label={isDark ? labels.toLight : labels.toDark}
       onClick={() => setTheme(isDark ? "light" : "dark")}
     >
       <SunIcon className="hidden dark:block" />

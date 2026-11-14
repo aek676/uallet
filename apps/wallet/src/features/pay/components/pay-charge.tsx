@@ -10,6 +10,7 @@ import { useEarlierPayment } from "#/features/pay/hooks/use-earlier-payment";
 import { usePayment } from "#/features/pay/hooks/use-payment";
 import { useSentPayment } from "#/features/pay/hooks/use-sent-payment";
 import type { PaymentFailure } from "#/features/pay/utils/payment-failure";
+import { m } from "#/paraglide/messages.js";
 
 type PayChargeProps = {
   request: TransferRequest;
@@ -30,7 +31,7 @@ export function PayCharge({ request, signer, onClose }: PayChargeProps) {
   // how it ended, which decides whether paying again is safe.
   useBlocker({
     shouldBlockFn: () => {
-      toast.info("Espera a que termine el pago.");
+      toast.info(m.payment_in_progress());
       return true;
     },
     enableBeforeUnload: true,
@@ -49,7 +50,7 @@ export function PayCharge({ request, signer, onClose }: PayChargeProps) {
   }
 
   // After a reload, this device's record is all that's left of a payment it
-  // sent: it hides "Pagar" without waiting for `useEarlierPayment`.
+  // sent: it hides "Pay" without waiting for `useEarlierPayment`.
   const sentFailure: PaymentFailure | null =
     sent && !sent.confirmed
       ? { kind: "unknown", signature: sent.signature }

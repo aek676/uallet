@@ -7,14 +7,16 @@ import {
   CardTitle,
 } from "@repo/ui/components/card";
 
+import { m } from "#/paraglide/messages.js";
+
 type LoadErrorScreenProps = {
   title?: string;
   description?: string;
 };
 
 export function LoadErrorScreen({
-  title = "No se ha podido cargar la wallet",
-  description = "Comprueba tu conexión a internet y vuelve a intentarlo.",
+  title = m.load_error_title(),
+  description = m.load_error_description(),
 }: LoadErrorScreenProps) {
   return (
     <Card className="w-full max-w-sm">
@@ -24,7 +26,7 @@ export function LoadErrorScreen({
       </CardHeader>
       <CardFooter>
         <Button className="w-full" onClick={() => window.location.reload()}>
-          Reintentar
+          {m.retry()}
         </Button>
       </CardFooter>
     </Card>

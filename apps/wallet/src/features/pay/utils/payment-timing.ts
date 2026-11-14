@@ -4,7 +4,7 @@ import type { PaymentTiming } from "#/stores/payment-timings";
 
 /** `Date.now()` at each step of a payment, filled in as it happens. */
 export interface PaymentMarks {
-  /** The student tapped "Pagar". */
+  /** The student tapped "Pay". */
   startedAt: number;
   /** The wallet was asked to sign: the transaction is ready. */
   signStartedAt?: number;

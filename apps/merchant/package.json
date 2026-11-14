@@ -14,7 +14,7 @@
     "dev": "vite --clearScreen false",
     "build": "vite build",
     "preview": "vite preview",
-    "codegen": "APP_ENV=test varlock codegen",
+    "codegen": "APP_ENV=test varlock codegen && paraglide-js compile --project ./project.inlang",
     "lint": "oxlint --type-aware --type-check",
     "lint:fix": "oxlint --type-aware --type-check --fix",
     "test": "APP_ENV=test vitest run"
@@ -36,6 +36,8 @@
     "zod": "catalog:forms"
   },
   "devDependencies": {
+    "@inlang/paraglide-js": "catalog:i18n",
+    "@inlang/plugin-message-format": "catalog:i18n",
     "@repo/oxlint-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
     "@tailwindcss/vite": "catalog:styles",

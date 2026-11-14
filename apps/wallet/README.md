@@ -54,17 +54,29 @@ Log in, copy your address from the app and request:
 
 - **Login on a deep link.** Every screen sits behind `_authenticated`, a layout that shows the login form in place of the screen instead of redirecting. Login is a popup, so a `/pay?link=…` opened while logged out is still there after logging in.
 - **The link is checked again on `/pay`**, with the same schema as when pasting or scanning: a URL can be typed by anyone. An invalid one shows why and a way back.
-- **Back and refresh.** A scanned code replaces `/scan` in the history, and leaving `/pay` replaces it with `/`, so back doesn't reopen the camera or the charge. Refreshing `/pay` after paying shows the confirmation again, without **Pagar**: the device remembers the payments it sent (`sentPayments`, the last 50 in `localStorage`), so it says the charge is paid, or that we don't know how the payment ended, without waiting for the RPC.
+- **Back and refresh.** A scanned code replaces `/scan` in the history, and leaving `/pay` replaces it with `/`, so back doesn't reopen the camera or the charge. Refreshing `/pay` after paying shows the confirmation again, without **Pay**: the device remembers the payments it sent (`sentPayments`, the last 50 in `localStorage`), so it says the charge is paid, or that we don't know how the payment ended, without waiting for the RPC.
 - **While paying, navigation is blocked** (back, links, and reload or close with the browser's prompt): the outcome of a sent payment decides whether paying again is safe.
 
 A static deploy must serve `index.html` for every path (SPA fallback), or a refresh or deep link outside `/` returns 404. `dev` and `preview` already do it.
 
+## Languages
+
+English by default, Spanish as an option, with [Paraglide JS](https://paraglidejs.com). The language is the one picked in the header menu, else the browser's if it's Spanish, else English. Changing it reloads the page.
+
+- Texts live in `messages/en.json` and `messages/es.json`: add every key to both. `m.<key>()` from `#/paraglide/messages.js` returns it in the current language, and a misspelled key fails type-checking.
+- `src/paraglide` is generated and git-ignored. The Vite plugin compiles it on `dev`, `build` and `test`; `codegen` does it for `lint`. Options are in `project.inlang/paraglide.config.ts`.
+- Amounts, numbers and dates go through `#/lib/format`, in `en-US` or `es-ES`.
+- Texts built outside a render (Zod errors, lookup tables) are functions, so they come out in the language at the time they're used.
+- Tests run outside a browser, so they get English.
+- Paraglide also saves the detected language on the first visit (`localStorage`, `uallet:wallet:locale`): a device keeps the language it first opened with until someone picks another.
+- Web3Auth's own screens (the email code) get the app's language through `uiConfig.defaultLanguage`.
+
 ## Paying
 
-1. **Escanear QR** (`/scan`) or paste the `solana:` link on `/`, from the [merchant app](../merchant/README.md).
+1. **Scan QR code** (`/scan`) or paste the `solana:` link on `/`, from the [merchant app](../merchant/README.md).
 2. The link is checked (`createPaymentLinkSchema`): it must be a Solana Pay transfer request in `PAYMENT_TOKEN`, with a `reference`, without a memo and not to yourself. The wallet then opens `/pay?link=…` with it.
-3. The confirmation screen shows the amount, the concept, the merchant name and its **full** address. Meanwhile it asks once whether a successful transaction already mentions the charge's `reference`: if so, it says the charge is already paid, links it and hides **Pagar**.
-4. **Pagar** builds the payment (`buildPaymentInstructions`), signs it with the Web3Auth wallet and sends it through our RPC as a v0 transaction, waiting for `confirmed`. The success screen says how long it took.
+3. The confirmation screen shows the amount, the concept, the merchant name and its **full** address. Meanwhile it asks once whether a successful transaction already mentions the charge's `reference`: if so, it says the charge is already paid, links it and hides **Pay**.
+4. **Pay** builds the payment (`buildPaymentInstructions`), signs it with the Web3Auth wallet and sends it through our RPC as a v0 transaction, waiting for `confirmed`. The success screen says how long it took.
 
 No priority fee is added: devnet isn't congested, so its effect can't be measured there (confirmation already takes ~0.8 s without it). To decide on mainnet.
 
@@ -72,10 +84,10 @@ The student pays the network fee (~5,000 lamports), plus the rent of the merchan
 
 If a payment fails, the screen says whether the money moved:
 
-| Message                                     | Paying again                                                                                           |
-| ------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| Not enough EURC / not enough SOL / not paid | Safe                                                                                                   |
-| "No sabemos si el pago se ha completado"    | Disabled: the transaction was signed and may have landed. Check the balance or the Explorer link first |
+| Message                                          | Paying again                                                                                           |
+| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------ |
+| Not enough EURC / not enough SOL / not paid      | Safe                                                                                                   |
+| "We don't know whether the payment went through" | Disabled: the transaction was signed and may have landed. Check the balance or the Explorer link first |
 
 ### Scanner
 
@@ -90,22 +102,22 @@ The camera only works in a secure context: `localhost` or HTTPS. To try the app 
 
 ## Metrics
 
-Each payment records how long it took from the tap, by stage, and the last 50 stay on the device (`localStorage`). The **Métricas** card at the bottom shows the median and p95 of each stage and the last payments, with a button to clear them.
+Each payment records how long it took from the tap, by stage, and the last 50 stay on the device (`localStorage`). The **Metrics** card at the bottom shows the median and p95 of each stage and the last payments, with a button to clear them.
 
-| Stage     | What it covers                                  |
-| --------- | ----------------------------------------------- |
-| Preparar  | Building the transaction, blockhash, simulation |
-| Firmar    | The Web3Auth wallet signing                     |
-| Confirmar | Sending it and waiting for `confirmed`          |
+| Stage   | What it covers                                  |
+| ------- | ----------------------------------------------- |
+| Prepare | Building the transaction, blockhash, simulation |
+| Sign    | The Web3Auth wallet signing                     |
+| Confirm | Sending it and waiting for `confirmed`          |
 
 Measured on devnet's public RPC (39 payments of 0.01 EURC, in two runs, from a desktop browser):
 
-| Stage     | p50     | p95     | max    |
-| --------- | ------- | ------- | ------ |
-| Total     | ~1.0 s  | ~1.2 s  | 3.9 s  |
-| Preparar  | ~170 ms | ~200 ms | 204 ms |
-| Firmar    | 10 ms   | 21 ms   | 55 ms  |
-| Confirmar | ~800 ms | ~1.1 s  | 3.7 s  |
+| Stage   | p50     | p95     | max    |
+| ------- | ------- | ------- | ------ |
+| Total   | ~1.0 s  | ~1.2 s  | 3.9 s  |
+| Prepare | ~170 ms | ~200 ms | 204 ms |
+| Sign    | 10 ms   | 21 ms   | 55 ms  |
+| Confirm | ~800 ms | ~1.1 s  | 3.7 s  |
 
 ## Known issues
 

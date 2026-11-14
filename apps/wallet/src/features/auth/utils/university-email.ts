@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { m } from "#/paraglide/messages.js";
+
 export const UNIVERSITY_EMAIL_DOMAINS = ["inlumine.ual.es", "ual.es"] as const;
 
 function domainOf(email: string): string {
@@ -19,13 +21,11 @@ export const universityEmailSchema = z
     z
       .email({
         error: (issue) =>
-          issue.input === ""
-            ? "Escribe tu correo."
-            : "Escribe un correo válido.",
+          issue.input === "" ? m.email_required() : m.email_invalid(),
         abort: true,
       })
-      .refine(
-        isUniversityEmail,
-        `Usa tu correo de la universidad (@${UNIVERSITY_EMAIL_DOMAINS[0]}).`,
-      ),
+      .refine(isUniversityEmail, {
+        error: () =>
+          m.email_not_university({ domain: UNIVERSITY_EMAIL_DOMAINS[0] }),
+      }),
   );

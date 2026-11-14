@@ -7,6 +7,7 @@ import type {
   LoginMethod,
   LoginRequest,
 } from "#/features/auth/types/login-methods";
+import { m } from "#/paraglide/messages.js";
 
 // Closing the login popup is a choice, not an error worth a red toast.
 function isCancelled(error: unknown): boolean {
@@ -37,7 +38,7 @@ export function useLogin() {
       );
     } catch (error) {
       if (!isCancelled(error)) {
-        toast.error("No se ha podido iniciar sesión. Inténtalo de nuevo.");
+        toast.error(m.login_failed());
       }
     } finally {
       setPending(null);

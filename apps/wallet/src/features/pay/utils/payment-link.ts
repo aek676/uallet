@@ -9,7 +9,7 @@ import {
   TransferRequestError,
 } from "@repo/payments/solana-pay";
 
-const INVALID_LINK = "Este enlace no es un cobro válido.";
+import { m } from "#/paraglide/messages.js";
 
 /**
  * The `solana:` link of a transfer request, to hand it to another screen in
@@ -31,17 +31,17 @@ function parseLink(value: string): TransferRequest | null {
 /** Why the wallet can't pay this request, or `null` if it can. */
 function rejectionOf(request: TransferRequest, payer: Address): string | null {
   if (request.splToken !== PAYMENT_TOKEN.mint) {
-    return `Este cobro no es en ${PAYMENT_TOKEN.symbol}.`;
+    return m.link_wrong_token({ token: PAYMENT_TOKEN.symbol });
   }
   if (request.reference.length === 0) {
-    return "Este cobro no tiene referencia: el comercio no podría confirmarlo.";
+    return m.link_no_reference();
   }
   // `buildPaymentInstructions` doesn't support memos.
   if (request.memo !== undefined) {
-    return "Este cobro incluye un memo y Uallet no lo admite.";
+    return m.link_memo();
   }
   if (request.recipient === payer) {
-    return "No puedes pagarte a ti mismo.";
+    return m.link_self();
   }
   return null;
 }
@@ -55,10 +55,10 @@ export function createPaymentLinkSchema(payer: Address) {
   return z
     .string()
     .trim()
-    .min(1, { error: "Pega el enlace de pago.", abort: true })
+    .min(1, { error: () => m.link_required(), abort: true })
     .transform((value, ctx) => {
       const request = parseLink(value);
-      const message = request ? rejectionOf(request, payer) : INVALID_LINK;
+      const message = request ? rejectionOf(request, payer) : m.link_invalid();
       if (!request || message) {
         ctx.issues.push({
           code: "custom",
@@ -83,12 +83,12 @@ export function checkPaymentLink(
   link: string,
   payer: Address,
 ): PaymentLinkCheck {
-  if (link.trim() === "") return { success: false, message: INVALID_LINK };
+  if (link.trim() === "") return { success: false, message: m.link_invalid() };
   const result = createPaymentLinkSchema(payer).safeParse(link);
   return result.success
     ? { success: true, request: result.data }
     : {
         success: false,
-        message: result.error.issues[0]?.message ?? INVALID_LINK,
+        message: result.error.issues[0]?.message ?? m.link_invalid(),
       };
 }

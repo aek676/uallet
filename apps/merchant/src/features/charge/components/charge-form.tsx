@@ -25,6 +25,7 @@ import {
   createCharge,
 } from "#/features/charge/utils/create-charge";
 import { euroAmountSchema } from "#/features/charge/utils/euro-amount";
+import { m } from "#/paraglide/messages.js";
 
 const chargeFormSchema = z.object({
   amount: euroAmountSchema,
@@ -58,10 +59,8 @@ export function ChargeForm({ onCharge }: ChargeFormProps) {
   return (
     <Card className="w-full max-w-sm">
       <CardHeader>
-        <CardTitle>Nuevo cobro</CardTitle>
-        <CardDescription>
-          Escribe el importe para generar el QR de pago.
-        </CardDescription>
+        <CardTitle>{m.charge_form_title()}</CardTitle>
+        <CardDescription>{m.charge_form_description()}</CardDescription>
       </CardHeader>
       <CardContent>
         <form
@@ -78,13 +77,15 @@ export function ChargeForm({ onCharge }: ChargeFormProps) {
                 field.state.meta.isTouched && !field.state.meta.isValid;
               return (
                 <Field data-invalid={isInvalid}>
-                  <FieldLabel htmlFor={amountId}>Importe (€)</FieldLabel>
+                  <FieldLabel htmlFor={amountId}>
+                    {m.charge_form_amount_label()}
+                  </FieldLabel>
                   <Input
                     id={amountId}
                     name={field.name}
                     inputMode="decimal"
                     autoComplete="off"
-                    placeholder="0,00"
+                    placeholder={m.charge_form_amount_placeholder()}
                     className="h-14 text-right text-3xl tabular-nums md:text-3xl"
                     value={field.state.value}
                     onChange={(event) => field.handleChange(event.target.value)}
@@ -108,12 +109,14 @@ export function ChargeForm({ onCharge }: ChargeFormProps) {
                 field.state.meta.isTouched && !field.state.meta.isValid;
               return (
                 <Field data-invalid={isInvalid}>
-                  <FieldLabel htmlFor={conceptId}>Concepto</FieldLabel>
+                  <FieldLabel htmlFor={conceptId}>
+                    {m.charge_form_concept_label()}
+                  </FieldLabel>
                   <Input
                     id={conceptId}
                     name={field.name}
                     autoComplete="off"
-                    placeholder="Café con leche"
+                    placeholder={m.charge_form_concept_placeholder()}
                     value={field.state.value}
                     onChange={(event) => field.handleChange(event.target.value)}
                     onBlur={field.handleBlur}
@@ -129,7 +132,7 @@ export function ChargeForm({ onCharge }: ChargeFormProps) {
                     />
                   ) : (
                     <FieldDescription id={conceptHintId}>
-                      Opcional. El estudiante lo ve al pagar.
+                      {m.charge_form_concept_hint()}
                     </FieldDescription>
                   )}
                 </Field>
@@ -137,7 +140,7 @@ export function ChargeForm({ onCharge }: ChargeFormProps) {
             }}
           </form.Field>
           <Button type="submit" size="lg">
-            Cobrar
+            {m.charge_form_submit()}
           </Button>
         </form>
       </CardContent>

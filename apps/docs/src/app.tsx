@@ -34,7 +34,12 @@ export function App() {
             ))}
           </nav>
           <div className="ml-auto">
-            <ThemeToggle />
+            <ThemeToggle
+              labels={{
+                toLight: "Cambiar a tema claro",
+                toDark: "Cambiar a tema oscuro",
+              }}
+            />
           </div>
         </div>
       </header>

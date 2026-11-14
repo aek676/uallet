@@ -2,7 +2,6 @@ import { ExternalLinkIcon } from "lucide-react";
 import { useSyncExternalStore } from "react";
 
 import { getExplorerTransactionUrl } from "@repo/payments/explorer";
-import { formatDateTime, formatDuration } from "@repo/payments/format";
 import { summarize } from "@repo/payments/metrics";
 import { Button } from "@repo/ui/components/button";
 import {
@@ -11,6 +10,8 @@ import {
   CollapsibleCardTrigger,
 } from "@repo/ui/components/collapsible-card";
 
+import { formatDateTime, formatDuration, formatPercent } from "#/lib/format";
+import { m } from "#/paraglide/messages.js";
 import {
   type ChargeTiming,
   chargeTimings,
@@ -19,28 +20,23 @@ import {
 
 const VIAS: readonly {
   via: ChargeTiming["via"];
-  label: string;
-  hint: string;
+  label: () => string;
+  hint: () => string;
 }[] = [
   {
     via: "notification",
-    label: "Por aviso",
-    hint: "El RPC avisó del pago por la suscripción: la vía rápida",
+    label: m.metrics_via_notification_label,
+    hint: m.metrics_via_notification_hint,
   },
   {
     via: "look-back",
-    label: "Por consulta",
-    hint: "El aviso no llegó o llegó tarde: lo encontró la consulta de cada segundo",
+    label: m.metrics_via_look_back_label,
+    hint: m.metrics_via_look_back_hint,
   },
 ];
 
 /** How many of the last payments to list. */
 const RECENT = 5;
-
-const percent = new Intl.NumberFormat("es-ES", {
-  style: "percent",
-  maximumFractionDigits: 0,
-});
 
 function ViaRow({
   label,
@@ -68,7 +64,7 @@ function ViaRow({
         {timings.length}
         <span className="text-muted-foreground">
           {" "}
-          ({percent.format(timings.length / total)})
+          ({formatPercent(timings.length / total)})
         </span>
       </td>
       <td className="py-1 text-right tabular-nums">
@@ -92,38 +88,35 @@ export function MetricsCard() {
   return (
     <CollapsibleCard className="w-full max-w-sm">
       <CollapsibleCardTrigger>
-        Métricas
+        {m.metrics_title()}
         <span className="ml-auto text-sm font-normal text-muted-foreground">
-          {timings.length === 1 ? "1 cobro" : `${timings.length} cobros`}
+          {m.metrics_charge_count({ count: timings.length })}
         </span>
       </CollapsibleCardTrigger>
       <CollapsibleCardContent>
         {timings.length === 0 ? (
-          <p className="text-muted-foreground">
-            Aquí verás cómo se detectan los pagos que cobres en este
-            dispositivo.
-          </p>
+          <p className="text-muted-foreground">{m.metrics_empty()}</p>
         ) : (
           <>
             <table className="w-full">
               <thead>
                 <tr className="text-xs text-muted-foreground">
                   <th scope="col" className="pb-1 text-left font-normal">
-                    Detectados
+                    {m.metrics_detected_header()}
                   </th>
                   <th scope="col" className="pb-1 text-right font-normal">
-                    Cobros
+                    {m.metrics_charges_header()}
                   </th>
                   <th
                     scope="col"
-                    title="Lo que tarda en comprobarse el pago una vez detectado: mediana"
+                    title={m.metrics_median_hint()}
                     className="pb-1 text-right font-normal"
                   >
-                    Mediana
+                    {m.metrics_median_header()}
                   </th>
                   <th
                     scope="col"
-                    title="El 95 % de los pagos se comprueba en esto o menos"
+                    title={m.metrics_p95_hint()}
                     className="pb-1 text-right font-normal"
                   >
                     p95
@@ -134,8 +127,8 @@ export function MetricsCard() {
                 {VIAS.map(({ via, label, hint }) => (
                   <ViaRow
                     key={via}
-                    label={label}
-                    hint={hint}
+                    label={label()}
+                    hint={hint()}
                     timings={timings.filter((timing) => timing.via === via)}
                     total={timings.length}
                   />
@@ -144,7 +137,9 @@ export function MetricsCard() {
             </table>
 
             <div className="flex flex-col gap-1">
-              <h3 className="text-xs text-muted-foreground">Últimos cobros</h3>
+              <h3 className="text-xs text-muted-foreground">
+                {m.metrics_recent()}
+              </h3>
               <ul className="flex flex-col gap-1">
                 {recent.map((timing) => (
                   <li
@@ -160,10 +155,10 @@ export function MetricsCard() {
                       rel="noreferrer"
                       className="inline-flex items-center gap-1 tabular-nums underline underline-offset-4"
                     >
-                      {VIA_LABELS[timing.via]} ·{" "}
+                      {VIA_LABELS[timing.via]()} ·{" "}
                       {formatDuration(timing.validateMs)}
                       <ExternalLinkIcon className="size-3.5" aria-hidden />
-                      <span className="sr-only">Ver en el Explorer</span>
+                      <span className="sr-only">{m.view_in_explorer()}</span>
                     </a>
                   </li>
                 ))}
@@ -171,8 +166,7 @@ export function MetricsCard() {
             </div>
 
             <p className="text-xs text-muted-foreground">
-              Los tiempos son lo que tarda en comprobarse un pago desde que se
-              detecta. Se guardan los últimos 50 cobros.
+              {m.metrics_footnote()}
             </p>
             <Button
               variant="outline"
@@ -180,7 +174,7 @@ export function MetricsCard() {
               className="self-start"
               onClick={chargeTimings.clear}
             >
-              Borrar métricas
+              {m.metrics_clear()}
             </Button>
           </>
         )}

@@ -7,6 +7,7 @@ import { PayCharge } from "#/features/pay/components/pay-charge";
 import { paySearchSchema } from "#/features/pay/utils/pay-search";
 import { checkPaymentLink } from "#/features/pay/utils/payment-link";
 import { useConnectedAccount } from "#/hooks/use-connected-account";
+import { m } from "#/paraglide/messages.js";
 
 export const Route = createFileRoute("/_authenticated/pay")({
   validateSearch: paySearchSchema,
@@ -26,10 +27,7 @@ function Pay() {
 
   if (!result.success) {
     return (
-      <DeadEndCard
-        title="No se puede pagar este cobro"
-        description={result.message}
-      />
+      <DeadEndCard title={m.cannot_pay_title()} description={result.message} />
     );
   }
 

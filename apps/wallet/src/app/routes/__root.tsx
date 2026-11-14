@@ -1,9 +1,13 @@
 import { createRootRoute, Outlet } from "@tanstack/react-router";
 import { lazy, Suspense } from "react";
 
+import { LanguageMenu } from "@repo/ui/components/language-menu";
 import { ThemeToggle } from "@repo/ui/components/theme-toggle";
 
 import { DeadEndCard } from "#/components/dead-end-card";
+import { LANGUAGES } from "#/lib/i18n";
+import { m } from "#/paraglide/messages.js";
+import { getLocale, setLocale } from "#/paraglide/runtime.js";
 
 const Devtools = import.meta.env.DEV
   ? lazy(async () => {
@@ -29,7 +33,18 @@ function RootLayout() {
     <div className="flex min-h-svh flex-col">
       <header className="flex h-14 items-center justify-between border-b px-6">
         <span className="font-semibold">Uallet</span>
-        <ThemeToggle />
+        <div className="flex items-center gap-1">
+          <LanguageMenu
+            languages={LANGUAGES}
+            value={getLocale()}
+            // Saves the choice and reloads the page in that language.
+            onValueChange={(locale) => void setLocale(locale)}
+            label={m.language_menu_label()}
+          />
+          <ThemeToggle
+            labels={{ toLight: m.theme_to_light(), toDark: m.theme_to_dark() }}
+          />
+        </div>
       </header>
       <main className="flex flex-1 items-center justify-center p-6">
         <Outlet />
@@ -44,8 +59,8 @@ function RootLayout() {
 function NotFound() {
   return (
     <DeadEndCard
-      title="Esta página no existe"
-      description="Puede que el enlace esté mal escrito o que ya no exista."
+      title={m.not_found_title()}
+      description={m.not_found_description()}
     />
   );
 }

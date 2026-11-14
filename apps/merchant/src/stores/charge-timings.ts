@@ -3,6 +3,8 @@ import { z } from "zod";
 
 import { createSampleStore } from "@repo/payments/sample-store";
 
+import { m } from "#/paraglide/messages.js";
+
 const VIAS = ["notification", "look-back"] as const;
 
 /** How the merchant app detected a payment, and how long checking it took. */
@@ -15,13 +17,13 @@ export interface ChargeTiming {
   via: (typeof VIAS)[number];
   /** `Date.now()` when the transaction was announced. */
   noticedAt: number;
-  /** Announced to "Pagado": fetching the transaction and validating it. */
+  /** Announced to "Paid": fetching the transaction and validating it. */
   validateMs: number;
 }
 
-export const VIA_LABELS: Record<ChargeTiming["via"], string> = {
-  notification: "aviso",
-  "look-back": "consulta",
+export const VIA_LABELS: Record<ChargeTiming["via"], () => string> = {
+  notification: m.via_notification,
+  "look-back": m.via_look_back,
 };
 
 export function toChargeTiming(payment: {
