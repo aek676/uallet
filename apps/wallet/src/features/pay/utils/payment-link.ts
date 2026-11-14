@@ -9,6 +9,8 @@ import {
   TransferRequestError,
 } from "@repo/payments/solana-pay";
 
+const INVALID_LINK = "Este enlace no es un cobro válido.";
+
 /**
  * The `solana:` link of a transfer request, to hand it to another screen in
  * the URL. Rebuilt from the parsed request, it only carries what Uallet reads.
@@ -56,9 +58,7 @@ export function createPaymentLinkSchema(payer: Address) {
     .min(1, { error: "Pega el enlace de pago.", abort: true })
     .transform((value, ctx) => {
       const request = parseLink(value);
-      const message = request
-        ? rejectionOf(request, payer)
-        : "Este enlace no es un cobro válido.";
+      const message = request ? rejectionOf(request, payer) : INVALID_LINK;
       if (!request || message) {
         ctx.issues.push({
           code: "custom",
@@ -69,4 +69,26 @@ export function createPaymentLinkSchema(payer: Address) {
       }
       return request;
     });
+}
+
+export type PaymentLinkCheck =
+  | { success: true; request: TransferRequest }
+  | { success: false; message: string };
+
+/**
+ * Checks a link that came in the URL, like `createPaymentLinkSchema`. An
+ * empty one is just an invalid link: nobody pasted it.
+ */
+export function checkPaymentLink(
+  link: string,
+  payer: Address,
+): PaymentLinkCheck {
+  if (link.trim() === "") return { success: false, message: INVALID_LINK };
+  const result = createPaymentLinkSchema(payer).safeParse(link);
+  return result.success
+    ? { success: true, request: result.data }
+    : {
+        success: false,
+        message: result.error.issues[0]?.message ?? INVALID_LINK,
+      };
 }

@@ -7,14 +7,20 @@ import {
   CardTitle,
 } from "@repo/ui/components/card";
 
-export function LoadErrorScreen() {
+type LoadErrorScreenProps = {
+  title?: string;
+  description?: string;
+};
+
+export function LoadErrorScreen({
+  title = "No se ha podido cargar la wallet",
+  description = "Comprueba tu conexión a internet y vuelve a intentarlo.",
+}: LoadErrorScreenProps) {
   return (
     <Card className="w-full max-w-sm">
       <CardHeader>
-        <CardTitle>No se ha podido cargar la wallet</CardTitle>
-        <CardDescription>
-          Comprueba tu conexión a internet y vuelve a intentarlo.
-        </CardDescription>
+        <CardTitle>{title}</CardTitle>
+        <CardDescription>{description}</CardDescription>
       </CardHeader>
       <CardFooter>
         <Button className="w-full" onClick={() => window.location.reload()}>

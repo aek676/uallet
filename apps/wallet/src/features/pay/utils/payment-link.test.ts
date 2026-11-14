@@ -9,6 +9,7 @@ import {
 } from "@repo/payments/solana-pay";
 
 import {
+  checkPaymentLink,
   createPaymentLinkSchema,
   toPaymentLink,
 } from "#/features/pay/utils/payment-link";
@@ -83,6 +84,29 @@ describe("createPaymentLinkSchema", () => {
     expect(messagesOf(link({ recipient: PAYER }))).toEqual([
       "No puedes pagarte a ti mismo.",
     ]);
+  });
+});
+
+describe("checkPaymentLink", () => {
+  it("returns the transfer request of a valid link", () => {
+    expect(checkPaymentLink(link(), PAYER)).toEqual({
+      success: true,
+      request,
+    });
+  });
+
+  it.each(["", "   "])("calls a %j link invalid", (input) => {
+    expect(checkPaymentLink(input, PAYER)).toEqual({
+      success: false,
+      message: "Este enlace no es un cobro válido.",
+    });
+  });
+
+  it("says why the wallet can't pay it", () => {
+    expect(checkPaymentLink(link({ recipient: PAYER }), PAYER)).toEqual({
+      success: false,
+      message: "No puedes pagarte a ti mismo.",
+    });
   });
 });
 

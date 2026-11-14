@@ -7,7 +7,7 @@ import { defineConfig } from "vite";
 export default defineConfig({
   plugins: [
     varlockVitePlugin(),
-    // Before `react()`: it generates the route tree and splits route files.
+    // Must come before `react()`.
     tanstackRouter({
       target: "react",
       autoCodeSplitting: true,
