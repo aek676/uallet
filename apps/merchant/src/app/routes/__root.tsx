@@ -7,8 +7,6 @@ import { DeadEndCard } from "#/components/dead-end-card";
 import { merchant } from "#/config/merchant";
 import { MetricsCard } from "#/features/metrics/components/metrics-card";
 
-// TanStack Devtools with a tab per library. `import.meta.env.DEV` is `false`
-// in the build, so the devtools (dev dependencies) are left out of the bundle.
 const Devtools = import.meta.env.DEV
   ? lazy(async () => {
       const [{ TanStackDevtools }, { TanStackRouterDevtoolsPanel }] =
@@ -25,7 +23,6 @@ const Devtools = import.meta.env.DEV
 
 export const Route = createRootRoute({
   component: RootLayout,
-  // Also an invalid reference in `/charges/$reference`.
   notFoundComponent: NotFound,
 });
 

@@ -9,8 +9,8 @@ type ChargePaymentProps = {
 };
 
 /**
- * A charge from the QR code until it's paid. Mount it with the charge's
- * reference as `key`: the payment watcher lives as long as this component.
+ * A charge from the QR code until it's paid. Mount it with the charge's `url`
+ * as `key`: the payment watcher lives as long as this component.
  */
 export function ChargePayment({ charge, onClose }: ChargePaymentProps) {
   const { state, retry } = useChargePayment(charge);

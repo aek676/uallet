@@ -13,7 +13,6 @@ function NewCharge() {
   return (
     <ChargeForm
       onCharge={(charge) => {
-        // Push: back from the QR returns to the form, like "Cancelar".
         void navigate({
           to: "/charges/$reference",
           params: { reference: charge.reference },

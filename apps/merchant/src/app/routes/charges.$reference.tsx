@@ -15,11 +15,6 @@ import {
 } from "#/features/charge/utils/charge-search";
 import { createCharge } from "#/features/charge/utils/create-charge";
 
-/**
- * A charge on screen. The URL holds everything that isn't config, so a
- * reload rebuilds the same charge and keeps watching for its payment: the
- * watcher looks back, so it finds a payment that landed meanwhile.
- */
 export const Route = createFileRoute("/charges/$reference")({
   params: {
     // An invalid reference doesn't match the route: "not found".
@@ -63,7 +58,7 @@ function ChargeScreen() {
 
   return (
     <ChargePayment
-      key={charge.reference}
+      key={charge.url}
       charge={charge}
       // Replace: back or forward never bring a closed charge back.
       onClose={() => void navigate({ to: "/", replace: true })}
