@@ -2,7 +2,11 @@ import { defineConfig } from "oxfmt";
 
 export default defineConfig({
   printWidth: 80,
-  ignorePatterns: ["aube-lock.yaml", "apps/*/env.d.ts"],
+  ignorePatterns: [
+    "aube-lock.yaml",
+    "apps/*/env.d.ts",
+    "apps/*/src/app/route-tree.gen.ts",
+  ],
   sortImports: {
     internalPattern: ["@repo/"],
     groups: [
