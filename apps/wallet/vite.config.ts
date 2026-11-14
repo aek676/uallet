@@ -8,7 +8,6 @@ import { defineConfig } from "vite";
 export default defineConfig({
   plugins: [
     varlockVitePlugin(),
-    // Messages and options in `@repo/i18n`, shared with `codegen`.
     paraglideVitePlugin({ project: "../../packages/i18n/project.inlang" }),
     tanstackRouter({
       target: "react",
