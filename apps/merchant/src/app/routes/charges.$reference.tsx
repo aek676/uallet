@@ -3,7 +3,6 @@ import {
   createFileRoute,
   type SearchSchemaInput,
 } from "@tanstack/react-router";
-import { useMemo } from "react";
 
 import { DeadEndCard } from "#/components/dead-end-card";
 import { merchant } from "#/config/merchant";
@@ -33,19 +32,14 @@ function ChargeScreen() {
   const { amount, concept } = Route.useSearch();
   const navigate = Route.useNavigate();
 
-  // `useChargePayment` depends on the charge's identity: rebuild it only when
-  // the URL changes.
-  const charge = useMemo(
-    () =>
-      amount === undefined
-        ? null
-        : createCharge({
-            merchant,
-            reference,
-            ...toChargeDetails({ amount, concept }),
-          }),
-    [reference, amount, concept],
-  );
+  const charge =
+    amount === undefined
+      ? null
+      : createCharge({
+          merchant,
+          reference,
+          ...toChargeDetails({ amount, concept }),
+        });
 
   if (!charge) {
     return (
