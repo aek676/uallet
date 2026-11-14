@@ -1,11 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { useConnectedAccount } from "#/app/connected-account";
 import { AccountCard } from "#/features/account/components/account-card";
 import { BalanceCard } from "#/features/balance/components/balance-card";
 import { MetricsCard } from "#/features/metrics/components/metrics-card";
 import { PaymentLinkForm } from "#/features/pay/components/payment-link-form";
 import { toPaymentLink } from "#/features/pay/utils/payment-link";
+import { useConnectedAccount } from "#/hooks/use-connected-account";
 
 export const Route = createFileRoute("/_authenticated/")({
   component: Home,

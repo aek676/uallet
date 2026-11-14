@@ -1,10 +1,10 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { useWeb3Auth } from "@web3auth/no-modal/react";
 
-import { ConnectedAccountProvider } from "#/app/connected-account";
 import { LoadErrorScreen } from "#/components/load-error-screen";
 import { LoadingScreen } from "#/components/loading-screen";
 import { LoginForm } from "#/features/auth/components/login-form";
+import { ConnectedAccountProvider } from "#/hooks/use-connected-account";
 import { useSolanaAccount } from "#/hooks/use-solana-account";
 
 /**

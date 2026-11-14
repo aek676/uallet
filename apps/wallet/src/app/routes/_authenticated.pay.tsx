@@ -13,14 +13,14 @@ import {
   CardTitle,
 } from "@repo/ui/components/card";
 
-import { useConnectedAccount } from "#/app/connected-account";
-import { paySearchSchema } from "#/app/pay-search";
 import { BalanceCard } from "#/features/balance/components/balance-card";
 import { PaymentConfirmation } from "#/features/pay/components/payment-confirmation";
 import { PaymentSuccess } from "#/features/pay/components/payment-success";
 import { useEarlierPayment } from "#/features/pay/hooks/use-earlier-payment";
 import { usePayment } from "#/features/pay/hooks/use-payment";
+import { paySearchSchema } from "#/features/pay/utils/pay-search";
 import { createPaymentLinkSchema } from "#/features/pay/utils/payment-link";
+import { useConnectedAccount } from "#/hooks/use-connected-account";
 
 const INVALID_LINK = "Este enlace no es un cobro válido.";
 

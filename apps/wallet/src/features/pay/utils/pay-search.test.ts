@@ -8,7 +8,7 @@ import { describe, expect, it } from "vitest";
 import { PAYMENT_TOKEN } from "@repo/payments/config";
 import { createReference } from "@repo/payments/reference";
 
-import { paySearchSchema } from "#/app/pay-search";
+import { paySearchSchema } from "#/features/pay/utils/pay-search";
 import { toPaymentLink } from "#/features/pay/utils/payment-link";
 
 const MERCHANT = address("DuYQKfdunafuUqS7h6gugadrAiprxwtwBZFZLAMk4A99");
