@@ -11,12 +11,12 @@ import {
 } from "@repo/ui/components/card";
 import { ThemeToggle } from "@repo/ui/components/theme-toggle";
 
-// Dev only: the condition is replaced at build time, so the import (a
-// devDependency) is dropped from the production bundle.
-const RouterDevtools = import.meta.env.DEV
+// `import.meta.env.DEV` is `false` in the build, so the devtools (dev
+// dependencies) are left out of the bundle.
+const Devtools = import.meta.env.DEV
   ? lazy(() =>
-      import("@tanstack/react-router-devtools").then((module) => ({
-        default: module.TanStackRouterDevtools,
+      import("#/app/devtools").then((module) => ({
+        default: module.Devtools,
       })),
     )
   : () => null;
@@ -37,7 +37,7 @@ function RootLayout() {
         <Outlet />
       </main>
       <Suspense>
-        <RouterDevtools />
+        <Devtools />
       </Suspense>
     </div>
   );

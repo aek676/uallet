@@ -45,6 +45,7 @@
     "@repo/oxlint-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
     "@tailwindcss/vite": "catalog:styles",
+    "@tanstack/react-devtools": "catalog:devtools",
     "@tanstack/react-router-devtools": "catalog:router",
     "@tanstack/router-plugin": "catalog:router",
     "@types/react": "catalog:react",

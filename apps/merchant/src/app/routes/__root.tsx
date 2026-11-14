@@ -7,12 +7,12 @@ import { DeadEndCard } from "#/app/dead-end-card";
 import { merchant } from "#/config/merchant";
 import { MetricsCard } from "#/features/metrics/components/metrics-card";
 
-// `import.meta.env.DEV` is `false` in the build, so the devtools (a dev
-// dependency) are left out of the bundle.
-const RouterDevtools = import.meta.env.DEV
+// `import.meta.env.DEV` is `false` in the build, so the devtools (dev
+// dependencies) are left out of the bundle.
+const Devtools = import.meta.env.DEV
   ? lazy(() =>
-      import("@tanstack/react-router-devtools").then((module) => ({
-        default: module.TanStackRouterDevtools,
+      import("#/app/devtools").then((module) => ({
+        default: module.Devtools,
       })),
     )
   : () => null;
@@ -38,7 +38,7 @@ function RootLayout() {
         <MetricsCard />
       </main>
       <Suspense>
-        <RouterDevtools />
+        <Devtools />
       </Suspense>
     </div>
   );
