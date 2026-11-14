@@ -8,7 +8,10 @@ import {
   type TransferRequest,
 } from "@repo/payments/solana-pay";
 
-import { createPaymentLinkSchema } from "#/features/pay/utils/payment-link";
+import {
+  createPaymentLinkSchema,
+  toPaymentLink,
+} from "#/features/pay/utils/payment-link";
 
 const PAYER = address("2sfAeaW2jwkP53mG4iaMKUJFG5Xvo5ms5Taqmne5Pyv7");
 const MERCHANT = address("DuYQKfdunafuUqS7h6gugadrAiprxwtwBZFZLAMk4A99");
@@ -80,5 +83,21 @@ describe("createPaymentLinkSchema", () => {
     expect(messagesOf(link({ recipient: PAYER }))).toEqual([
       "No puedes pagarte a ti mismo.",
     ]);
+  });
+});
+
+describe("toPaymentLink", () => {
+  it("encodes the request as its Solana Pay link", () => {
+    expect(toPaymentLink(request)).toBe(link());
+  });
+
+  it("round-trips through createPaymentLinkSchema", () => {
+    const tricky: TransferRequest = {
+      ...request,
+      reference: [createReference(), createReference()],
+      label: "Café & Té? #1",
+      message: "Menú del día: 1/2 + bebida, 100% = ok",
+    };
+    expect(schema.parse(toPaymentLink(tricky))).toEqual(tricky);
   });
 });

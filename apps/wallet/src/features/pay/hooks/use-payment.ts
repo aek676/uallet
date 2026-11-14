@@ -23,7 +23,7 @@ import { paymentTimings } from "#/stores/payment-timings";
 export function usePayment(signer: TransactionSigner) {
   // `useAction`'s abort signal isn't forwarded on purpose: once a payment is
   // on its way it can't be cancelled, and we always want to know how it ended.
-  const { dispatch, data, error, isRunning, reset } = useAction(
+  const { dispatch, data, error, isRunning } = useAction(
     async (_signal: AbortSignal, request: TransferRequest) => {
       const marks: PaymentMarks = { startedAt: Date.now() };
       // The same signer object for the fee payer and the instructions: Kit
@@ -60,6 +60,5 @@ export function usePayment(signer: TransactionSigner) {
     /** `null` if the payment couldn't be timed. */
     timing: data?.timing ?? null,
     failure: error === undefined ? null : classifyPaymentFailure(error),
-    reset,
   };
 }

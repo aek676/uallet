@@ -41,10 +41,28 @@ Log in, copy your address from the app and request:
 - **SOL** for network fees: [faucet.solana.com](https://faucet.solana.com)
 - **EURC** to pay with: [faucet.circle.com](https://faucet.circle.com) (EURC, Solana Devnet)
 
+## Routes
+
+[TanStack Router](https://tanstack.com/router) with file-based routes in `src/app/routes` (the Vite plugin regenerates `src/app/route-tree.gen.ts` on `dev` and `build`; it's committed). The URL says which screen is open; a payment in flight, its signature and timing stay in React.
+
+| Path          | Screen                                                      |
+| ------------- | ----------------------------------------------------------- |
+| `/`           | Balance, paste a link or open the scanner, account, metrics |
+| `/scan`       | The QR scanner                                              |
+| `/pay?link=…` | Confirmation and result of paying the `solana:` link        |
+| (any other)   | Not found, with a link home                                 |
+
+- **Login on a deep link.** Every screen sits behind `_authenticated`, a layout that shows the login form in place of the screen instead of redirecting. Login is a popup, so a `/pay?link=…` opened while logged out is still there after logging in.
+- **The link is checked again on `/pay`**, with the same schema as when pasting or scanning: a URL can be typed by anyone. An invalid one shows why and a way back.
+- **Back and refresh.** A scanned code replaces `/scan` in the history, and leaving `/pay` replaces it with `/`, so back doesn't reopen the camera or the charge. Refreshing `/pay` after paying shows the confirmation again: the "already paid" check then reports it and hides **Pagar**. That's the safety net, not a second payment.
+- **While paying, navigation is blocked** (back, links, and reload or close with the browser's prompt): the outcome of a sent payment decides whether paying again is safe.
+
+A static deploy must serve `index.html` for every path (SPA fallback), or a refresh or deep link outside `/` returns 404. `dev` and `preview` already do it.
+
 ## Paying
 
-1. **Escanear QR** (or paste the `solana:` link) from the [merchant app](../merchant/README.md).
-2. The link is checked (`createPaymentLinkSchema`): it must be a Solana Pay transfer request in `PAYMENT_TOKEN`, with a `reference`, without a memo and not to yourself.
+1. **Escanear QR** (`/scan`) or paste the `solana:` link on `/`, from the [merchant app](../merchant/README.md).
+2. The link is checked (`createPaymentLinkSchema`): it must be a Solana Pay transfer request in `PAYMENT_TOKEN`, with a `reference`, without a memo and not to yourself. The wallet then opens `/pay?link=…` with it.
 3. The confirmation screen shows the amount, the concept, the merchant name and its **full** address. Meanwhile it asks once whether a successful transaction already mentions the charge's `reference`: if so, it says the charge is already paid, links it and hides **Pagar**.
 4. **Pagar** builds the payment (`buildPaymentInstructions`), signs it with the Web3Auth wallet and sends it through our RPC as a v0 transaction, waiting for `confirmed`. The success screen says how long it took.
 

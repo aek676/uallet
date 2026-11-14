@@ -3,10 +3,19 @@ import { z } from "zod";
 
 import { PAYMENT_TOKEN } from "@repo/payments/config";
 import {
+  encodeTransferRequest,
   parseTransferRequest,
   type TransferRequest,
   TransferRequestError,
 } from "@repo/payments/solana-pay";
+
+/**
+ * The `solana:` link of a transfer request, to hand it to another screen in
+ * the URL. Rebuilt from the parsed request, it only carries what Uallet reads.
+ */
+export function toPaymentLink(request: TransferRequest): string {
+  return encodeTransferRequest(request, PAYMENT_TOKEN.decimals);
+}
 
 function parseLink(value: string): TransferRequest | null {
   try {
