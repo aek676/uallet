@@ -24,7 +24,8 @@ export type ChargePaymentState =
  * Watches the chain for the payment of `charge` while mounted. Mount it once
  * per charge (`key`): it doesn't start over when the charge changes.
  *
- * It keeps how each payment was detected in `chargeTimings`.
+ * It keeps how each payment was detected in `chargeTimings`, once per
+ * payment.
  */
 export function useChargePayment(charge: Charge) {
   const client = useClient<SolanaClient>();
@@ -38,7 +39,11 @@ export function useChargePayment(charge: Charge) {
         PAYMENT_TOKEN,
         { abortSignal, onChecking: setChecking },
       );
-      chargeTimings.add(toChargeTiming(payment));
+      // Reloading a paid charge finds its payment again: count it once.
+      const known = chargeTimings
+        .getSnapshot()
+        .some((timing) => timing.signature === payment.signature);
+      if (!known) chargeTimings.add(toChargeTiming(payment));
       return payment;
     },
   );

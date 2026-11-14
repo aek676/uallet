@@ -20,11 +20,16 @@ export interface CreateChargeInput {
   amount: bigint;
   concept?: string;
   token?: Pick<Token, "mint" | "decimals">;
+  /**
+   * Rebuilds an existing charge, e.g. after a reload. Defaults to a fresh
+   * one: only pass a reference that came from `createCharge`.
+   */
+  reference?: Address;
 }
 
 /**
- * A new charge: a fresh `reference` and the Solana Pay link the student
- * scans. Every call creates a new reference, so two charges of the same
+ * A charge: its `reference` and the Solana Pay link the student scans. By
+ * default every call creates a new reference, so two charges of the same
  * amount can't be confused.
  */
 export function createCharge({
@@ -32,8 +37,8 @@ export function createCharge({
   amount,
   concept,
   token = PAYMENT_TOKEN,
+  reference = createReference(),
 }: CreateChargeInput): Charge {
-  const reference = createReference();
   const message = concept?.trim();
 
   const request: TransferRequest = {

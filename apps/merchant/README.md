@@ -33,6 +33,22 @@ aube run dev --filter merchant
 
 It runs on `http://localhost:5175`.
 
+## Routes
+
+File-based routes with [TanStack Router](https://tanstack.com/router), in `src/app/routes`. The Vite plugin regenerates `src/app/route-tree.gen.ts` on `dev` and `build`; it's committed, so `lint` type-checks without running Vite.
+
+| Path                                                | Screen                        |
+| --------------------------------------------------- | ----------------------------- |
+| `/`                                                 | New charge form.              |
+| `/charges/$reference?amount=<base units>&concept=…` | The QR code, until it's paid. |
+| Anything else, or an invalid `reference`            | "Esta página no existe".      |
+
+The URL holds what a charge needs besides config: its `reference`, the `amount` in base units of `PAYMENT_TOKEN` (`1200000` is 1,20 €) and the optional `concept`. The recipient, token and label always come from config, so an edited link can't send the payment elsewhere. An amount or concept the form wouldn't accept shows "Este cobro no es válido".
+
+So reloading the QR page shows the same charge and keeps watching for its payment, and finds one that landed meanwhile (the watcher looks back). A reloaded paid charge shows "Pagado" again, without counting it twice in the metrics. Back from the QR is like "Cancelar"; "Cancelar" and "Nuevo cobro" replace the history entry, so back or forward never bring a closed charge back.
+
+`vite dev` and `vite preview` serve `index.html` for every path. A static deploy needs the same SPA fallback, or reloading `/charges/…` gives a 404.
+
 ## Charges
 
 - Amount: up to 2 decimals, at most 100 € (`MAX_CHARGE_EUROS`), so a typo can't become a big charge.

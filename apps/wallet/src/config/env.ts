@@ -4,14 +4,19 @@
  * instead of failing at payment time.
  *
  * Everything here ends up in the browser bundle: never put secrets in it.
+ *
+ * Varlock's Vite plugin inlines the values by rewriting the literal text
+ * `ENV.<KEY>`: keep the import named `ENV`, an alias isn't rewritten.
  */
-import { ENV as VARLOCK_ENV } from "varlock/env";
+import { ENV } from "varlock/env";
 
-export const ENV = {
+const config = {
   /** MetaMask Embedded Wallets client ID. Public by design. */
-  web3AuthClientId: VARLOCK_ENV.VITE_WEB3AUTH_CLIENT_ID,
+  web3AuthClientId: ENV.VITE_WEB3AUTH_CLIENT_ID,
   /** Solana devnet RPC. */
-  solanaRpcUrl: VARLOCK_ENV.VITE_SOLANA_RPC_URL,
+  solanaRpcUrl: ENV.VITE_SOLANA_RPC_URL,
   /** Solana devnet WebSocket, to listen for confirmations. */
-  solanaWsUrl: VARLOCK_ENV.VITE_SOLANA_WS_URL,
+  solanaWsUrl: ENV.VITE_SOLANA_WS_URL,
 } as const;
+
+export { config as ENV };

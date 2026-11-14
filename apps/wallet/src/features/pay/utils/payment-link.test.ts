@@ -8,7 +8,11 @@ import {
   type TransferRequest,
 } from "@repo/payments/solana-pay";
 
-import { createPaymentLinkSchema } from "#/features/pay/utils/payment-link";
+import {
+  checkPaymentLink,
+  createPaymentLinkSchema,
+  toPaymentLink,
+} from "#/features/pay/utils/payment-link";
 
 const PAYER = address("2sfAeaW2jwkP53mG4iaMKUJFG5Xvo5ms5Taqmne5Pyv7");
 const MERCHANT = address("DuYQKfdunafuUqS7h6gugadrAiprxwtwBZFZLAMk4A99");
@@ -80,5 +84,44 @@ describe("createPaymentLinkSchema", () => {
     expect(messagesOf(link({ recipient: PAYER }))).toEqual([
       "No puedes pagarte a ti mismo.",
     ]);
+  });
+});
+
+describe("checkPaymentLink", () => {
+  it("returns the transfer request of a valid link", () => {
+    expect(checkPaymentLink(link(), PAYER)).toEqual({
+      success: true,
+      request,
+    });
+  });
+
+  it.each(["", "   "])("calls a %j link invalid", (input) => {
+    expect(checkPaymentLink(input, PAYER)).toEqual({
+      success: false,
+      message: "Este enlace no es un cobro válido.",
+    });
+  });
+
+  it("says why the wallet can't pay it", () => {
+    expect(checkPaymentLink(link({ recipient: PAYER }), PAYER)).toEqual({
+      success: false,
+      message: "No puedes pagarte a ti mismo.",
+    });
+  });
+});
+
+describe("toPaymentLink", () => {
+  it("encodes the request as its Solana Pay link", () => {
+    expect(toPaymentLink(request)).toBe(link());
+  });
+
+  it("round-trips through createPaymentLinkSchema", () => {
+    const tricky: TransferRequest = {
+      ...request,
+      reference: [createReference(), createReference()],
+      label: "Café & Té? #1",
+      message: "Menú del día: 1/2 + bebida, 100% = ok",
+    };
+    expect(schema.parse(toPaymentLink(tricky))).toEqual(tricky);
   });
 });

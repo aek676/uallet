@@ -1,46 +1,12 @@
-import { useState } from "react";
-
-import { ThemeToggle } from "@repo/ui/components/theme-toggle";
+import { RouterProvider } from "@tanstack/react-router";
 
 import { AppProvider } from "#/app/provider";
-import { merchant } from "#/config/merchant";
-import { ChargeForm } from "#/features/charge/components/charge-form";
-import { ChargePayment } from "#/features/charge/components/charge-payment";
-import type { Charge } from "#/features/charge/utils/create-charge";
-import { MetricsCard } from "#/features/metrics/components/metrics-card";
-
-function Screen() {
-  const [charge, setCharge] = useState<Charge | null>(null);
-
-  if (charge) {
-    return (
-      <ChargePayment
-        key={charge.reference}
-        charge={charge}
-        onClose={() => setCharge(null)}
-      />
-    );
-  }
-
-  return <ChargeForm onCharge={setCharge} />;
-}
+import { router } from "#/app/router";
 
 export function App() {
   return (
     <AppProvider>
-      <div className="flex min-h-svh flex-col">
-        <header className="flex h-14 items-center justify-between border-b px-6">
-          <span className="font-semibold">
-            {merchant.name}
-            <span className="font-normal text-muted-foreground"> · Uallet</span>
-          </span>
-          <ThemeToggle />
-        </header>
-        <main className="flex flex-1 flex-col items-center justify-center gap-4 p-6">
-          <Screen />
-          <MetricsCard />
-        </main>
-      </div>
+      <RouterProvider router={router} />
     </AppProvider>
   );
 }
