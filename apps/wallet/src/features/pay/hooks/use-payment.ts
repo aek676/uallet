@@ -5,6 +5,7 @@ import { PAYMENT_TOKEN } from "@repo/payments/config";
 import type { TransferRequest } from "@repo/payments/solana-pay";
 import { buildPaymentInstructions } from "@repo/payments/transfer";
 
+import { recordSentPayment } from "#/features/pay/stores/sent-payments";
 import { classifyPaymentFailure } from "#/features/pay/utils/payment-failure";
 import {
   type PaymentMarks,
@@ -18,7 +19,8 @@ import { paymentTimings } from "#/stores/payment-timings";
  * Sends a payment and waits for `confirmed`. Never retries on its own: only
  * the student can decide to try again, after seeing what happened.
  *
- * It times each payment from the tap and keeps it in `paymentTimings`.
+ * It times each payment from the tap and keeps it in `paymentTimings`. A
+ * payment that went out (confirmed, or `unknown`) goes to `sentPayments`.
  */
 export function usePayment(signer: TransactionSigner) {
   // `useAction`'s abort signal isn't forwarded on purpose: once a payment is
@@ -37,19 +39,28 @@ export function usePayment(signer: TransactionSigner) {
         },
       });
 
-      const instructions = await buildPaymentInstructions({
-        request,
-        payer: timedSigner,
-        token: PAYMENT_TOKEN,
-      });
-      const result =
-        await createPaymentClient(timedSigner).sendTransaction(instructions);
-      const confirmedAt = Date.now();
+      try {
+        const instructions = await buildPaymentInstructions({
+          request,
+          payer: timedSigner,
+          token: PAYMENT_TOKEN,
+        });
+        const result =
+          await createPaymentClient(timedSigner).sendTransaction(instructions);
+        const confirmedAt = Date.now();
 
-      const { signature } = result.context;
-      const timing = toPaymentTiming(signature, marks, confirmedAt);
-      if (timing) paymentTimings.add(timing);
-      return { signature, timing };
+        const { signature } = result.context;
+        recordSentPayment(request, signature, true);
+        const timing = toPaymentTiming(signature, marks, confirmedAt);
+        if (timing) paymentTimings.add(timing);
+        return { signature, timing };
+      } catch (sendError) {
+        const failure = classifyPaymentFailure(sendError);
+        if (failure.kind === "unknown") {
+          recordSentPayment(request, failure.signature, false);
+        }
+        throw sendError;
+      }
     },
   );
 

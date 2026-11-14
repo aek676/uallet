@@ -54,7 +54,7 @@ Log in, copy your address from the app and request:
 
 - **Login on a deep link.** Every screen sits behind `_authenticated`, a layout that shows the login form in place of the screen instead of redirecting. Login is a popup, so a `/pay?link=…` opened while logged out is still there after logging in.
 - **The link is checked again on `/pay`**, with the same schema as when pasting or scanning: a URL can be typed by anyone. An invalid one shows why and a way back.
-- **Back and refresh.** A scanned code replaces `/scan` in the history, and leaving `/pay` replaces it with `/`, so back doesn't reopen the camera or the charge. Refreshing `/pay` after paying shows the confirmation again: the "already paid" check then reports it and hides **Pagar**. That's the safety net, not a second payment.
+- **Back and refresh.** A scanned code replaces `/scan` in the history, and leaving `/pay` replaces it with `/`, so back doesn't reopen the camera or the charge. Refreshing `/pay` after paying shows the confirmation again, without **Pagar**: the device remembers the payments it sent (`sentPayments`, the last 50 in `localStorage`), so it says the charge is paid, or that we don't know how the payment ended, without waiting for the RPC.
 - **While paying, navigation is blocked** (back, links, and reload or close with the browser's prompt): the outcome of a sent payment decides whether paying again is safe.
 
 A static deploy must serve `index.html` for every path (SPA fallback), or a refresh or deep link outside `/` returns 404. `dev` and `preview` already do it.
@@ -110,7 +110,7 @@ Measured on devnet's public RPC (39 payments of 0.01 EURC, in two runs, from a d
 ## Known issues
 
 - **Web3Auth signs without asking.** The confirmation screen is the student's only check, so it shows the full address and warns that the merchant name isn't verified: whoever creates the link writes it. Verified merchants come with the merchant registry (phase 2).
-- **The "already paid" check is best effort.** It answers about 1.3 s after the confirmation shows up and doesn't wait for it, so a fast tap can still pay twice, and so can two devices paying at the same time. A failed check doesn't block paying. Anyone can mention a reference in a transaction, so someone else can make a charge look paid: the message tells the student to ask for a new one.
+- **The "already paid" check is best effort.** It answers about 1.3 s after the confirmation shows up and doesn't wait for it, so a fast tap can still pay twice, and so can two devices paying at the same time. A failed check doesn't block paying. Payments sent from this device don't depend on it (`sentPayments`), except one whose page was reloaded or closed mid-payment despite the browser's prompt: it isn't recorded until it ends. Anyone can mention a reference in a transaction, so someone else can make a charge look paid: the message tells the student to ask for a new one.
 - Web3Auth's wallet only signs `legacy` and v0 transactions, so payments can't use v1 yet.
 
 - Only the email form checks for a university address (`@ual.es`, `@inlumine.ual.es`), and only client-side. Google accepts any account. The real restriction belongs in the dashboard (a Google connection limited to the university domain).
