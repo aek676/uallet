@@ -64,18 +64,18 @@ The pre-commit hook runs `varlock scan --staged`, which blocks a commit containi
 
 ### Adding shadcn/ui components
 
-Run the CLI **from `packages/ui`**, with the shadcn binary installed there:
+Run the CLI **from `packages/ui`**, with aube activated:
 
 ```sh
 eval "$(aube activate zsh)"   # once per shell, or add it to your shell rc
 cd packages/ui
-./node_modules/.bin/shadcn add <component>
+aubx shadcn@latest add <component>
 ```
 
 The shadcn CLI doesn't support aube yet ([#1](https://github.com/aek676/uallet/issues/1)), hence these steps:
 
-- **Missing dependencies:** shadcn installs them with `npm`. `aube activate` puts aube's `npm` shim first in `PATH`, and since aube 2.10.0 the shim accepts the `--no-audit`/`--no-fund` flags that shadcn passes. The `aube` on your `PATH` has to be 2.10.0 or later itself: the shim fails with `unknown option '--no-audit'` on 2.9.0. Check it with `aube --version`.
-- **Run the binary directly:** `aube exec shadcn` and `aubx shadcn` put the real `npm` ahead of the shim, which fails on `catalog:` specifiers (`EUNSUPPORTEDPROTOCOL`).
+- **Missing dependencies:** shadcn installs them with `npm`. `aube activate` puts aube's `npm` shim first in `PATH`, and since aube 2.10.1 it stays there under `aubx` and `aube exec`. Without activation, shadcn runs the real `npm`, which fails on `catalog:` specifiers (`EUNSUPPORTEDPROTOCOL`).
+- **The `aube` on your `PATH` has to be 2.10.1 or later:** the shim runs that binary, not the version pinned in `devEngines`. On 2.9.0 it fails with `unknown option '--no-audit'`. Check it with `aube --version` from outside the repo (inside, aube reports the pinned version).
 - **Not from the apps:** shadcn only finds workspaces through `pnpm-workspace.yaml` or `workspaces` in `package.json`, not `aube-workspace.yaml`. From the repo root it asks to create a `components.json` (answer no). From an app it fails with `Could not resolve the following aliases ... ui, utils`. aube only reads `package.json#workspaces` when there is no workspace YAML, so adding it would be a second list that nothing keeps in sync.
 
 shadcn adds new dependencies with a plain version range. Move them to a catalog in `aube-workspace.yaml` if other packages share them.
