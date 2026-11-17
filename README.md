@@ -86,9 +86,9 @@ GitHub Actions runs on every pull request (stacked ones included) and on every p
 
 - `.github/workflows/ci.yml`: format check, lint and type-check, package boundaries (`turbo boundaries`), build, tests (`turbo run test`), `aube audit` (fails on `high` or `critical` advisories, except the `picomatch` one tracked in #27), and [TruffleHog](https://github.com/trufflesecurity/trufflehog) on the new commits to catch leaked secrets. Turborepo caches task results in the GitHub Actions cache, so unchanged packages hit cache.
 - `.github/workflows/pr-title.yml`: checks that the PR title follows [Conventional Commits](https://www.conventionalcommits.org). PRs are squash-merged, and the title becomes the commit title on `main`.
-- `.github/workflows/security.yml`: a weekly `aube audit`, and [zizmor](https://docs.zizmor.sh) on the workflows whenever `.github/` changes.
+- `.github/workflows/security.yml`: a weekly `aube audit`, and [zizmor](https://docs.zizmor.sh) on the workflows for every PR and push to `main`. zizmor uploads its findings to the Security tab. CodeQL runs with GitHub's default setup (no workflow file).
 
-Branch protection needs to require two checks: **CI OK**, which fails if any CI job fails, and **Validate PR title**.
+The `main` ruleset requires two checks, **CI OK** (fails if any CI job fails) and **Validate PR title**, plus code scanning merge protection for CodeQL and zizmor. Secret scanning with push protection is on in the repo settings.
 
 Install with a frozen lockfile, as CI does, to catch a `package.json` change without its lockfile update:
 
