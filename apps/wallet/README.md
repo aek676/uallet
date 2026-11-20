@@ -95,10 +95,21 @@ The reader (`barcode-detector` ponyfill + `zxing-wasm`) and its `.wasm` (~414 kB
 
 ### On a phone
 
-The camera only works in a secure context: `localhost` or HTTPS. To try the app on a phone, expose the dev server through an HTTPS tunnel, then:
+The camera only works in a secure context: `localhost` or HTTPS. To try the app on a phone, expose the dev server through an HTTPS tunnel with [OpenTunnel](https://opentunnel.xyz):
 
-- add the tunnel origin to the **allowed origins** in the MetaMask Embedded Wallets dashboard, or login fails;
-- allow the tunnel host in Vite (`server.allowedHosts`), which rejects unknown hosts.
+```sh
+curl -fsSL https://opentunnel.xyz/install | sh   # once, installs to ~/.local/bin
+aube run dev --filter wallet
+opentunnel route add localhost:5173     # prints https://<route>.<tunnel>.opentunnel.xyz
+```
+
+- Use `localhost:5173`, not a bare `5173`: a bare port means `127.0.0.1`, and Vite may listen only on `::1`.
+- The route is saved and its URL stays the same: add it once, `opentunnel status` shows it again. Keep the random route name (no `--name`): the route name is what keeps the URL private, and anyone with it reaches your dev server.
+- Add that origin to the **allowed origins** in the MetaMask Embedded Wallets dashboard, or login fails.
+- Vite already accepts `*.opentunnel.xyz` hosts (`server.allowedHosts` in [`vite.config.ts`](vite.config.ts)); any other tunnel needs its host added there.
+- `opentunnel route remove <route>` or `opentunnel down` when you're done.
+
+To pay from the phone, tunnel the [merchant](../merchant/README.md#on-a-phone-or-tablet) too, or show its QR code on your computer's screen.
 
 ## Metrics
 

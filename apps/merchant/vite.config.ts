@@ -20,5 +20,9 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
-  server: { port: 5175, strictPort: true },
+  server: {
+    port: 5175,
+    strictPort: true,
+    allowedHosts: [".opentunnel.xyz"],
+  },
 });
