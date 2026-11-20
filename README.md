@@ -2,13 +2,17 @@
 
 Monorepo ([Turborepo](https://turborepo.dev) + [aube](https://aube.jdx.dev)) for the Uallet Solana wallet.
 
+## Documentation
+
+- [`docs/overview.md`](docs/overview.md): what Uallet is, who it's for and where it's headed.
+- [`docs/architecture.md`](docs/architecture.md): how the pieces fit together, the payment flow and the design decisions.
+
 ## What's inside?
 
 ### Apps and Packages
 
 - `wallet`: the student wallet app ([Vite](https://vite.dev) + React). See its [README](apps/wallet/README.md) for setup
 - `merchant`: the shop app, which shows the Solana Pay QR code to charge ([Vite](https://vite.dev) + React). See its [README](apps/merchant/README.md) for setup
-- `docs`: the living style guide: design tokens and every `@repo/ui` component with its variants
 - `@repo/payments`: shared payment logic (payment token config, amounts and their formatting, token accounts, Solana Pay links)
 - `@repo/i18n`: the apps' texts in English and Spanish ([Paraglide JS](https://paraglidejs.com) project; each app compiles it)
 - `@repo/ui`: design system: [shadcn/ui](https://ui.shadcn.com) components (Base UI primitives) + Tailwind CSS v4 design tokens
@@ -60,7 +64,6 @@ The pre-commit hook runs `varlock scan --staged`, which blocks a commit containi
 - **Tokens** live in `packages/ui/src/styles/globals.css` (colors in OKLCH for light and `.dark`, fonts, `--radius`). Components only use semantic classes (`bg-primary`, `text-muted-foreground`, `bg-success`, ...).
 - **Components** live in `packages/ui/src/components` and are imported as `@repo/ui/components/<name>`.
 - Wrap each app in `ThemeProvider` (`@repo/ui/components/theme-provider`) and import `@repo/ui/globals.css` once.
-- Run `aube run dev` and open the `docs` app to browse the style guide.
 
 ### Adding shadcn/ui components
 
