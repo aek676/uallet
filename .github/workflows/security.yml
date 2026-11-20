@@ -53,4 +53,18 @@ jobs:
       # Findings go to the Security tab and don't fail the job: the ruleset's
       # code scanning merge protection is what blocks the merge.
       - name: Run zizmor
+        id: zizmor
         uses: zizmorcore/zizmor-action@45d7276c9ca790aabd705e31ca99c6185c3e76dd # v0.8.1
+
+      # On a PR the action uploads to the test merge commit, which GitHub can
+      # regenerate with a new SHA, leaving merge protection waiting for zizmor.
+      # Also upload to the PR's head commit, which doesn't change (CodeQL's
+      # default setup uploads there too).
+      - name: Upload results to the PR head commit
+        if: github.event_name == 'pull_request'
+        uses: github/codeql-action/upload-sarif@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
+        with:
+          sarif_file: ${{ steps.zizmor.outputs.output-file }}
+          category: zizmor
+          ref: refs/pull/${{ github.event.pull_request.number }}/head
+          sha: ${{ github.event.pull_request.head.sha }}
