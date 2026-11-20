@@ -33,6 +33,17 @@ aube run dev --filter merchant
 
 It runs on `http://localhost:5175`.
 
+### On a phone or tablet
+
+To open it on another device, expose the dev server through an HTTPS tunnel with [OpenTunnel](https://opentunnel.xyz):
+
+```sh
+curl -fsSL https://opentunnel.xyz/install | sh   # once, installs to ~/.local/bin
+opentunnel route add localhost:5175     # prints https://<route>.<tunnel>.opentunnel.xyz
+```
+
+Use `localhost:5175`, not a bare `5175` (that means `127.0.0.1`, and Vite may listen only on `::1`). The route is saved and keeps its URL; keep the random name, since anyone with the URL reaches your dev server. Vite already accepts `*.opentunnel.xyz` hosts (`server.allowedHosts` in [`vite.config.ts`](vite.config.ts)). Remove it with `opentunnel route remove <route>`.
+
 ## Routes
 
 File-based routes with [TanStack Router](https://tanstack.com/router), in `src/app/routes`. The Vite plugin regenerates `src/app/route-tree.gen.ts` on `dev` and `build`; it's committed, so `lint` type-checks without running Vite.
