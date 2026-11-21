@@ -4,6 +4,7 @@
   "license": "MIT",
   "type": "module",
   "exports": {
+    "./api": "./api.ts",
     "./base": "./base.ts",
     "./react": "./react.ts",
     "./react-app": "./react-app.ts"

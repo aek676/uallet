@@ -46,9 +46,24 @@ export default defineConfig({
 });
 ```
 
+- `@repo/oxlint-config/api`: the Elysia API on Bun ([`apps/api`](../../apps/api/README.md)). Its default export extends `base` with stricter rules: `correctness`, `suspicious` and `perf` are errors, plus the `promise` and `node` plugins and extra type-aware rules (`strict-boolean-expressions`, `no-unnecessary-condition`, `switch-exhaustiveness-check`, no `!`, ...). In `src`, no `export default`, and `console` and `Bun` only in `src/index.ts`. `oxc/no-async-endpoint-handlers` is off: it's for Express. `apiBoundaries()` adds the folder boundaries: shared (`config`, `lib`, `plugins`) → `src/routes/<name>` → `src/app.ts` → `src/index.ts`, services and `src/lib` import only types from Elysia, `bun` / `bun:*` only in `src/index.ts`, `varlock/env` only in `src/config/env.ts`, no `@sinclair/typebox`, no `../`, kebab-case folders. Add both to the API's `extends`, and add `--deny-warnings --report-unused-disable-directives-severity=error` to its `lint` and `lint:fix` scripts:
+
+```ts
+import { defineConfig } from "oxlint";
+
+import apiConfig, { apiBoundaries } from "@repo/oxlint-config/api";
+
+export default defineConfig({
+  extends: [apiConfig, apiBoundaries(import.meta.url)],
+  ignorePatterns: ["**/dist/**", "**/node_modules/**"],
+});
+```
+
+`bulletproofBoundaries()` and `apiBoundaries()` share their helpers ([`lib/boundaries.ts`](lib/boundaries.ts)). Both read the feature folders when the config loads: after adding one, restart the editor's language server.
+
 ## Notes
 
 - TypeScript config files require Node.js >= 22.18.
 - Type-aware rules (`typescript/no-floating-promises`, ...) only run with `--type-aware`. `--type-check` also reports TypeScript compiler errors, [replacing a separate `tsc --noEmit` step](https://oxc.rs/docs/guide/usage/linter/type-aware.html#type-checking-diagnostics). Use the CLI flags instead of `options.typeAware` / `options.typeCheck`: those options are only allowed in the root config, and these workspace configs are nested when Oxlint runs from the repo root (as editors do).
 - `oxlint-tsgolint` bundles its own TypeScript, so bump it together with `typescript` (`7.0.2` ↔ `7.0.2xxx`).
-- Only `rules`, `plugins` and `overrides` are inherited through `extends` ([docs](https://oxc.rs/docs/guide/usage/linter/nested-config.html#extending-configuration-files)). Top-level fields such as `ignorePatterns` must be redeclared in the workspace config.
+- Only `rules`, `categories`, `plugins` and `overrides` are inherited through `extends` ([docs](https://oxc.rs/docs/guide/usage/linter/nested-config.html#extending-configuration-files)). Top-level fields such as `ignorePatterns` must be redeclared in the workspace config.
