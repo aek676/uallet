@@ -5,5 +5,5 @@
     // TypeScript do), but it reads tsconfig `paths`. Keep both in sync.
     "paths": { "#/*": ["./src/*"] }
   },
-  "include": ["src", "env.d.ts"]
+  "include": ["src", "env.d.ts", "vitest.config.ts"]
 }

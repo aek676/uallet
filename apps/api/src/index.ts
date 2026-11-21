@@ -3,7 +3,8 @@
 import "varlock/auto-load";
 import { app } from "#/app";
 import { ENV } from "#/config/env";
+import { log } from "#/lib/logger";
 
 app.listen(ENV.port);
 
-console.log(`API running at http://localhost:${ENV.port}`);
+log.info(`API running at http://localhost:${ENV.port}`);

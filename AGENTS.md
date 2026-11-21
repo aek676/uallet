@@ -79,8 +79,9 @@ on `PATH`. Its tests run under Node (Vitest), like the rest.
   -> `src/app.ts` -> `src/index.ts`. A route feature can't import another
   one. Services and `src/lib` import only types from Elysia: they return
   errors as values and the route maps them to `status()`. Only
-  `src/index.ts` uses Bun APIs (`Bun`, `bun:*`) and `console`; only
-  `src/config/env.ts` imports `varlock/env`. No `export default` in `src`.
+  `src/index.ts` uses Bun APIs (`Bun`, `bun:*`); only `src/config/env.ts`
+  imports `varlock/env`. No `export default` in `src`. Log with `log` from
+  `#/lib/logger` (pino) or `ctx.log` in a handler, never `console`.
 - `api` lints strictly (`suspicious` and `perf` are errors, warnings fail,
   unused `oxlint-disable` comments fail). Disable a rule only on the line,
   naming it and saying why. Every route declares a `response` schema

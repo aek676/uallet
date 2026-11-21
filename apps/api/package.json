@@ -7,14 +7,16 @@
     "#/*": "./src/*.ts"
   },
   "scripts": {
-    "dev": "bun --watch src/index.ts",
+    "dev": "bun --watch src/index.ts | pino-pretty",
     "codegen": "APP_ENV=test varlock codegen",
     "lint": "oxlint --type-aware --type-check --deny-warnings --report-unused-disable-directives-severity=error",
     "lint:fix": "oxlint --type-aware --type-check --deny-warnings --report-unused-disable-directives-severity=error --fix",
     "test": "APP_ENV=test vitest run"
   },
   "dependencies": {
+    "@bogeychan/elysia-logger": "catalog:api",
     "elysia": "catalog:api",
+    "pino": "catalog:api",
     "varlock": "catalog:env"
   },
   "devDependencies": {
@@ -23,6 +25,7 @@
     "@types/bun": "catalog:api",
     "oxlint": "catalog:lint",
     "oxlint-tsgolint": "catalog:lint",
+    "pino-pretty": "catalog:api",
     "typescript": "catalog:build",
     "vite": "catalog:build",
     "vitest": "catalog:test"

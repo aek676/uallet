@@ -71,7 +71,6 @@ export default defineConfig({
     {
       files: ["src/index.ts"],
       rules: {
-        "no-console": "off",
         "no-restricted-globals": "off",
       },
     },
