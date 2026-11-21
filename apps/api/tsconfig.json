@@ -1,0 +1,9 @@
+{
+  "extends": "@repo/typescript-config/bun.json",
+  "compilerOptions": {
+    // Bun 1.4 doesn't resolve `#/` in package.json `imports` (Vitest and
+    // TypeScript do), but it reads tsconfig `paths`. Keep both in sync.
+    "paths": { "#/*": ["./src/*"] }
+  },
+  "include": ["src", "env.d.ts"]
+}

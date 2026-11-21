@@ -1,16 +1,18 @@
 # AGENTS.md
 
 Turborepo + **aube** monorepo for a Solana (devnet) campus wallet. The READMEs
-(root, `apps/wallet`, `apps/merchant`, `packages/*`) are detailed and current:
-read the relevant one before changing behaviour, and update it when you change
-what it describes. `docs/overview.md` (purpose, roadmap) and
+(root, `apps/wallet`, `apps/merchant`, `apps/api`, `packages/*`) are detailed
+and current: read the relevant one before changing behaviour, and update it
+when you change what it describes. `docs/overview.md` (purpose, roadmap) and
 `docs/architecture.md` (payment flow, design decisions) give the big picture.
 
 ## Commands
 
-Use `aube` only (never npm/pnpm/npx/bun). Run binaries as `aube exec <bin>`:
-aube supplies the Node pinned in `devEngines`, which may be newer than `node`
-on `PATH`.
+Use `aube` to install and run scripts (never npm/pnpm/npx, nor `bun install`,
+`bun add` or `bunx`). Run binaries as `aube exec <bin>`: aube supplies the Node
+pinned in `devEngines`, which may be newer than `node` on `PATH`. Bun (1.4.x)
+is only the runtime of `apps/api`: its `dev` script runs `bun`, which must be
+on `PATH`. Its tests run under Node (Vitest), like the rest.
 
 | Goal                           | Command                                                                     |
 | ------------------------------ | --------------------------------------------------------------------------- |
@@ -29,7 +31,7 @@ on `PATH`.
   `test` and `dev`; for `lint` it skips `codegen`, so use the `turbo run` form.
 - CI runs format, lint, boundaries, build and test. Before finishing:
   `aube run format:fix && aube run lint && aube run test`.
-- Workspaces: `wallet`, `merchant`, `@repo/payments`, `@repo/i18n`,
+- Workspaces: `wallet`, `merchant`, `api`, `@repo/payments`, `@repo/i18n`,
   `@repo/ui`, `@repo/oxlint-config`, `@repo/typescript-config`. Packages have no
   build step: apps import their TypeScript source.
 
@@ -47,6 +49,9 @@ on `PATH`.
   `varlock/env` must stay named `ENV`: the Vite plugin rewrites the literal
   text `ENV.<KEY>`.
 - Every `VITE_*` value ends up in the browser bundle.
+- `apps/api` has no Vite: `src/index.ts` imports `varlock/auto-load` first, and
+  its `bunfig.toml` turns off Bun's own `.env` loading. Its variables are
+  server-only: never name them `VITE_*`.
 
 ## Generated files
 
@@ -64,9 +69,12 @@ on `PATH`.
   `src/features/<name>` -> `src/app`. Shared code can't import features; a
   feature can't import another feature or `src/app`. Compose features in
   `src/app`.
-- No `../` imports. `wallet` and `merchant` use `#/…`; `@repo/ui`
-  uses `#components/*`, `#lib/*`, `#hooks/*`. Only `wallet` and `merchant` lint
-  this; elsewhere it's a convention.
+- No `../` imports. `wallet`, `merchant` and `api` use `#/…`; `@repo/ui`
+  uses `#components/*`, `#lib/*`, `#hooks/*`. Only `wallet`, `merchant` and
+  `api` lint this; elsewhere it's a convention. `api` declares `#/*` twice:
+  `package.json#imports` (TypeScript, Vitest) and tsconfig `paths` (Bun 1.4
+  doesn't resolve `#/` imports). Keep them in sync.
+- The bulletproof-react layering is for the React apps; `api` doesn't lint it.
 - No barrel files. Import modules by path: `@repo/payments/<module>`,
   `@repo/ui/components/<name>`, `@repo/i18n/locales`.
 - File and folder names are kebab-case.
@@ -107,7 +115,8 @@ on `PATH`.
 
 ## Dev servers
 
-Ports are fixed with `strictPort`: wallet 5173, merchant 5175.
+Ports are fixed: wallet 5173 and merchant 5175 (Vite `strictPort`), api 5177
+(`API_PORT` in `apps/api/.env.schema`).
 `aube run dev` opens Turborepo's TUI for all apps; start one app with
 `aube run dev -- --filter wallet` (through Turborepo) or
 `aube run dev --filter wallet` (aube's filter, runs `vite` directly).

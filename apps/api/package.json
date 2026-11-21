@@ -1,0 +1,33 @@
+{
+  "name": "api",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "imports": {
+    "#/*": "./src/*.ts"
+  },
+  "scripts": {
+    "dev": "bun --watch src/index.ts",
+    "codegen": "APP_ENV=test varlock codegen",
+    "lint": "oxlint --type-aware --type-check",
+    "lint:fix": "oxlint --type-aware --type-check --fix",
+    "test": "APP_ENV=test vitest run"
+  },
+  "dependencies": {
+    "elysia": "catalog:api",
+    "varlock": "catalog:env"
+  },
+  "devDependencies": {
+    "@repo/oxlint-config": "workspace:*",
+    "@repo/typescript-config": "workspace:*",
+    "@types/bun": "catalog:api",
+    "oxlint": "catalog:lint",
+    "oxlint-tsgolint": "catalog:lint",
+    "typescript": "catalog:build",
+    "vite": "catalog:build",
+    "vitest": "catalog:test"
+  },
+  "engines": {
+    "bun": ">=1.4.0 <1.5.0"
+  }
+}

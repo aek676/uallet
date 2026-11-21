@@ -6,8 +6,10 @@ stay in each README; this links to them instead of repeating them.
 
 ## System context
 
-Today there is no backend. Both apps are static single-page apps that talk to Solana
-directly. The chain is the only state the two apps share.
+Today there is no backend in the payment flow. Both apps are static single-page
+apps that talk to Solana directly. The chain is the only state the two apps share. `apps/api` (Elysia on
+Bun) is only a skeleton with a health check so far; it will sponsor the
+wallet's transaction fees.
 
 ```mermaid
 flowchart LR
