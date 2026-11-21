@@ -74,13 +74,24 @@ on `PATH`. Its tests run under Node (Vitest), like the rest.
   `api` lint this; elsewhere it's a convention. `api` declares `#/*` twice:
   `package.json#imports` (TypeScript, Vitest) and tsconfig `paths` (Bun 1.4
   doesn't resolve `#/` imports). Keep them in sync.
-- The bulletproof-react layering is for the React apps; `api` doesn't lint it.
+- `api` has its own layering (`@repo/oxlint-config/api`): shared folders
+  (`config`, `lib`, `plugins`) -> `src/routes/<name>/{index,model,service}.ts`
+  -> `src/app.ts` -> `src/index.ts`. A route feature can't import another
+  one. Services and `src/lib` import only types from Elysia: they return
+  errors as values and the route maps them to `status()`. Only
+  `src/index.ts` uses Bun APIs (`Bun`, `bun:*`) and `console`; only
+  `src/config/env.ts` imports `varlock/env`. No `export default` in `src`.
+- `api` lints strictly (`suspicious` and `perf` are errors, warnings fail,
+  unused `oxlint-disable` comments fail). Disable a rule only on the line,
+  naming it and saying why. Every route declares a `response` schema
+  (`src/app.test.ts` checks it).
 - No barrel files. Import modules by path: `@repo/payments/<module>`,
   `@repo/ui/components/<name>`, `@repo/i18n/locales`.
 - File and folder names are kebab-case.
 - oxfmt sorts imports and Tailwind classes: run `format:fix`, don't hand-sort.
-- Oxlint `extends` inherits only `rules`, `plugins` and `overrides`: redeclare
-  `ignorePatterns` and `settings` in each workspace's `oxlint.config.ts`.
+- Oxlint `extends` inherits only `rules`, `categories`, `plugins` and
+  `overrides`: redeclare `ignorePatterns` and `settings` in each workspace's
+  `oxlint.config.ts`.
 
 ## Domain rules
 
@@ -135,3 +146,10 @@ Ports are fixed: wallet 5173 and merchant 5175 (Vite `strictPort`), api 5177
 `.agents/skills/turborepo`, `.agents/skills/varlock` and
 `.agents/skills/elysiajs` are committed (tracked in `skills-lock.json`). Load
 them before changing `turbo.json`, env config or `apps/api`.
+
+The `elysiajs` skill documents Elysia **2**; `apps/api` is on **1.4**
+(`catalog:api` in `aube-workspace.yaml`). Where they differ, follow 1.4: route
+options go after the handler (`.get(path, handler, options)`), scopes are
+`'scoped'`, and `resolve`, `t.Transform` and `@elysiajs/*` plugins still
+exist. Check the installed types (`apps/api/node_modules/elysia`) and the v1
+docs (https://elysiajs.com/llms.txt). Don't migrate to 2 unasked.

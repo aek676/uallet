@@ -65,6 +65,18 @@ src/{components,config,hooks,lib,stores,utils,types}   shared (can't import feat
 
 Screens are composed in `src/app/routes`.
 
+`api` has its own layers, also enforced by lint (`@repo/oxlint-config/api`):
+
+```text
+src/index.ts       starts the server (the only place for Bun APIs)
+src/app.ts         composes the route features
+src/routes/<name>  one folder per feature: index (routes), model (schemas), service (logic)
+src/{config,lib,plugins}   shared (can't import routes or the app)
+```
+
+Services and `src/lib` don't import Elysia values: they return errors and the
+route maps them to HTTP statuses.
+
 ## Payment flow
 
 ```mermaid

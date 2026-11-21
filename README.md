@@ -17,7 +17,7 @@ Monorepo ([Turborepo](https://turborepo.dev) + [aube](https://aube.jdx.dev)) for
 - `@repo/payments`: shared payment logic (payment token config, amounts and their formatting, token accounts, Solana Pay links)
 - `@repo/i18n`: the apps' texts in English and Spanish ([Paraglide JS](https://paraglidejs.com) project; each app compiles it)
 - `@repo/ui`: design system: [shadcn/ui](https://ui.shadcn.com) components (Base UI primitives) + Tailwind CSS v4 design tokens
-- `@repo/oxlint-config`: shared [Oxlint](https://oxc.rs/docs/guide/usage/linter.html) configuration (`@repo/oxlint-config/react` for React workspaces)
+- `@repo/oxlint-config`: shared [Oxlint](https://oxc.rs/docs/guide/usage/linter.html) configuration (`@repo/oxlint-config/react` for React workspaces, `@repo/oxlint-config/api` for `api`)
 - `@repo/typescript-config`: shared `tsconfig.json` files (`react.json` for React workspaces, `bun.json` for `api`)
 
 Each package and app is 100% [TypeScript](https://www.typescriptlang.org/).

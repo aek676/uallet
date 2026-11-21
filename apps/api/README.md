@@ -41,12 +41,63 @@ It runs on `http://localhost:5177` and restarts on changes (`bun --watch`). If t
 
 ## Code
 
-- [`src/app.ts`](src/app.ts): the Elysia app and its routes. Exported without listening, for tests.
-- [`src/index.ts`](src/index.ts): loads the env and starts listening.
-- `#/` imports point to `src`. Bun 1.4 doesn't resolve `#/` in `package.json#imports` (TypeScript and Vitest do), so the alias is also in `tsconfig.json` `paths`, which Bun reads. Keep both in sync.
+```text
+src/index.ts                  loads the env and starts listening (the only place for Bun APIs and console)
+src/app.ts                    composes the route features with .use(); exported without listening, for tests
+src/routes/<name>/index.ts    the feature's Elysia instance: routes, validation, status codes
+src/routes/<name>/model.ts    request and response schemas (`t`), with the types derived from them
+src/routes/<name>/service.ts  business logic: plain values in, plain values or errors out
+src/plugins/                  shared Elysia behaviour (auth, error mapping)
+src/lib/                      shared clients and helpers, without HTTP
+src/config/env.ts             the env, the only module that imports varlock/env
+```
+
+Add `model.ts` and `service.ts` when a feature needs them; [`routes/health`](src/routes/health/index.ts) is a single file.
+
+Services don't know about HTTP: they return expected failures as values (an `Error` subclass) and the route maps them to a status:
+
+```ts
+// src/routes/payment/service.ts
+export class InsufficientFunds extends Error {}
+
+export async function buildPayment(amount: bigint) {
+  if (amount > balance) return new InsufficientFunds();
+  return { transaction };
+}
+
+// src/routes/payment/index.ts
+.post("/", async ({ body, status }) => {
+  const result = await buildPayment(body.amount);
+  if (result instanceof InsufficientFunds) return status(402, "Insufficient funds");
+  return result;
+}, { body: PaymentModel.Body, response: PaymentModel.Response })
+```
+
+`#/` imports point to `src`. Bun 1.4 doesn't resolve `#/` in `package.json#imports` (TypeScript and Vitest do), so the alias is also in `tsconfig.json` `paths`, which Bun reads. Keep both in sync.
+
+Elysia is **1.4**: route options go after the handler (`.get(path, handler, options)`). The committed [`elysiajs` skill](../../.agents/skills/elysiajs) describes 2.0, so check the installed types where they differ.
+
+## Lint
+
+[`oxlint.config.ts`](oxlint.config.ts) extends `@repo/oxlint-config/api` ([README](../../packages/oxlint-config/README.md)), stricter than the rest of the repo:
+
+- `suspicious` and `perf` rules are errors, and the `lint` script fails on warnings (`--deny-warnings`) and on unused `oxlint-disable` comments.
+- Extra type-aware rules: no `!`, no unnecessary conditions, `strict-boolean-expressions` (numbers and strings aren't conditions: `0n` is a valid amount), exhaustive `switch`, `??` over `||`.
+- No `process.env` (use `#/config/env`), no `console` and no `Bun` outside `src/index.ts`, no `export default` in `src` (Bun would serve it on its own).
+- The folder boundaries above: shared folders can't import routes or the app, route features can't import each other, services and `src/lib` import only types from `elysia`, nothing imports `#/index`.
+
+`tsconfig.json` extends `@repo/typescript-config/bun.json`, which adds `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, `noPropertyAccessFromIndexSignature` and others to `strict`.
+
+To disable a rule, do it on the line, naming the rule and saying why:
+
+```ts
+// oxlint-disable-next-line no-await-in-loop -- each transfer needs the previous blockhash
+```
 
 ## Tests
 
 ```sh
 aube run test --filter api
 ```
+
+Test a feature through its own instance (`health.handle(new Request(...))`) and services directly. [`src/app.test.ts`](src/app.test.ts) checks that every route declares a `response` schema. Use Vitest, not `bun:test`: the tests run under Node.
