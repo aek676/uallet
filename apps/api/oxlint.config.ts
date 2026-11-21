@@ -1,26 +1,8 @@
 import { defineConfig } from "oxlint";
 
-import baseConfig from "@repo/oxlint-config/base";
+import apiConfig, { apiBoundaries } from "@repo/oxlint-config/api";
 
 export default defineConfig({
-  extends: [baseConfig],
+  extends: [apiConfig, apiBoundaries(import.meta.url)],
   ignorePatterns: ["**/dist/**", "**/node_modules/**"],
-  overrides: [
-    {
-      files: ["src/**"],
-      rules: {
-        "no-restricted-imports": [
-          "error",
-          {
-            patterns: [
-              {
-                regex: "(^|/)\\.\\.(/|$)",
-                message: "Use `#/` imports instead of `../`.",
-              },
-            ],
-          },
-        ],
-      },
-    },
-  ],
 });

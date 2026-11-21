@@ -9,8 +9,8 @@
   "scripts": {
     "dev": "bun --watch src/index.ts",
     "codegen": "APP_ENV=test varlock codegen",
-    "lint": "oxlint --type-aware --type-check",
-    "lint:fix": "oxlint --type-aware --type-check --fix",
+    "lint": "oxlint --type-aware --type-check --deny-warnings --report-unused-disable-directives-severity=error",
+    "lint:fix": "oxlint --type-aware --type-check --deny-warnings --report-unused-disable-directives-severity=error --fix",
     "test": "APP_ENV=test vitest run"
   },
   "dependencies": {
