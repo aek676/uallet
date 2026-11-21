@@ -132,5 +132,6 @@ Ports are fixed: wallet 5173 and merchant 5175 (Vite `strictPort`), api 5177
 
 ## Skills
 
-`.agents/skills/turborepo` and `.agents/skills/varlock` are committed (tracked
-in `skills-lock.json`). Load them before changing `turbo.json` or env config.
+`.agents/skills/turborepo`, `.agents/skills/varlock` and
+`.agents/skills/elysiajs` are committed (tracked in `skills-lock.json`). Load
+them before changing `turbo.json`, env config or `apps/api`.
