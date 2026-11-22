@@ -2,8 +2,8 @@ import { Elysia } from "elysia";
 import { createRemoteJWKSet } from "jose";
 
 import { ENV } from "#/config/env";
-import { log } from "#/lib/logger";
 import { createSessionTokens } from "#/lib/session-token";
+import { requestLogging } from "#/plugins/request-logging";
 import { sessionAuth } from "#/plugins/session-auth";
 import { authRoutes } from "#/routes/auth/index";
 import { createIdTokenVerifier } from "#/routes/auth/service";
@@ -12,7 +12,7 @@ import { health } from "#/routes/health/index";
 const sessions = createSessionTokens({ key: ENV.sessionKey });
 
 export const app = new Elysia()
-  .use(log.into({ autoLogging: { ignore: ({ path }) => path === "/health" } }))
+  .use(requestLogging)
   .use(health)
   .use(
     authRoutes({

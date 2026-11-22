@@ -107,7 +107,12 @@ Elysia is **1.4**, and `@elysiajs/eden` (the `api` catalog in `aube-workspace.ya
 
 ## Logging
 
-[pino](https://getpino.io), through [`@bogeychan/elysia-logger`](https://github.com/bogeychan/elysia-logger). [`src/lib/logger.ts`](src/lib/logger.ts) creates `log`, and `src/app.ts` mounts it as a plugin (`log.into()`). The plugin logs every response, except `/health`, with its method, URL and time. It also logs errors, and it adds `ctx.log` to handlers.
+[pino](https://getpino.io), without an Elysia logging plugin. [`src/lib/logger.ts`](src/lib/logger.ts) creates `log`, and [`plugins/request-logging.ts`](src/plugins/request-logging.ts), mounted first in `src/app.ts`:
+
+- Gives each request a `reqId` (a UUID) and handlers `ctx.log`, a child of `log` with that `reqId`.
+- Logs one line per response, except `/health`: `{ reqId, method, path, status, responseTime }` (ms), `Request completed` at `info`, or `Request failed` at `error` with `err` for a 5xx. The path has no query: a charge's query isn't logged, the route logs what it needs. Validation and parse errors are 400s like any other, not `error`s.
+
+So a handler's lines and its response's line share the `reqId`. A route feature whose handlers log `.use()`s the plugin, for the `log` type (the plugin is named, so it runs once).
 
 ```ts
 // in a handler
@@ -115,12 +120,16 @@ Elysia is **1.4**, and `@elysiajs/eden` (the `api` catalog in `aube-workspace.ya
   log.info({ amount: body.amount }, "building payment");
 };
 
-// in a service or at startup
+// in a service or at startup (no reqId)
 import { log } from "#/lib/logger";
-log.warn({ attempt, err: error.message }, "RPC call failed");
+log.warn({ attempt, err: error }, "RPC call failed");
 ```
 
 Pass the data as an object first and the message second, so it stays searchable as JSON. Never log secrets (keys, signatures, tokens). The server always writes JSON, one object per line, to stdout. Only `dev` pretty-prints it, through a pipe (`| pino-pretty`): a `pino-pretty` transport would run in a worker and could lose the last lines on exit. `console` is a lint error in `src`.
+
+Log errors under `err`. `log` serializes them with `serializeError`, not pino's own serializer, which throws on frozen errors ([pinojs/pino-std-serializers#216](https://github.com/pinojs/pino-std-serializers/pull/216)): every `SolanaError` of an RPC HTTP failure is one, and the throw turned the failed request into a 500. Its test fails once pino fixes it.
+
+The tests run with `LOG_LEVEL=silent`, so nothing is serialized there. To check what a handler logs, `spyOnRequestLogs()` ([`lib/log-spy.ts`](src/lib/log-spy.ts)) spies on the request's child logger: a spy on `log` misses it, since a pino child has its own methods.
 
 ## Lint
 

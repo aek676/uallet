@@ -2,9 +2,9 @@ import { isAddress } from "@solana/kit";
 import { Elysia } from "elysia";
 
 import { bearerToken } from "#/lib/bearer";
-import { log } from "#/lib/logger";
 import type { SessionTokens } from "#/lib/session-token";
 import { errorResponses } from "#/plugins/error-responses";
+import { requestLogging } from "#/plugins/request-logging";
 import type { SessionAuth } from "#/plugins/session-auth";
 import { AuthModel } from "#/routes/auth/model";
 import type { VerifyIdToken } from "#/routes/auth/service";
@@ -21,11 +21,12 @@ export function authRoutes({
   sessionAuth,
 }: AuthRoutesDeps) {
   return new Elysia({ prefix: "/auth" })
+    .use(requestLogging)
     .use(errorResponses)
     .use(sessionAuth)
     .post(
       "/session",
-      async ({ body, headers, status }) => {
+      async ({ body, headers, log, status }) => {
         if (!isAddress(body.address)) {
           return status(400, { error: "invalid_body" as const });
         }

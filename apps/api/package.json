@@ -19,7 +19,6 @@
     "test": "APP_ENV=test vitest run"
   },
   "dependencies": {
-    "@bogeychan/elysia-logger": "catalog:api",
     "@solana/kit": "catalog:solana",
     "elysia": "catalog:api",
     "jose": "catalog:api",

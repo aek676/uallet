@@ -6,18 +6,10 @@ import {
   type JWTPayload,
   SignJWT,
 } from "jose";
-import {
-  afterEach,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  type MockInstance,
-  vi,
-} from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 
-import { log } from "#/lib/logger";
+import { spyOnRequestLogs } from "#/lib/log-spy";
 import { createSessionTokens } from "#/lib/session-token";
 import { sessionAuth } from "#/plugins/session-auth";
 import { authRoutes } from "#/routes/auth/index";
@@ -68,11 +60,11 @@ const jwks = createLocalJWKSet({
 /** The clock in every test (`vi.setSystemTime`). */
 const NOW = new Date("2026-11-21T12:00:00Z");
 
-let logInfo: MockInstance<typeof log.info>;
+let logs: ReturnType<typeof spyOnRequestLogs>;
 
 beforeEach(() => {
   vi.setSystemTime(NOW);
-  logInfo = vi.spyOn(log, "info");
+  logs = spyOnRequestLogs();
 });
 
 afterEach(() => {
@@ -184,7 +176,7 @@ describe("POST /auth/session", () => {
     expect(response.status).toBe(200);
     const session = sessionSchema.parse(await response.json());
     expect(session.expiresAt).toBe("2026-11-21T13:00:00.000Z");
-    expect(logInfo).toHaveBeenCalledExactlyOnceWith(
+    expect(logs.info).toHaveBeenCalledExactlyOnceWith(
       { address, walletType: type },
       "Session created",
     );
@@ -193,7 +185,7 @@ describe("POST /auth/session", () => {
   it("never logs the email or the name", async () => {
     await openSession(makeApp());
 
-    const logged = JSON.stringify(logInfo.mock.calls);
+    const logged = JSON.stringify(logs.info.mock.calls);
     expect(logged).not.toContain("ual.es");
     expect(logged).not.toContain("Student");
   });
@@ -222,7 +214,7 @@ describe("POST /auth/session", () => {
 
     expect(response.status).toBe(401);
     expect(await response.json()).toStrictEqual({ error: "invalid_token" });
-    expect(logInfo).not.toHaveBeenCalled();
+    expect(logs.info).not.toHaveBeenCalled();
   });
 
   it.each([
