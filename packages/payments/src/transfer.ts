@@ -4,7 +4,16 @@ import {
 } from "@solana-program/token";
 import {
   AccountRole,
+  type Address,
+  appendTransactionMessageInstructions,
+  type BlockhashLifetimeConstraint,
+  compileTransaction,
+  createNoopSigner,
+  createTransactionMessage,
   type Instruction,
+  pipe,
+  setTransactionMessageFeePayer,
+  setTransactionMessageLifetimeUsingBlockhash,
   type TransactionSigner,
 } from "@solana/kit";
 
@@ -19,11 +28,11 @@ export interface PaymentInstructionsInput {
 }
 
 /**
- * Instructions to pay a Solana Pay transfer request:
+ * Instructions to pay a charge:
  *
  * 1. Create the recipient's token account if it doesn't exist (idempotent).
- * 2. `TransferChecked`, last as the spec requires, with the `reference`
- *    accounts appended as read-only so the merchant can find the transaction.
+ * 2. `TransferChecked`, last, with the `reference` accounts appended as
+ *    read-only so the merchant can find the transaction.
  */
 export async function buildPaymentInstructions({
   request,
@@ -34,11 +43,6 @@ export async function buildPaymentInstructions({
     throw new Error(
       `Can't pay with this token: expected ${token.mint}, got ${request.splToken}`,
     );
-  }
-  // The spec requires a memo instruction when the request has one. Our
-  // merchant app never sets it, and we don't want to silently drop it.
-  if (request.memo !== undefined) {
-    throw new Error("Payment requests with a memo are not supported");
   }
 
   const [source, destination] = await Promise.all([
@@ -80,3 +84,48 @@ export async function buildPaymentInstructions({
     },
   ];
 }
+
+export const PAYMENT_TRANSFER_INDEX = 1;
+
+export interface PaymentTransactionInput {
+  request: TransferRequest;
+  payer: Address;
+  token: Pick<Token, "mint" | "decimals" | "programAddress">;
+  lifetime: BlockhashLifetimeConstraint;
+}
+
+/**
+ * The payment transaction, compiled and unsigned: v0 (Web3Auth's wallet
+ * can't sign v1), the payer as fee payer and `buildPaymentInstructions`,
+ * with no compute budget instructions.
+ *
+ * The API builds it for the wallet, and the wallet builds it again to check
+ * what it signs: the same input always gives the same bytes. Any change here
+ * reaches both, so deploy them together.
+ */
+export async function buildPaymentTransaction({
+  request,
+  payer,
+  token,
+  lifetime,
+}: PaymentTransactionInput) {
+  const instructions = await buildPaymentInstructions({
+    request,
+    payer: createNoopSigner(payer),
+    token,
+  });
+
+  return compileTransaction(
+    pipe(
+      createTransactionMessage({ version: 0 }),
+      (message) => setTransactionMessageFeePayer(payer, message),
+      (message) =>
+        setTransactionMessageLifetimeUsingBlockhash(lifetime, message),
+      (message) => appendTransactionMessageInstructions(instructions, message),
+    ),
+  );
+}
+
+export type PaymentTransaction = Awaited<
+  ReturnType<typeof buildPaymentTransaction>
+>;
