@@ -18,14 +18,16 @@ Solana devnet doesn't need to be enabled in the dashboard: the chain is declared
 
 In development they come from Infisical: follow the one-time setup in the [root README](../../README.md#environment-variables). They are declared in [`.env.schema`](.env.schema):
 
-| Variable                  | Notes                                                         |
-| ------------------------- | ------------------------------------------------------------- |
-| `VITE_WEB3AUTH_CLIENT_ID` | Client ID from the dashboard.                                 |
-| `VITE_SOLANA_RPC_URL`     | Solana devnet RPC (shared with merchant, in the root schema). |
-| `VITE_SOLANA_WS_URL`      | Solana devnet WebSocket (shared, in the root schema).         |
-| `VITE_API_URL`            | Base URL of our [API](../api/README.md). `/api` by default.   |
+| Variable                   | Notes                                                                                                        |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `VITE_WEB3AUTH_CLIENT_ID`  | Client ID from the dashboard.                                                                                |
+| `VITE_SOLANA_RPC_URL`      | Solana devnet RPC (shared with merchant, in the root schema).                                                |
+| `VITE_SOLANA_WS_URL`       | Solana devnet WebSocket (shared, in the root schema).                                                        |
+| `API_PUBLIC_URL`           | Public URL of our [API](../api/README.md) (shared, in the root schema). The two below are derived from it.   |
+| `VITE_API_URL`             | Where the wallet calls the API: `/api` (Vite's proxy) when `API_PUBLIC_URL` is on `localhost`, otherwise it. |
+| `VITE_PAYMENT_REQUEST_URL` | `API_PUBLIC_URL` + `/pay`: the only endpoint whose links the wallet pays (shared with merchant).             |
 
-Varlock validates them when Vite starts: `dev` and `build` fail instead of the app failing at payment time.
+Varlock validates them when Vite starts: `dev` and `build` fail instead of the app failing at payment time. Don't set `VITE_API_URL` or `VITE_PAYMENT_REQUEST_URL`: both come from `API_PUBLIC_URL`, so the wallet can't pay charges to one server and ask another for them.
 
 **Everything here ends up in the browser bundle.** The client ID is public by design (the allowed origins protect it). A dedicated RPC URL embeds an API key: restrict it to your domains in the provider's dashboard.
 
@@ -39,17 +41,17 @@ To talk to the API, run it too (`aube run dev --filter api`), or start everythin
 
 ## API
 
-The wallet calls our [API](../api/README.md) at `VITE_API_URL` (`/api`), on its own origin:
+The wallet calls our [API](../api/README.md) at `VITE_API_URL`, derived from `API_PUBLIC_URL` (root schema):
 
-- **In dev, Vite proxies `/api`** to the API on `http://localhost:5177` (`API_PORT`, shared with the API through the root `.env.schema`), without the `/api` prefix (`server.proxy` in [`vite.config.ts`](vite.config.ts); `preview` reuses it). No CORS needed, and it also works through the phone tunnel.
-- **In production, serve the API under the wallet's origin** at that path (a reverse proxy), or point `VITE_API_URL` elsewhere and add CORS to the API.
+- **In dev, `VITE_API_URL` is `/api`, which Vite proxies** to `API_PUBLIC_URL` (`http://localhost:5177`), without the `/api` prefix (`server.proxy` in [`vite.config.ts`](vite.config.ts); `preview` reuses it). No CORS needed, and it also works through the phone tunnel.
+- **Outside `localhost`, `VITE_API_URL` is `API_PUBLIC_URL`.** Serve the API under the wallet's origin (a reverse proxy, e.g. `https://<wallet>/api`), or add CORS to the API for the wallet's origin.
 
 **Session.** [`src/lib/api-session.ts`](src/lib/api-session.ts) trades the Web3Auth identity token (`web3Auth.getAuthTokenInfo()`) for the API's own session, which lasts an hour: `getApiSession({ web3Auth, address })`. The session stays in memory only (never `localStorage`), one per address, and is renewed a minute before it expires. Concurrent calls share one request; a failure isn't cached. `getApiSession` rejects with `ApiSessionError` (`status`, and `code`, typed from the API's error codes).
 
-**Requests.** Call the API through `apiClient(params)` from `#/lib/api-session`, never with a bare `fetch`. It returns an [Eden Treaty](https://elysiajs.com/eden/treaty/overview) client typed from the API's `App` type, which sends the session as bearer and, on a 401 (the API's session key changed, or the clocks disagree), opens a new one and retries once. Paths, bodies, responses and status codes are checked against the API's routes. Treaty returns HTTP errors as values, `{ data, error }`:
+**Requests.** Behind the login, call the API through `api` from `useConnectedAccount()` (`#/hooks/use-connected-account`), never with a bare `fetch`. The login gate (`src/app/routes/_authenticated.tsx`) builds it once per account with `apiClient({ web3Auth, address })` from `#/lib/api-session`, so features don't touch Web3Auth. It is an [Eden Treaty](https://elysiajs.com/eden/treaty/overview) client typed from the API's `App` type, which sends the session as bearer and, on a 401 (the API's session key changed, or the clocks disagree), opens a new one and retries once. Paths, bodies, responses and status codes are checked against the API's routes. Treaty returns HTTP errors as values, `{ data, error }`:
 
 ```ts
-const api = apiClient({ web3Auth, address });
+const { api } = useConnectedAccount();
 const { data, error } = await api.auth.me.get();
 
 if (error) {
@@ -108,9 +110,15 @@ English by default, Spanish as an option. The language is the one picked in the 
 ## Paying
 
 1. **Scan QR code** (`/scan`) or paste the `solana:` link on `/`, from the [merchant app](../merchant/README.md).
-2. The link is checked (`createPaymentLinkSchema`): it must be a Solana Pay transfer request in `PAYMENT_TOKEN`, with a `reference`, without a memo and not to yourself. The wallet then opens `/pay?link=…` with it.
+2. The link is checked (`createPaymentLinkSchema`): it must be a Solana Pay [transaction request](https://solana.com/docs/tools/solana-pay/specification/version1#specification-transaction-request) to `VITE_PAYMENT_REQUEST_URL`, with a charge in `PAYMENT_TOKEN`, a `reference`, and not to yourself. The charge (recipient, amount, reference, label, message) is in the link's query, so the wallet reads it without any request. Any other link, including the old transfer requests (`solana:<recipient>?amount=…`), is invalid. The wallet then opens `/pay?link=…` with it.
 3. The confirmation screen shows the amount, the concept, the merchant name and its **full** address. Meanwhile it asks once whether a successful transaction already mentions the charge's `reference`: if so, it says the charge is already paid, links it and hides **Pay**.
-4. **Pay** builds the payment (`buildPaymentInstructions`), signs it with the Web3Auth wallet and sends it through our RPC as a v0 transaction, waiting for `confirmed`. The success screen says how long it took.
+4. **Pay** ([`sendPayment`](src/features/pay/utils/send-payment.ts)):
+   1. Asks the API for the transaction (`POST /pay` with the charge as query and `{ account }`, through `apiClient`) and, at the same time, our RPC for the latest blockhash (`confirmed`). It never fetches the link's URL, as Solana Pay would: that it is our endpoint is already checked, the session only goes to our API, and the API is that endpoint (checked on load, see [Environment variables](#2-environment-variables)). The query it sends is the charge it read, so a parameter it doesn't know is dropped.
+   2. **Checks it**: it builds the same payment itself (`buildPaymentTransaction` from `@repo/payments`, with the API's blockhash) and compares the bytes. Web3Auth signs without asking, so this is what stops a wrong or compromised API from getting anything else signed. A wallet that changes the transaction while signing is rejected too.
+   3. Builds it again with its own blockhash: the API's transaction comes unsigned, and Solana Pay then has the wallet set the latest blockhash itself. Once the API signs as fee payer, the wallet will have to keep the API's instead.
+   4. Signs it with the Web3Auth wallet and sends it through our RPC (`sendAndConfirmTransaction`, with the preflight simulation), waiting for `confirmed`. The success screen says how long it took.
+
+The check needs the API and the wallet to build the transaction the same way: deploy them with the same `@repo/payments`. If they differ, every payment fails ("not paid") until both match.
 
 No priority fee is added: devnet isn't congested, so its effect can't be measured there (confirmation already takes ~0.8 s without it). To decide on mainnet.
 
@@ -120,7 +128,7 @@ If a payment fails, the screen says whether the money moved:
 
 | Message                                          | Paying again                                                                                           |
 | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------ |
-| Not enough EURC / not enough SOL / not paid      | Safe                                                                                                   |
+| Not enough EURC / not enough SOL / not paid      | Safe: it was never sent (the API failed, the check failed, signing failed) or the network rejected it  |
 | "We don't know whether the payment went through" | Disabled: the transaction was signed and may have landed. Check the balance or the Explorer link first |
 
 ### Scanner
@@ -149,13 +157,13 @@ To pay from the phone, tunnel the [merchant](../merchant/README.md#on-a-phone-or
 
 Each payment records how long it took from the tap, by stage, and the last 50 stay on the device (`localStorage`). The **Metrics** card at the bottom shows the median and p95 of each stage and the last payments, with a button to clear them.
 
-| Stage   | What it covers                                  |
-| ------- | ----------------------------------------------- |
-| Prepare | Building the transaction, blockhash, simulation |
-| Sign    | The Web3Auth wallet signing                     |
-| Confirm | Sending it and waiting for `confirmed`          |
+| Stage   | What it covers                                                                |
+| ------- | ----------------------------------------------------------------------------- |
+| Prepare | Asking the API for the transaction and the RPC for the blockhash, checking it |
+| Sign    | The Web3Auth wallet signing                                                   |
+| Confirm | Sending it and waiting for `confirmed`                                        |
 
-Measured on devnet's public RPC (39 payments of 0.01 EURC, in two runs, from a desktop browser):
+Measured on devnet's public RPC (39 payments of 0.01 EURC, in two runs, from a desktop browser), **before the API built the transactions**: then Prepare was building the transaction in the wallet, fetching the blockhash and simulating it, and the simulation now happens as the preflight of sending, in Confirm. They need measuring again with the API:
 
 | Stage   | p50     | p95     | max    |
 | ------- | ------- | ------- | ------ |

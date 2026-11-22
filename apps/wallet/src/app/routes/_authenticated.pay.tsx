@@ -16,7 +16,7 @@ export const Route = createFileRoute("/_authenticated/pay")({
 
 function Pay() {
   const { link } = Route.useSearch();
-  const { address, signer } = useConnectedAccount();
+  const { address } = useConnectedAccount();
   const navigate = Route.useNavigate();
   // Memoized: `PayCharge` checks again whether it's paid for each new request
   // object.
@@ -41,7 +41,6 @@ function Pay() {
       <PayCharge
         key={link}
         request={result.request}
-        signer={signer}
         onClose={() => void navigate({ to: "/", replace: true })}
       />
     </>

@@ -3,53 +3,63 @@ import { z } from "zod";
 
 import { PAYMENT_TOKEN } from "@repo/payments/config";
 import {
-  encodeTransferRequest,
-  parseTransferRequest,
+  encodeTransactionRequest,
+  findTransferRequestProblem,
+  parseTransactionRequest,
   type TransferRequest,
   TransferRequestError,
+  type TransferRequestProblem,
 } from "@repo/payments/solana-pay";
 
+import { ENV } from "#/config/env";
 import { m } from "#/paraglide/messages.js";
 
 /**
- * The `solana:` link of a transfer request, to hand it to another screen in
- * the URL. Rebuilt from the parsed request, it only carries what Uallet reads.
+ * The `solana:` link of a charge, to hand it to another screen in the URL.
+ * Rebuilt from the parsed request, it only carries what Uallet reads.
  */
 export function toPaymentLink(request: TransferRequest): string {
-  return encodeTransferRequest(request, PAYMENT_TOKEN.decimals);
+  return encodeTransactionRequest(
+    ENV.paymentRequestUrl,
+    request,
+    PAYMENT_TOKEN.decimals,
+  );
 }
 
 function parseLink(value: string): TransferRequest | null {
   try {
-    return parseTransferRequest(value, PAYMENT_TOKEN.decimals);
+    return parseTransactionRequest(
+      value,
+      ENV.paymentRequestUrl,
+      PAYMENT_TOKEN.decimals,
+    );
   } catch (error) {
     if (error instanceof TransferRequestError) return null;
     throw error;
   }
 }
 
+const PROBLEM_MESSAGES: Record<TransferRequestProblem, () => string> = {
+  "wrong-token": () =>
+    m.wallet_link_wrong_token({ token: PAYMENT_TOKEN.symbol }),
+  "no-reference": m.wallet_link_no_reference,
+  "self-payment": m.wallet_link_self,
+};
+
 /** Why the wallet can't pay this request, or `null` if it can. */
 function rejectionOf(request: TransferRequest, payer: Address): string | null {
-  if (request.splToken !== PAYMENT_TOKEN.mint) {
-    return m.wallet_link_wrong_token({ token: PAYMENT_TOKEN.symbol });
-  }
-  if (request.reference.length === 0) {
-    return m.wallet_link_no_reference();
-  }
-  // `buildPaymentInstructions` doesn't support memos.
-  if (request.memo !== undefined) {
-    return m.wallet_link_memo();
-  }
-  if (request.recipient === payer) {
-    return m.wallet_link_self();
-  }
-  return null;
+  const problem = findTransferRequestProblem(request, {
+    payer,
+    token: PAYMENT_TOKEN,
+  });
+  return problem === null ? null : PROBLEM_MESSAGES[problem]();
 }
 
 /**
  * Validates a scanned or pasted `solana:` link and transforms it into the
- * transfer request `payer` can pay. Links come from outside the app: this
- * only says the request is payable, not that the merchant is who it claims.
+ * charge `payer` can pay. Only transaction requests to our API's payment
+ * endpoint are charges. Links come from outside the app: this only says the
+ * charge is payable, not that the merchant is who it claims.
  */
 export function createPaymentLinkSchema(payer: Address) {
   return z

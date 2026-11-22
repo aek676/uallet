@@ -5,7 +5,7 @@ import { ENV } from "#/config/env";
 
 /**
  * Read-only Kit client for the whole app: RPC and WebSocket subscriptions,
- * from our env. Sending transactions: `createPaymentClient`.
+ * from our env. Payments are sent through it too (`usePayment`).
  */
 export const solanaClient = createClient().use(
   solanaRpcConnection({

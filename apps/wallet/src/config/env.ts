@@ -5,6 +5,7 @@ const config = {
   solanaRpcUrl: ENV.VITE_SOLANA_RPC_URL,
   solanaWsUrl: ENV.VITE_SOLANA_WS_URL,
   apiUrl: ENV.VITE_API_URL,
+  paymentRequestUrl: ENV.VITE_PAYMENT_REQUEST_URL,
 } as const;
 
 export { config as ENV };

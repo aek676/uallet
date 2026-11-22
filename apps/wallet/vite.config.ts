@@ -27,7 +27,7 @@ export default defineConfig({
     allowedHosts: [".opentunnel.xyz"],
     proxy: {
       "/api": {
-        target: `http://localhost:${ENV.API_PORT}`,
+        target: ENV.API_PUBLIC_URL,
         rewrite: (path) => path.replace(/^\/api/, ""),
       },
     },

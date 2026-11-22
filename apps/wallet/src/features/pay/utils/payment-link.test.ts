@@ -4,10 +4,11 @@ import { describe, expect, it } from "vitest";
 import { PAYMENT_TOKEN } from "@repo/payments/config";
 import { createReference } from "@repo/payments/reference";
 import {
-  encodeTransferRequest,
+  encodeTransactionRequest,
   type TransferRequest,
 } from "@repo/payments/solana-pay";
 
+import { ENV } from "#/config/env";
 import {
   checkPaymentLink,
   createPaymentLinkSchema,
@@ -28,8 +29,12 @@ const request: TransferRequest = {
   message: "Café con leche",
 };
 
-function link(overrides: Partial<TransferRequest> = {}): string {
-  return encodeTransferRequest(
+function link(
+  overrides: Partial<TransferRequest> = {},
+  endpoint = ENV.paymentRequestUrl,
+): string {
+  return encodeTransactionRequest(
+    endpoint,
     { ...request, ...overrides },
     PAYMENT_TOKEN.decimals,
   );
@@ -55,9 +60,18 @@ describe("createPaymentLinkSchema", () => {
   it.each([
     ["text", "hola"],
     ["another protocol", "https://example.com"],
-    ["an invalid recipient", "solana:abc?amount=1"],
-    ["a transaction request", "solana:https://example.com/pay"],
-    ["no amount", `solana:${MERCHANT}?spl-token=${PAYMENT_TOKEN.mint}`],
+    [
+      "a transfer request",
+      `solana:${MERCHANT}?amount=1&spl-token=${PAYMENT_TOKEN.mint}`,
+    ],
+    [
+      "a transaction request to another server",
+      link({}, "https://example.com/pay"),
+    ],
+    [
+      "a charge without amount",
+      link().replace(encodeURIComponent("amount=1.2&"), ""),
+    ],
   ])("rejects %s", (_, input) => {
     expect(messagesOf(input)).toEqual(["This link isn't a valid charge."]);
   });
@@ -71,12 +85,6 @@ describe("createPaymentLinkSchema", () => {
   it("rejects a request without reference", () => {
     expect(messagesOf(link({ reference: [] }))).toEqual([
       "This charge has no reference: the merchant couldn't confirm it.",
-    ]);
-  });
-
-  it("rejects a request with a memo", () => {
-    expect(messagesOf(link({ memo: "order-42" }))).toEqual([
-      "This charge includes a memo, which Uallet doesn't support.",
     ]);
   });
 
@@ -111,7 +119,7 @@ describe("checkPaymentLink", () => {
 });
 
 describe("toPaymentLink", () => {
-  it("encodes the request as its Solana Pay link", () => {
+  it("encodes the request as a transaction request to the API", () => {
     expect(toPaymentLink(request)).toBe(link());
   });
 

@@ -1,126 +1,137 @@
 import {
-  failedSingleTransactionPlanResult,
+  getSolanaErrorFromJsonRpcError,
+  getSolanaErrorFromTransactionError,
   SOLANA_ERROR__BLOCK_HEIGHT_EXCEEDED,
-  SOLANA_ERROR__FAILED_TO_SEND_TRANSACTION,
-  SOLANA_ERROR__INSTRUCTION_ERROR__CUSTOM,
-  SOLANA_ERROR__INSTRUCTION_ERROR__INVALID_ACCOUNT_DATA,
-  SOLANA_ERROR__TRANSACTION_ERROR__ACCOUNT_NOT_FOUND,
-  SOLANA_ERROR__TRANSACTION_ERROR__INSUFFICIENT_FUNDS_FOR_FEE,
-  type Signature,
   signature,
   SolanaError,
 } from "@solana/kit";
 import { describe, expect, it } from "vitest";
 
-import { classifyPaymentFailure } from "#/features/pay/utils/payment-failure";
+import { PAYMENT_TRANSFER_INDEX } from "@repo/payments/transfer";
+
+import {
+  classifyPaymentFailure,
+  PaymentSendError,
+} from "#/features/pay/utils/payment-failure";
+import { UnexpectedPaymentTransactionError } from "#/features/pay/utils/payment-transaction";
+import { PaymentRequestError } from "#/features/pay/utils/send-payment";
 
 const SIGNATURE = signature(
   "2eQV3QW28jCTtWUjK8Fvc41Nq2k3i3iR9MXja1fBynPhmLy6qt1LBGAyfgeGtMy1zDEEeXZb2e1T3tswtE648C6v",
 );
 
-/** Compute budget, create the merchant's account and transfer, as in a payment. */
-const message = { instructions: [{}, {}, {}] };
-const TRANSFER_INDEX = 2;
+type TransactionError = Parameters<
+  typeof getSolanaErrorFromTransactionError
+>[0];
 
-function sendError(
-  cause: Error,
-  context: { signature?: Signature } = {},
-): SolanaError {
-  const error = new SolanaError(SOLANA_ERROR__FAILED_TO_SEND_TRANSACTION, {
-    cause,
-    causeMessage: cause.message,
-    transactionPlanResult: failedSingleTransactionPlanResult(
-      // @ts-expect-error -- only `instructions` matters here.
-      message,
-      cause,
-      { message, ...context },
-    ),
-  });
-  return error;
-}
-
-function customError(code: number, index: number): SolanaError {
-  return new SolanaError(SOLANA_ERROR__INSTRUCTION_ERROR__CUSTOM, {
-    code,
-    index,
+/** What `sendTransaction` throws when the preflight simulation fails. */
+function preflightFailure(err: TransactionError): SolanaError {
+  return getSolanaErrorFromJsonRpcError({
+    code: -32002,
+    message: "Transaction simulation failed",
+    data: {
+      accounts: null,
+      err,
+      logs: [],
+      returnData: null,
+      unitsConsumed: 0,
+    },
   });
 }
+
+function sent(cause: unknown): PaymentSendError {
+  return new PaymentSendError(SIGNATURE, { cause });
+}
+
+const insufficientFunds = (index: number): TransactionError => ({
+  InstructionError: [index, { Custom: 1 }],
+});
 
 describe("classifyPaymentFailure", () => {
   it("detects paying more than the balance", () => {
     expect(
-      classifyPaymentFailure(sendError(customError(1, TRANSFER_INDEX))),
+      classifyPaymentFailure(
+        sent(preflightFailure(insufficientFunds(PAYMENT_TRANSFER_INDEX))),
+      ),
     ).toEqual({ kind: "no-funds" });
   });
 
   it("detects a student without token account", () => {
     expect(
       classifyPaymentFailure(
-        sendError(
-          new SolanaError(
-            SOLANA_ERROR__INSTRUCTION_ERROR__INVALID_ACCOUNT_DATA,
-            { index: TRANSFER_INDEX },
-          ),
+        sent(
+          preflightFailure({
+            InstructionError: [PAYMENT_TRANSFER_INDEX, "InvalidAccountData"],
+          }),
         ),
       ),
     ).toEqual({ kind: "no-funds" });
   });
 
   it("reads the same error before the transfer as missing SOL for the rent", () => {
-    expect(classifyPaymentFailure(sendError(customError(1, 1)))).toEqual({
-      kind: "no-sol",
-    });
-  });
-
-  it.each([
-    SOLANA_ERROR__TRANSACTION_ERROR__ACCOUNT_NOT_FOUND,
-    SOLANA_ERROR__TRANSACTION_ERROR__INSUFFICIENT_FUNDS_FOR_FEE,
-  ] as const)("detects missing SOL (%s)", (code) => {
-    expect(classifyPaymentFailure(sendError(new SolanaError(code)))).toEqual({
-      kind: "no-sol",
-    });
-  });
-
-  it("says failed when it never got signed", () => {
     expect(
-      classifyPaymentFailure(sendError(new Error("fetch failed"))),
-    ).toEqual({ kind: "failed" });
+      classifyPaymentFailure(sent(preflightFailure(insufficientFunds(0)))),
+    ).toEqual({ kind: "no-sol" });
   });
 
-  it("says failed when the network rejected the signed transaction", () => {
+  it.each(["AccountNotFound", "InsufficientFundsForFee"])(
+    "detects missing SOL (%s)",
+    (err) => {
+      expect(classifyPaymentFailure(sent(preflightFailure(err)))).toEqual({
+        kind: "no-sol",
+      });
+    },
+  );
+
+  it("says failed when the network rejected the transaction", () => {
     expect(
       classifyPaymentFailure(
-        sendError(customError(6000, TRANSFER_INDEX), { signature: SIGNATURE }),
+        sent(
+          preflightFailure({
+            InstructionError: [PAYMENT_TRANSFER_INDEX, { Custom: 6000 }],
+          }),
+        ),
       ),
     ).toEqual({ kind: "failed" });
   });
 
-  it("says unknown when a signed transaction loses the connection", () => {
+  it("says failed when it landed and failed", () => {
     expect(
       classifyPaymentFailure(
-        sendError(new Error("fetch failed"), { signature: SIGNATURE }),
+        sent(getSolanaErrorFromTransactionError("ProgramAccountNotFound")),
       ),
-    ).toEqual({ kind: "unknown", signature: SIGNATURE });
+    ).toEqual({ kind: "failed" });
   });
 
-  it("says unknown when we stop waiting for a signed transaction", () => {
+  it("says unknown when a sent transaction loses the connection", () => {
+    expect(classifyPaymentFailure(sent(new Error("fetch failed")))).toEqual({
+      kind: "unknown",
+      signature: SIGNATURE,
+    });
+  });
+
+  it("says unknown when we stop waiting for a sent transaction", () => {
     expect(
       classifyPaymentFailure(
-        sendError(
+        sent(
           new SolanaError(SOLANA_ERROR__BLOCK_HEIGHT_EXCEEDED, {
             currentBlockHeight: 2n,
             lastValidBlockHeight: 1n,
           }),
-          { signature: SIGNATURE },
         ),
       ),
     ).toEqual({ kind: "unknown", signature: SIGNATURE });
   });
 
-  it("says failed for errors that aren't from sending", () => {
-    expect(classifyPaymentFailure(new Error("boom"))).toEqual({
-      kind: "failed",
-    });
-    expect(classifyPaymentFailure("boom")).toEqual({ kind: "failed" });
+  it.each([
+    ["the API refused", new PaymentRequestError(503)],
+    [
+      "the API's transaction wasn't the payment",
+      new UnexpectedPaymentTransactionError("not this payment"),
+    ],
+    ["signing failed", new Error("User rejected")],
+    ["something that isn't an error", "boom"],
+  ])("says failed when nothing was sent: %s", (_, error) => {
+    expect(classifyPaymentFailure(error)).toEqual({ kind: "failed" });
   });
 });
