@@ -1,6 +1,6 @@
 # `api`
 
-The backend: an [Elysia](https://elysiajs.com) server on [Bun](https://bun.com). For now it has a health check and the wallet's sessions: the wallet proves who the user is with the MetaMask Embedded Wallets (Web3Auth) identity token and gets a short-lived session of ours. It will sponsor the wallet's payments: build the payment transaction, sign it as the fee payer and return it to the wallet to sign and send.
+The backend: an [Elysia](https://elysiajs.com) server on [Bun](https://bun.com). It has a health check, the wallet's sessions (the wallet proves who the user is with the MetaMask Embedded Wallets (Web3Auth) identity token and gets a short-lived session of ours) and the [payments](#payments): the Solana Pay transaction request the merchant's QR points to, which builds the payment transaction for the wallet to sign and send. It will sponsor those payments: sign them as the fee payer too.
 
 ## Bun is only the runtime
 
@@ -19,12 +19,13 @@ Declared in [`.env.schema`](.env.schema), with the shared setup in the [root REA
 
 | Variable             | Notes                                                                                                                                                                 |
 | -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `API_PORT`           | Port the server listens on. `5177`, from the root schema: the wallet's dev proxy reads it too.                                                                        |
+| `API_PORT`           | Port the server listens on. `5177`, from the root schema. In dev, the API's public URL (`API_PUBLIC_URL`, root schema) is `http://localhost:${API_PORT}`.             |
 | `LOG_LEVEL`          | Minimum level the [logger](#logging) writes. `info` in the schema, `silent` in `.env.test`.                                                                           |
 | `API_SESSION_KEY`    | Signs our [sessions](#sessions). Secret, from Infisical; a public placeholder in `.env.test`.                                                                         |
 | `WEB3AUTH_CLIENT_ID` | The wallet's client ID: identity tokens must carry it as audience. Read from the Infisical secret the wallet reads too (`WEB3AUTH_CLIENT_ID`), so one value for both. |
 | `WEB3AUTH_JWKS_URL`  | Web3Auth's signing keys. Defaults to `https://api.web3auth.io/citadel-service/.well-known/jwks.json` in the schema.                                                   |
 | `WEB3AUTH_ISSUER`    | `iss` of the identity tokens. Defaults to `web3auth.io` in the schema.                                                                                                |
+| `SOLANA_RPC_URL`     | Solana RPC, for the latest blockhash of each [payment](#payments). The same Infisical secret the wallet and merchant read.                                            |
 
 Varlock loads and validates them when the server starts: [`src/index.ts`](src/index.ts) imports `varlock/auto-load` before anything else, so an invalid value stops it before it listens. The tests load them the same way, from `.env.test` (`setupFiles` in [`vitest.config.ts`](vitest.config.ts)). Read them through `#/config/env`. [`bunfig.toml`](bunfig.toml) turns off Bun's own `.env` loading, which would otherwise inject the raw `.env.local` values before Varlock resolves them.
 
@@ -40,13 +41,14 @@ It runs on `http://localhost:5177` and restarts on changes (`bun --watch`). If t
 
 ## Endpoints
 
-| Method | Path            | Request                                                   | Response                                                                                                                   |
-| ------ | --------------- | --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| `GET`  | `/health`       |                                                           | `{ "status": "ok" }`.                                                                                                      |
-| `POST` | `/auth/session` | `Authorization: Bearer <identity token>`, `{ "address" }` | 200 `{ "token", "expiresAt" }` (ISO date). 401 `invalid_token`, `address_mismatch` or `no_solana_key`. 400 `invalid_body`. |
-| `GET`  | `/auth/me`      | `Authorization: Bearer <session>`                         | 200 `{ "address" }`. 401 `invalid_session`.                                                                                |
+| Method | Path            | Request                                                   | Response                                                                                                                                                |
+| ------ | --------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GET`  | `/health`       |                                                           | `{ "status": "ok" }`.                                                                                                                                   |
+| `POST` | `/auth/session` | `Authorization: Bearer <identity token>`, `{ "address" }` | 200 `{ "token", "expiresAt" }` (ISO date). 401 `invalid_token`, `address_mismatch` or `no_solana_key`. 400 `invalid_body`.                              |
+| `GET`  | `/auth/me`      | `Authorization: Bearer <session>`                         | 200 `{ "address" }`. 401 `invalid_session`.                                                                                                             |
+| `POST` | `/pay?<charge>` | `Authorization: Bearer <session>`, `{ "account" }`        | 200 `{ "transaction" }`. 400 `invalid_body`, `invalid_query` or `invalid_charge`. 401 `invalid_session`. 403 `account_mismatch`. 503 `rpc_unavailable`. |
 
-Errors are `{ "error": "<code>" }`. Invalid or unparseable bodies answer 400 `invalid_body`, not Elysia's 422 ([`plugins/error-responses.ts`](src/plugins/error-responses.ts)).
+Errors are `{ "error": "<code>" }`. Invalid or unparseable bodies answer 400 `invalid_body`, and invalid queries 400 `invalid_query`, not Elysia's 422 ([`plugins/error-responses.ts`](src/plugins/error-responses.ts), which also has the `errorResponse` schema helper).
 
 ## Sessions
 
@@ -65,6 +67,26 @@ Protected routes use the `auth` macro ([`plugins/session-auth.ts`](src/plugins/s
 
 **The session key is `API_SESSION_KEY`** (Infisical): 32 random bytes in base64url, without padding. Sessions survive restarts, and every instance sharing the key accepts them. Changing it ends every session (the wallet opens a new one on a 401). Each environment needs its own key. Generate one with `openssl rand -base64 32 | tr '+/' '-_' | tr -d '='`.
 
+## Payments
+
+The merchant's QR is a Solana Pay [transaction request](https://solana.com/docs/tools/solana-pay/specification/version1#specification-transaction-request) to `POST /pay`, with the charge in the query: `recipient`, `amount` (decimal, e.g. `1.2`), `spl-token`, `reference` (one or more), `label`, `message`. The link and the query are built and parsed by `@repo/payments/solana-pay`, the same code in the merchant, the wallet and here. The QR's URL is `VITE_PAYMENT_REQUEST_URL` (root schema), which in dev is this server, `http://localhost:5177/pay`.
+
+[`routes/pay`](src/routes/pay):
+
+1. The session's address must be the body's `account` (403 `account_mismatch` otherwise, logged as a warning with both): the API builds payments only for whoever is logged in. When it pays the fees, that's who it pays them for.
+2. The charge is parsed again from the raw query with the wallet's parser (`parseChargeQuery`: Elysia's own parsing keeps the last of two `amount`s, ours rejects them) and checked with `findTransferRequestProblem`: in `PAYMENT_TOKEN`, with a reference, not to oneself. Anything wrong is 400 `invalid_charge`, logged with the reason.
+3. It reads the latest blockhash at `confirmed` ([`lib/solana-rpc.ts`](src/lib/solana-rpc.ts), 5 s timeout; 503 `rpc_unavailable` if it fails) and builds the transaction with `buildPaymentTransaction` (`@repo/payments/transfer`): v0, the payer as fee payer, unsigned.
+4. It answers with the transaction in base64, as the spec asks. The wallet then signs it with the latest blockhash it reads itself, as the spec asks of an unsigned transaction: the API's is only used to compare the bytes. Once the API signs as fee payer, the spec has the wallet keep the API's blockhash instead.
+
+**The wallet doesn't trust the answer**: it builds the same transaction itself and compares the bytes before signing (see the [wallet README](../wallet/README.md#paying)). So any change to how payments are built has to go to `buildPaymentTransaction` and be deployed to the API and the wallet together.
+
+Differences from the spec, all because the only client is our wallet:
+
+- There's no `GET` (label and icon): the wallet reads the label from the link's query.
+- It needs our session, so other Solana Pay wallets can't pay a charge, and it has no CORS.
+- The wallet doesn't send the `POST` to the link's URL but to its own API (`VITE_API_URL`), with the charge it read as query. Both come from `API_PUBLIC_URL` in the root schema, so they are this endpoint (see the [wallet README](../wallet/README.md#2-environment-variables)).
+- The link must be HTTPS, but the root `.env.schema` lets `API_PUBLIC_URL` use plain `http` to `localhost`, for dev (`http://localhost:5177/pay`).
+
 ## Code
 
 ```text
@@ -78,12 +100,12 @@ src/lib/                      shared clients and helpers, without HTTP (logger.t
 src/config/env.ts             the env, the only module that imports varlock/env
 ```
 
-Every feature has a `model.ts`: `index.ts` can't import `t` (lint), so its schemas live there. Add `service.ts` when it has logic: [`routes/auth`](src/routes/auth) has all three, [`routes/health`](src/routes/health) only `index.ts` and `model.ts`. A feature with dependencies is a factory (`authRoutes({ verifyIdToken, sessions, sessionAuth })`): `src/app.ts` passes the real ones, tests their own.
+Every feature has a `model.ts`: `index.ts` can't import `t` (lint), so its schemas live there. Add `service.ts` when it has logic: [`routes/auth`](src/routes/auth) and [`routes/pay`](src/routes/pay) have all three, [`routes/health`](src/routes/health) only `index.ts` and `model.ts`. A feature with dependencies is a factory (`authRoutes({ verifyIdToken, sessions, sessionAuth })`): `src/app.ts` passes the real ones, tests their own.
 
 Services don't know about HTTP: they return expected failures as values and the route maps them to a status. `verifyIdToken` returns `{ ok: false, error }`; an `Error` subclass works too:
 
 ```ts
-// src/routes/payment/service.ts
+// e.g. src/routes/refund/service.ts
 export class InsufficientFunds extends Error {}
 
 export async function buildPayment(amount: bigint) {
@@ -91,7 +113,7 @@ export async function buildPayment(amount: bigint) {
   return { transaction };
 }
 
-// src/routes/payment/index.ts
+// e.g. src/routes/refund/index.ts
 .post("/", async ({ body, status }) => {
   const result = await buildPayment(body.amount);
   if (result instanceof InsufficientFunds) return status(402, "Insufficient funds");
@@ -154,4 +176,4 @@ To disable a rule, do it on the line, naming the rule and saying why:
 aube run test --filter api
 ```
 
-Test a feature through its own instance (`health.handle(new Request(...))`) and services directly. The auth tests build `authRoutes` with their own identity tokens, signed with an ES256 key generated by jose, a local key set (`createLocalJWKSet`) instead of Web3Auth's, a fake clock and a spy on `log.info`. [`src/app.test.ts`](src/app.test.ts) checks that every route declares a `response` schema. Use Vitest, not `bun:test`: the tests run under Node.
+Test a feature through its own instance (`health.handle(new Request(...))`) and services directly. The auth tests build `authRoutes` with their own identity tokens, signed with an ES256 key generated by jose, a local key set (`createLocalJWKSet`) instead of Web3Auth's, a fake clock and a spy on `log.info`. The pay tests fake the RPC (`getLatestBlockhash`) and check the transaction against `buildPaymentTransaction`. [`src/app.test.ts`](src/app.test.ts) checks that every route declares a `response` schema. Use Vitest, not `bun:test`: the tests run under Node.

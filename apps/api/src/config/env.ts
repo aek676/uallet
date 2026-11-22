@@ -10,6 +10,7 @@ const config = {
     jwksUrl: ENV.WEB3AUTH_JWKS_URL,
     issuer: ENV.WEB3AUTH_ISSUER,
   },
+  solanaRpcUrl: ENV.SOLANA_RPC_URL,
 } as const;
 
 export { config as ENV };

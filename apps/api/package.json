@@ -19,6 +19,7 @@
     "test": "APP_ENV=test vitest run"
   },
   "dependencies": {
+    "@repo/payments": "workspace:*",
     "@solana/kit": "catalog:solana",
     "elysia": "catalog:api",
     "jose": "catalog:api",
