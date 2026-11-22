@@ -2,8 +2,9 @@ import { address, isAddress } from "@solana/kit";
 import { describe, expect, it } from "vitest";
 
 import { PAYMENT_TOKEN } from "@repo/payments/config";
-import { parseTransferRequest } from "@repo/payments/solana-pay";
+import { parseTransactionRequest } from "@repo/payments/solana-pay";
 
+import { ENV } from "#/config/env";
 import type { Merchant } from "#/config/merchant";
 import { createCharge } from "#/features/charge/utils/create-charge";
 
@@ -12,8 +13,14 @@ const merchant: Merchant = {
   name: "Cafetería Central",
 };
 
+const ENDPOINT = ENV.paymentRequestUrl;
+
+function parse(url: string, decimals = PAYMENT_TOKEN.decimals) {
+  return parseTransactionRequest(url, ENDPOINT, decimals);
+}
+
 describe("createCharge", () => {
-  it("builds a Solana Pay link to the merchant for the payment token", () => {
+  it("builds a transaction request to the API, paying the merchant in the payment token", () => {
     const charge = createCharge({
       merchant,
       amount: 1_200_000n,
@@ -22,10 +29,22 @@ describe("createCharge", () => {
 
     expect(isAddress(charge.reference)).toBe(true);
     expect(charge.url).toBe(
-      `solana:${merchant.address}?amount=1.2&spl-token=${PAYMENT_TOKEN.mint}` +
-        `&reference=${charge.reference}` +
-        "&label=Cafeter%C3%ADa%20Central&message=Caf%C3%A9%20con%20leche",
+      "solana:" +
+        encodeURIComponent(
+          `${ENDPOINT}?recipient=${merchant.address}&amount=1.2` +
+            `&spl-token=${PAYMENT_TOKEN.mint}&reference=${charge.reference}` +
+            "&label=Cafeter%C3%ADa%20Central&message=Caf%C3%A9%20con%20leche",
+        ),
     );
+  });
+
+  it("uses the endpoint it's given", () => {
+    const endpoint = "https://api.example.com/pay";
+    const charge = createCharge({ merchant, amount: 1_000_000n, endpoint });
+
+    expect(
+      parseTransactionRequest(charge.url, endpoint, PAYMENT_TOKEN.decimals),
+    ).toEqual(charge.request);
   });
 
   it("round-trips through the wallet's parser", () => {
@@ -35,9 +54,7 @@ describe("createCharge", () => {
       concept: "Fotocopias",
     });
 
-    expect(parseTransferRequest(charge.url, PAYMENT_TOKEN.decimals)).toEqual(
-      charge.request,
-    );
+    expect(parse(charge.url)).toEqual(charge.request);
     expect(charge.request).toEqual({
       recipient: merchant.address,
       amount: 100_000n,
@@ -52,7 +69,7 @@ describe("createCharge", () => {
     const charge = createCharge({ merchant, amount: 1_000_000n, concept });
 
     expect(charge.request).not.toHaveProperty("message");
-    expect(charge.url).not.toContain("message=");
+    expect(decodeURIComponent(charge.url)).not.toContain("message=");
   });
 
   it("trims the concept", () => {
@@ -100,7 +117,9 @@ describe("createCharge", () => {
     };
     const charge = createCharge({ merchant, amount: 120n, token });
 
-    expect(charge.url).toContain(`amount=1.2&spl-token=${token.mint}&`);
-    expect(parseTransferRequest(charge.url, token.decimals).amount).toBe(120n);
+    expect(decodeURIComponent(charge.url)).toContain(
+      `amount=1.2&spl-token=${token.mint}&`,
+    );
+    expect(parse(charge.url, token.decimals).amount).toBe(120n);
   });
 });
