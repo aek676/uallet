@@ -171,4 +171,5 @@ Measured on devnet's public RPC (39 payments of 0.01 EURC, in two runs, from a d
 - Web3Auth's wallet only signs `legacy` and v0 transactions, so payments can't use v1 yet.
 
 - Only the email form checks for a university address (`@ual.es`, `@inlumine.ual.es`), and only client-side. Google accepts any account. The real restriction belongs in the dashboard (a Google connection limited to the university domain).
-- Logging out reloads the page: in `@web3auth/no-modal` 11.4.3, logging in again in the same page after a logout never emits `CONNECTED`.
+- Logging out reloads the page: in `@web3auth/no-modal` 11.4.3, logging in again in the same page after a logout never emits `CONNECTED`. It reloads only if the logout worked, else it shows an error: the session would survive the reload.
+- While an API session is being opened, `getAuthTokenInfo()` holds Web3Auth in `authorizing` for a network request, and `logout()` throws "No wallet is connected" meanwhile. Logging out waits for it to finish, up to 10 s: a request that fails halfway leaves the status there for good, and logging out then fails until the page is reloaded.
