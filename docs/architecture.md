@@ -6,10 +6,12 @@ stay in each README; this links to them instead of repeating them.
 
 ## System context
 
-Today there is no backend in the payment flow. Both apps are static single-page
-apps that talk to Solana directly. The chain is the only state the two apps share. `apps/api` (Elysia on
-Bun) so far only authenticates wallet users (see [API sessions](#api-sessions));
-it will sponsor the wallet's transaction fees.
+Both apps are static single-page apps. `apps/api` (Elysia on Bun) authenticates
+wallet users (see [API sessions](#api-sessions)) and builds the payment
+transactions the wallet signs: the merchant's QR is a Solana Pay transaction
+request to it. It has no database: the charge travels in the link, and the
+chain is still the only state the apps share. It will sponsor the wallet's
+transaction fees.
 
 ```mermaid
 flowchart LR
@@ -19,14 +21,17 @@ flowchart LR
   subgraph Merchant device
     M[merchant app]
   end
+  W -- session, POST /pay --> API[api]
+  API -- latest blockhash --> R
   W -- sign --> A[Web3Auth<br/>embedded wallet]
   W -- send tx, balances --> R[(Solana RPC + WebSocket)]
   M -- watch, fetch, validate --> R
-  M -. "QR: solana: link" .-> W
+  M -. "QR: solana: transaction request" .-> W
 ```
 
 The QR code is the only channel between the apps: the merchant shows a Solana Pay
-link, the wallet reads it. Neither app calls the other.
+link, the wallet reads it. Neither app calls the other, and the merchant never
+calls the API.
 
 ## Monorepo
 
@@ -43,7 +48,8 @@ aube exec turbo run transit --graph   # the whole graph, as Graphviz DOT
 | ---------------------------- | -------------------------------------------------------------------------- |
 | `apps/wallet`                | Login, balances, scanning or pasting a link, paying, payment metrics.      |
 | `apps/merchant`              | The charge form, the QR, detecting and validating the payment.             |
-| `packages/payments`          | Token config, amounts, Solana Pay links, payment instructions, validation. |
+| `apps/api`                   | Sessions, and building the payment transaction of a charge.                |
+| `packages/payments`          | Token config, amounts, Solana Pay links, payment transactions, validation. |
 | `packages/i18n`              | English and Spanish texts as one Paraglide project; each app compiles it.  |
 | `packages/ui`                | shadcn/ui components on Base UI, Tailwind v4 tokens.                       |
 | `packages/oxlint-config`     | Shared lint rules, including the app layer boundaries.                     |
@@ -84,11 +90,16 @@ sequenceDiagram
   participant M as Merchant app
   participant R as Solana RPC
   participant W as Wallet app
-  M->>M: createCharge: new reference, Solana Pay link
-  M->>W: QR (solana: link)
-  W->>W: parse and check the link
+  participant A as API
+  M->>M: createCharge: new reference, transaction request link
+  M->>W: QR (solana:https%3A…%2Fpay%3F<charge>)
+  W->>W: parse and check the link and its charge
   W->>R: is there already a tx with this reference?
-  W->>W: buildPaymentInstructions, sign (Web3Auth)
+  W->>A: POST /pay?<charge> { account } (session)
+  A->>R: getLatestBlockhash
+  A-->>W: { transaction }
+  W->>R: getLatestBlockhash (alongside the POST)
+  W->>W: build the same tx, compare bytes, rebuild with own blockhash, sign (Web3Auth)
   W->>R: send v0 tx, wait for confirmed
   R-->>M: logsSubscribe notification (confirmed)
   M->>R: every 1 s: getSignaturesForAddress(reference)
@@ -97,18 +108,26 @@ sequenceDiagram
 ```
 
 1. **Charge.** `createCharge` (`apps/merchant`) makes a new `reference` and
-   encodes a Solana Pay transfer request: the `solana:` link in the QR, which
-   carries the recipient. The merchant's own page URL
+   encodes a Solana Pay transaction request: the `solana:` link in the QR is
+   the API's payment endpoint (`VITE_PAYMENT_REQUEST_URL`), URL-encoded, with
+   the charge (recipient, amount, token, reference, label, message) in its
+   query. The merchant's own page URL
    (`/charges/<reference>?amount=…&concept=…`) holds only the reference, amount
    and concept, and the recipient, token and label always come from config, so
    editing that URL can't redirect the payment.
-2. **Pay.** The wallet checks the link (`createPaymentLinkSchema`): right
-   token, a reference, no memo, not to oneself. `buildPaymentInstructions`
-   creates the recipient's token account if needed (idempotent), then
-   `TransferChecked` last, with the reference appended as a read-only account.
-   It is sent as a v0 transaction and awaited at `confirmed`. A payment is
-   never retried automatically: only the payer decides, once they know how the
-   last one ended.
+2. **Pay.** The wallet checks the link (`createPaymentLinkSchema`): a request
+   to our endpoint, right token, a reference, not to oneself. On **Pay** it
+   asks the API for the transaction (`POST /pay`, with the session; it never
+   fetches the link's own URL). The API checks the charge the same way, reads
+   the latest blockhash and builds it with `buildPaymentTransaction`: v0, the
+   payer as fee payer, the recipient's token account created if needed
+   (idempotent), then `TransferChecked` last, with the reference appended as a
+   read-only account. The wallet builds the same transaction with the API's
+   blockhash and goes on only if the bytes match. As Solana Pay asks of an
+   unsigned transaction, it then sets the latest blockhash, which it read from
+   its own RPC alongside the `POST`, signs, sends it and waits for
+   `confirmed`. A payment is never retried automatically: only the payer
+   decides, once they know how the last one ended.
 3. **Detect.** `waitForPayment` listens to `logsSubscribe` for the reference
    (fast path) and, in parallel, asks the RPC every second for transactions that
    mention it. The second one is always on: it covers dropped notifications and
@@ -163,16 +182,19 @@ Details: the [api](../apps/api/README.md#sessions) and
 
 ## Design decisions
 
-| Decision                                                                         | Why                                                                                                                                                                                  |
-| -------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| The `reference` correlates a charge with its payment.                            | It needs no backend and no shared state: the chain is the lookup table.                                                                                                              |
-| Announce at `confirmed`, validate at `finalized`.                                | Measured on devnet: both notify at the same time, `finalized` loses more notifications, and a transaction is fetchable at `finalized` right away. "Paid" then can't be reverted.     |
-| Validate by token balance change, not by decoding the instruction.               | It works with any transaction shape, including a smart wallet's CPI, which prepares the move to a smart wallet. On-chain data is untrusted: everything is compared with the request. |
-| `PAYMENT_TOKEN` instead of `EURC` in the apps.                                   | Swapping to the campus Token-2022 token is a one-line change. The token's program is carried with it: never assume the classic Token program.                                        |
-| The charge lives in the URL (merchant) and the payment link in the URL (wallet). | A reload shows the same charge or confirmation and keeps watching. Apps hold only what the URL can't.                                                                                |
-| No automatic payment retry.                                                      | A signed transaction may have landed: paying again could charge twice.                                                                                                               |
-| Sent payments and metrics stay on the device (`localStorage`, last 50).          | There's no backend; the wallet also uses it to recognise payments it already sent.                                                                                                   |
-| Env values are validated at build time (Varlock) and end up in the bundle.       | A bad config fails `dev` and `build`, not a payment. Nothing secret goes in `VITE_*`.                                                                                                |
+| Decision                                                                         | Why                                                                                                                                                                                    |
+| -------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| The `reference` correlates a charge with its payment.                            | It needs no database and no shared state: the chain is the lookup table.                                                                                                               |
+| The QR is a transaction request; the API builds the transaction.                 | It's what lets the API sponsor the fee later: it has to build, check and sign the transaction it pays for. The charge travels in the link's query, so the API stores nothing.          |
+| The wallet rebuilds the API's transaction and compares the bytes before signing. | Web3Auth signs without asking: this is the check that the API (or whoever answers in its place) only gets this payment signed. API and wallet must build payments the same way.        |
+| The wallet only pays links to `VITE_PAYMENT_REQUEST_URL`, and calls its own API. | The session never goes to a host from a QR, and a charge always means the same thing. Solana Pay would `POST` to the link's URL: both come from `API_PUBLIC_URL`, so they're the same. |
+| Announce at `confirmed`, validate at `finalized`.                                | Measured on devnet: both notify at the same time, `finalized` loses more notifications, and a transaction is fetchable at `finalized` right away. "Paid" then can't be reverted.       |
+| Validate by token balance change, not by decoding the instruction.               | It works with any transaction shape, including a smart wallet's CPI, which prepares the move to a smart wallet. On-chain data is untrusted: everything is compared with the request.   |
+| `PAYMENT_TOKEN` instead of `EURC` in the apps.                                   | Swapping to the campus Token-2022 token is a one-line change. The token's program is carried with it: never assume the classic Token program.                                          |
+| The charge lives in the URL (merchant) and the payment link in the URL (wallet). | A reload shows the same charge or confirmation and keeps watching. Apps hold only what the URL can't.                                                                                  |
+| No automatic payment retry.                                                      | A signed transaction may have landed: paying again could charge twice.                                                                                                                 |
+| Sent payments and metrics stay on the device (`localStorage`, last 50).          | The API keeps nothing; the wallet also uses it to recognise payments it already sent.                                                                                                  |
+| Env values are validated at build time (Varlock) and end up in the bundle.       | A bad config fails `dev` and `build`, not a payment. Nothing secret goes in `VITE_*`.                                                                                                  |
 
 ## Trust model and limits
 
@@ -186,6 +208,11 @@ Details: the [api](../apps/api/README.md#sessions) and
 - **The public devnet RPC drops notifications and limits per IP.** A real
   deployment needs a dedicated RPC.
 - **Web3Auth only signs `legacy` and v0 transactions**, so payments can't use v1.
+- **Only our wallet can pay a charge.** `POST /pay` needs our session, so a
+  generic Solana Pay wallet can't. There's no `GET` (label, icon). The link
+  must be HTTPS, except to `localhost` in dev.
+- **Paying needs the API.** If it's down or its RPC fails, the payment fails
+  before anything is signed, and paying again is safe.
 
 Details and numbers: the _Known issues_ sections of the
 [wallet](../apps/wallet/README.md#known-issues) and
@@ -207,10 +234,13 @@ Details and numbers: the _Known issues_ sections of the
 - **Sponsored network fees.** The goal is that users never see SOL or fees: the
   university pays them. What follows is deduced from the current code, not yet
   decided design:
-  - A service must sign as fee payer. The university's key can't live in the
-    browser, which is one more reason for the planned backend. It has to check
-    what it signs (only campus-token payments) and rate-limit, or anyone could
-    drain the university's SOL.
+  - The API must sign as fee payer. It already builds the transaction (`POST
+    /pay`) and only for the session's account; what's left is setting the
+    university's key as fee payer in `buildPaymentTransaction`, signing in the
+    route, and rate-limiting, or anyone could drain the university's SOL. The
+    wallet already checks the transaction byte for byte; it would then keep
+    the API's blockhash and signature instead of setting its own blockhash,
+    as Solana Pay asks of a signed transaction.
   - `buildPaymentInstructions` makes the payer pay the creation of the
     recipient's token account (~0.0015 SOL, first payment to a merchant). With
     sponsoring, that rent moves to the sponsor too.
@@ -240,19 +270,21 @@ Details and numbers: the _Known issues_ sections of the
 
 ## Where things live
 
-| Concept                         | File                                                                       |
-| ------------------------------- | -------------------------------------------------------------------------- |
-| Payment token                   | `packages/payments/src/config.ts`                                          |
-| Solana Pay link build and parse | `packages/payments/src/solana-pay.ts`                                      |
-| Payment instructions            | `packages/payments/src/transfer.ts`                                        |
-| Payment validation              | `packages/payments/src/validate-payment.ts`                                |
-| Charge creation                 | `apps/merchant/src/features/charge/utils/create-charge.ts`                 |
-| Payment detection               | `apps/merchant/src/features/charge/utils/wait-for-payment.ts`              |
-| Merchant identity               | `apps/merchant/src/config/merchant.ts`                                     |
-| Link checks (wallet)            | `apps/wallet/src/features/pay/utils/payment-link.ts`                       |
-| Sending a payment               | `apps/wallet/src/features/pay/hooks/use-payment.ts`                        |
-| Wallet and chain setup          | `apps/wallet/src/lib/web3auth.ts`, `payment-client.ts`, `solana-client.ts` |
-| API sessions (server)           | `apps/api/src/routes/auth/`, `apps/api/src/plugins/session-auth.ts`        |
-| API session (wallet)            | `apps/wallet/src/lib/api-session.ts`                                       |
-| API client (wallet)             | `apps/wallet/src/lib/api-client.ts`                                        |
-| Texts                           | `packages/i18n/messages/{en,es}.json`                                      |
+| Concept                         | File                                                                         |
+| ------------------------------- | ---------------------------------------------------------------------------- |
+| Payment token                   | `packages/payments/src/config.ts`                                            |
+| Solana Pay link build and parse | `packages/payments/src/solana-pay.ts`                                        |
+| Payment transaction             | `packages/payments/src/transfer.ts`                                          |
+| Building payments (server)      | `apps/api/src/routes/pay/`                                                   |
+| Payment validation              | `packages/payments/src/validate-payment.ts`                                  |
+| Charge creation                 | `apps/merchant/src/features/charge/utils/create-charge.ts`                   |
+| Payment detection               | `apps/merchant/src/features/charge/utils/wait-for-payment.ts`                |
+| Merchant identity               | `apps/merchant/src/config/merchant.ts`                                       |
+| Link checks (wallet)            | `apps/wallet/src/features/pay/utils/payment-link.ts`                         |
+| Sending a payment               | `apps/wallet/src/features/pay/utils/send-payment.ts`, `hooks/use-payment.ts` |
+| Checking the API's transaction  | `apps/wallet/src/features/pay/utils/payment-transaction.ts`                  |
+| Wallet and chain setup          | `apps/wallet/src/lib/web3auth.ts`, `solana-client.ts`                        |
+| API sessions (server)           | `apps/api/src/routes/auth/`, `apps/api/src/plugins/session-auth.ts`          |
+| API session (wallet)            | `apps/wallet/src/lib/api-session.ts`                                         |
+| API client (wallet)             | `apps/wallet/src/lib/api-client.ts`                                          |
+| Texts                           | `packages/i18n/messages/{en,es}.json`                                        |

@@ -64,6 +64,8 @@ Which extensions the final token enables is still to be decided.
 - `apps/wallet`: the payer's app. See its [README](../apps/wallet/README.md).
 - `apps/merchant`: the shop's app, which shows the QR. See its
   [README](../apps/merchant/README.md).
+- `apps/api`: the backend, which builds the payment transactions. See its
+  [README](../apps/api/README.md).
 - `packages/payments`: the shared payment logic, with no UI and no network calls.
 - `packages/ui`: the design system (shadcn/ui components and tokens).
 
@@ -71,13 +73,13 @@ How the pieces fit together, and why: [architecture.md](architecture.md).
 
 ## Glossary
 
-| Term            | Meaning                                                                                                                   |
-| --------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| Charge          | What the merchant asks for: an amount, an optional concept and a fresh `reference`.                                       |
-| Reference       | A random address added to the payment transaction so the merchant can find it on-chain. One per charge.                   |
-| Solana Pay link | The `solana:` URL of a transfer request, shown as a QR. It carries recipient, amount, token, reference, label, message.   |
-| Payment token   | The token payments use: `PAYMENT_TOKEN` in `@repo/payments/config`. EURC today, the campus token later.                   |
-| Base units      | The token's smallest unit as a `bigint`: `1_200_000n` is €1.20 with 6 decimals.                                           |
-| Look-back       | The merchant asking the RPC for transactions that mention the reference, in case the subscription dropped a notification. |
-| `confirmed`     | A commitment level: voted on by a supermajority. Fast, used to announce a payment.                                        |
-| `finalized`     | A commitment level: can't be reverted. Used to validate a payment.                                                        |
+| Term            | Meaning                                                                                                                                                |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Charge          | What the merchant asks for: an amount, an optional concept and a fresh `reference`.                                                                    |
+| Reference       | A random address added to the payment transaction so the merchant can find it on-chain. One per charge.                                                |
+| Solana Pay link | The `solana:` URL shown as a QR: a transaction request to the API, with the charge (recipient, amount, token, reference, label, message) in its query. |
+| Payment token   | The token payments use: `PAYMENT_TOKEN` in `@repo/payments/config`. EURC today, the campus token later.                                                |
+| Base units      | The token's smallest unit as a `bigint`: `1_200_000n` is €1.20 with 6 decimals.                                                                        |
+| Look-back       | The merchant asking the RPC for transactions that mention the reference, in case the subscription dropped a notification.                              |
+| `confirmed`     | A commitment level: voted on by a supermajority. Fast, used to announce a payment.                                                                     |
+| `finalized`     | A commitment level: can't be reverted. Used to validate a payment.                                                                                     |

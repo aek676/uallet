@@ -12,14 +12,14 @@
  * meaning as in a transfer request.
  *
  * The link must be HTTPS, as the spec requires: a link is only valid if it
- * points to the endpoint, and the endpoint's schema (`VITE_PAYMENT_REQUEST_URL`
- * in the root `.env.schema`) only allows HTTPS, or plain HTTP to `localhost`
- * for development.
+ * points to the endpoint, and the root `.env.schema` derives the endpoint
+ * (`VITE_PAYMENT_REQUEST_URL`) from `API_PUBLIC_URL`, which only allows HTTPS,
+ * or plain HTTP to `localhost` for development.
  *
  * Unlike the spec, our wallet doesn't send the `POST` to the link's own URL:
  * it pays only links to one endpoint, reads the charge from the query, and
  * sends that charge to its own API. The endpoint and the API must be the same
- * server (the wallet checks this at startup, outside development).
+ * server: the root `.env.schema` derives both from `API_PUBLIC_URL`.
  *
  * Spec: https://solana.com/docs/tools/solana-pay/specification/version1#specification-transaction-request
  */
