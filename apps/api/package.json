@@ -15,14 +15,18 @@
   },
   "dependencies": {
     "@bogeychan/elysia-logger": "catalog:api",
+    "@solana/kit": "catalog:solana",
     "elysia": "catalog:api",
+    "jose": "catalog:api",
     "pino": "catalog:api",
-    "varlock": "catalog:env"
+    "varlock": "catalog:env",
+    "zod": "catalog:forms"
   },
   "devDependencies": {
     "@repo/oxlint-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
     "@types/bun": "catalog:api",
+    "@varlock/infisical-plugin": "catalog:env",
     "oxlint": "catalog:lint",
     "oxlint-tsgolint": "catalog:lint",
     "pino-pretty": "catalog:api",
