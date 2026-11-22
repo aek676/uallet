@@ -3,6 +3,7 @@ import tailwindcss from "@tailwindcss/vite";
 import { tanstackRouter } from "@tanstack/router-plugin/vite";
 import { varlockVitePlugin } from "@varlock/vite-integration";
 import react from "@vitejs/plugin-react";
+import { ENV } from "varlock/env";
 import { defineConfig } from "vite";
 
 export default defineConfig({
@@ -24,5 +25,11 @@ export default defineConfig({
     port: 5173,
     strictPort: true,
     allowedHosts: [".opentunnel.xyz"],
+    proxy: {
+      "/api": {
+        target: `http://localhost:${ENV.API_PORT}`,
+        rewrite: (path) => path.replace(/^\/api/, ""),
+      },
+    },
   },
 });

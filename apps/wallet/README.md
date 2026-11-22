@@ -23,6 +23,7 @@ In development they come from Infisical: follow the one-time setup in the [root 
 | `VITE_WEB3AUTH_CLIENT_ID` | Client ID from the dashboard.                                 |
 | `VITE_SOLANA_RPC_URL`     | Solana devnet RPC (shared with merchant, in the root schema). |
 | `VITE_SOLANA_WS_URL`      | Solana devnet WebSocket (shared, in the root schema).         |
+| `VITE_API_URL`            | Base URL of our [API](../api/README.md). `/api` by default.   |
 
 Varlock validates them when Vite starts: `dev` and `build` fail instead of the app failing at payment time.
 
@@ -33,6 +34,39 @@ Varlock validates them when Vite starts: `dev` and `build` fail instead of the a
 ```sh
 aube run dev --filter wallet
 ```
+
+To talk to the API, run it too (`aube run dev --filter api`), or start everything with `aube run dev`.
+
+## API
+
+The wallet calls our [API](../api/README.md) at `VITE_API_URL` (`/api`), on its own origin:
+
+- **In dev, Vite proxies `/api`** to the API on `http://localhost:5177` (`API_PORT`, shared with the API through the root `.env.schema`), without the `/api` prefix (`server.proxy` in [`vite.config.ts`](vite.config.ts); `preview` reuses it). No CORS needed, and it also works through the phone tunnel.
+- **In production, serve the API under the wallet's origin** at that path (a reverse proxy), or point `VITE_API_URL` elsewhere and add CORS to the API.
+
+**Session.** [`src/lib/api-session.ts`](src/lib/api-session.ts) trades the Web3Auth identity token (`web3Auth.getAuthTokenInfo()`) for the API's own session, which lasts an hour: `getApiSession({ web3Auth, address })`. The session stays in memory only (never `localStorage`), one per address, and is renewed a minute before it expires. Concurrent calls share one request; a failure isn't cached. `getApiSession` rejects with `ApiSessionError` (`status`, and `code`, typed from the API's error codes).
+
+**Requests.** Call the API through `apiClient(params)` from `#/lib/api-session`, never with a bare `fetch`. It returns an [Eden Treaty](https://elysiajs.com/eden/treaty/overview) client typed from the API's `App` type, which sends the session as bearer and, on a 401 (the API's session key changed, or the clocks disagree), opens a new one and retries once. Paths, bodies, responses and status codes are checked against the API's routes. Treaty returns HTTP errors as values, `{ data, error }`:
+
+```ts
+const api = apiClient({ web3Auth, address });
+const { data, error } = await api.auth.me.get();
+
+if (error) {
+  // error.status is a status the route declares and error.value its body,
+  // or 503 with what was thrown in error.value (see below)
+  return;
+}
+data.address; // typed
+```
+
+When the session can't be opened or the API can't be reached, there is no HTTP response: Treaty reports `error.status` 503, outside the route's types, with `response` undefined and the cause in `error.value` (an `ApiSessionError` when the session failed, e.g. the identity token expired and the user must log in again).
+
+[`src/lib/api-client.ts`](src/lib/api-client.ts) builds the client and is the only file that imports `@elysiajs/eden` and `api/app` (the API's `./app` export), the latter with `import type`: only types reach the bundle, no server code (the API exports `./app` under the `types` condition only, so a value import doesn't resolve). It resolves the relative `VITE_API_URL` against the page origin (Treaty would prefix `https://`) and sets `parseDate: false`, so dates stay strings, as the API's schemas type them. Changing a route in the API changes these types, so `lint` here fails where the wallet no longer matches.
+
+Elysia's declarations import from `bun`, so Bun's global types are visible to the wallet's type-checker even though it runs in a browser (hence the `Fetcher` type in `api-client.ts`). Lint forbids the `Bun` global in the wallet. `@elysiajs/eden` and `elysia` (types only, a dev dependency) must be bumped together with the API's Elysia.
+
+`ConnectedLayout` (`src/app/routes/_authenticated.tsx`) opens the session as soon as the Solana account is connected (`useWarmApiSession`), without blocking: no feature uses the API yet, so a failure shows nothing to the user, only a console warning in dev.
 
 ## Test funds (devnet)
 

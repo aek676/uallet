@@ -19,7 +19,7 @@ Declared in [`.env.schema`](.env.schema), with the shared setup in the [root REA
 
 | Variable             | Notes                                                                                                                                                                       |
 | -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `API_PORT`           | Port the server listens on. `5177`, set in the schema.                                                                                                                      |
+| `API_PORT`           | Port the server listens on. `5177`, from the root schema: the wallet's dev proxy reads it too.                                                                              |
 | `LOG_LEVEL`          | Minimum level the [logger](#logging) writes. `info` in the schema, `silent` in `.env.test`.                                                                                 |
 | `API_SESSION_KEY`    | Signs our [sessions](#sessions). Secret, from Infisical; a public placeholder in `.env.test`.                                                                               |
 | `WEB3AUTH_CLIENT_ID` | The wallet's client ID: identity tokens must carry it as audience. Read from the wallet's Infisical secret (`infisical("VITE_WEB3AUTH_CLIENT_ID")`), so one value for both. |
@@ -101,7 +101,9 @@ export async function buildPayment(amount: bigint) {
 
 `#/` imports point to `src`. Bun 1.4 doesn't resolve `#/` in `package.json#imports` (TypeScript and Vitest do), so the alias is also in `tsconfig.json` `paths`, which Bun reads. Keep both in sync.
 
-Elysia is **1.4**: route options go after the handler (`.get(path, handler, options)`). The committed [`elysiajs` skill](../../.agents/skills/elysiajs) describes 2.0, so check the installed types where they differ.
+The package exports the types of `./app` (`src/app.ts`) for the wallet's typed client: the wallet does `import type { App } from "api/app"` and calls the API through [Eden Treaty](https://elysiajs.com/eden/treaty/overview) (see the [wallet README](../wallet/README.md#api)). So a route's schemas and status codes are part of the wallet's types: changing them can break the wallet's `lint`, which is how it catches a mismatch. Keep every route's `response` schema complete, including its error statuses. The export has only a `types` condition, so nothing can import the value and pull the server into a bundle.
+
+Elysia is **1.4**, and `@elysiajs/eden` (the `api` catalog in `aube-workspace.yaml`, used by the wallet) must be bumped together with it: Eden peers on `elysia`. Route options go after the handler (`.get(path, handler, options)`). The committed [`elysiajs` skill](../../.agents/skills/elysiajs) describes 2.0 (and its Eden, `@elysia/eden`; we use `@elysiajs/eden` 1.4), so check the installed types where they differ.
 
 ## Logging
 

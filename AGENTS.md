@@ -33,7 +33,8 @@ on `PATH`. Its tests run under Node (Vitest), like the rest.
   `aube run format:fix && aube run lint && aube run test`.
 - Workspaces: `wallet`, `merchant`, `api`, `@repo/payments`, `@repo/i18n`,
   `@repo/ui`, `@repo/oxlint-config`, `@repo/typescript-config`. Packages have no
-  build step: apps import their TypeScript source.
+  build step: apps import their TypeScript source. The wallet also imports the
+  `App` type of `api` (`api/app`), types only.
 
 ## Environment (Varlock)
 
@@ -113,6 +114,18 @@ on `PATH`. Its tests run under Node (Vitest), like the rest.
   `packages/ui` with aube activated (root README, "Adding shadcn/ui
   components").
 
+## Wallet to API
+
+- Call the API through `apiClient` from `#/lib/api-session` (Eden Treaty typed
+  from `api/app`, session and 401 retry included), never with a bare `fetch`.
+  Treaty returns `{ data, error }`. A session or network failure is a 503
+  `error` with the cause in `error.value` (wallet README, "API").
+- Only `#/lib/api-client` imports `@elysiajs/eden` and `api/app`, and `api/app`
+  only with `import type`: `api` exports it under the `types` condition, so a
+  value import doesn't resolve.
+- Elysia's types import from `bun`, so Bun globals type-check in the wallet.
+  Its lint config forbids `Bun`.
+
 ## Dependencies
 
 - Most versions live in catalogs in `aube-workspace.yaml` (`catalog:<name>`);
@@ -120,6 +133,7 @@ on `PATH`. Its tests run under Node (Vitest), like the rest.
   `oxfmt`, `turbo`) is pinned in the root `package.json`, and the dependencies
   shadcn added to `@repo/ui` keep their own ranges. Commit `package.json`,
   `aube-workspace.yaml` and `aube-lock.yaml` together.
+- Bump `@elysiajs/eden` together with `elysia`.
 - Bump `oxlint-tsgolint` together with `typescript`. `zxing-wasm` must match
   the version `barcode-detector` pins.
 - The aube version is pinned twice: `devEngines` in `package.json` and
@@ -128,7 +142,8 @@ on `PATH`. Its tests run under Node (Vitest), like the rest.
 ## Dev servers
 
 Ports are fixed: wallet 5173 and merchant 5175 (Vite `strictPort`), api 5177
-(`API_PORT` in `apps/api/.env.schema`).
+(`API_PORT` in the root `.env.schema`, which the wallet's `/api` proxy also
+reads).
 `aube run dev` opens Turborepo's TUI for all apps; start one app with
 `aube run dev -- --filter wallet` (through Turborepo) or
 `aube run dev --filter wallet` (aube's filter, runs `vite` directly).
@@ -148,7 +163,8 @@ Ports are fixed: wallet 5173 and merchant 5175 (Vite `strictPort`), api 5177
 `.agents/skills/elysiajs` are committed (tracked in `skills-lock.json`). Load
 them before changing `turbo.json`, env config or `apps/api`.
 
-The `elysiajs` skill documents Elysia **2**; `apps/api` is on **1.4**
+The `elysiajs` skill documents Elysia **2** and its Eden (`@elysia/eden`; we
+use `@elysiajs/eden` 1.4); `apps/api` is on **1.4**
 (`catalog:api` in `aube-workspace.yaml`). Where they differ, follow 1.4: route
 options go after the handler (`.get(path, handler, options)`), scopes are
 `'scoped'`, and `resolve`, `t.Transform` and `@elysiajs/*` plugins still

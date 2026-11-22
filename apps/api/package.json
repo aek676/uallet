@@ -6,6 +6,11 @@
   "imports": {
     "#/*": "./src/*.ts"
   },
+  "exports": {
+    "./app": {
+      "types": "./src/app.ts"
+    }
+  },
   "scripts": {
     "dev": "bun --watch src/index.ts | pino-pretty",
     "codegen": "APP_ENV=test varlock codegen",

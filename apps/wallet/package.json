@@ -20,6 +20,7 @@
     "test": "APP_ENV=test vitest run"
   },
   "dependencies": {
+    "@elysiajs/eden": "catalog:api",
     "@repo/i18n": "workspace:*",
     "@repo/payments": "workspace:*",
     "@repo/ui": "workspace:*",
@@ -55,6 +56,8 @@
     "@varlock/infisical-plugin": "catalog:env",
     "@varlock/vite-integration": "catalog:env",
     "@vitejs/plugin-react": "catalog:build",
+    "api": "workspace:*",
+    "elysia": "catalog:api",
     "oxlint": "catalog:lint",
     "oxlint-tsgolint": "catalog:lint",
     "tailwindcss": "catalog:styles",
