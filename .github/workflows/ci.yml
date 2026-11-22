@@ -125,9 +125,8 @@ jobs:
       - name: Setup
         uses: $/.github/actions/setup
 
-      # No fixed picomatch exists yet: remove --ignore when #27 is done.
       - name: Audit dependencies
-        run: aube audit --audit-level=high --ignore GHSA-fc5q-39xc-vjpf
+        run: aube audit --audit-level=high
 
   secrets:
     name: Scan for secrets
