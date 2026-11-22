@@ -94,7 +94,10 @@ async function post(
       body: JSON.stringify({ account }),
     }),
   );
-  return { status: response.status, body: (await response.json()) as unknown };
+  // Annotated, not asserted: `json()` is `any` with Bun's types and `unknown`
+  // with Node's, and an assertion fails the lint with one of them.
+  const body: unknown = await response.json();
+  return { status: response.status, body };
 }
 
 describe("POST /pay", () => {
