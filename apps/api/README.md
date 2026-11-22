@@ -46,14 +46,14 @@ It runs on `http://localhost:5177` and restarts on changes (`bun --watch`). If t
 src/index.ts                  loads the env and starts listening (the only place for Bun APIs)
 src/app.ts                    composes the route features with .use(); exported without listening, for tests
 src/routes/<name>/index.ts    the feature's Elysia instance: routes, validation, status codes
-src/routes/<name>/model.ts    request and response schemas (`t`), with the types derived from them
+src/routes/<name>/model.ts    one `<Name>Model` object with the schemas (`t`) and a same-named type derived from it; the route maps them to status codes
 src/routes/<name>/service.ts  business logic: plain values in, plain values or errors out
 src/plugins/                  shared Elysia behaviour (auth, error mapping)
 src/lib/                      shared clients and helpers, without HTTP (logger.ts: the logger)
 src/config/env.ts             the env, the only module that imports varlock/env
 ```
 
-Add `model.ts` and `service.ts` when a feature needs them; [`routes/health`](src/routes/health/index.ts) is a single file.
+Every feature has a `model.ts`: `index.ts` can't import `t` (lint), so its schemas live there. Add `service.ts` when it has logic; [`routes/health`](src/routes/health) only has `index.ts` and `model.ts`.
 
 Services don't know about HTTP: they return expected failures as values (an `Error` subclass) and the route maps them to a status:
 
@@ -102,7 +102,7 @@ Pass the data as an object first and the message second, so it stays searchable 
 - `suspicious` and `perf` rules are errors, and the `lint` script fails on warnings (`--deny-warnings`) and on unused `oxlint-disable` comments.
 - Extra type-aware rules: no `!`, no unnecessary conditions, `strict-boolean-expressions` (numbers and strings aren't conditions: `0n` is a valid amount), exhaustive `switch`, `??` over `||`.
 - No `process.env` (use `#/config/env`), no `console` (use the [logger](#logging)), no `Bun` outside `src/index.ts`, no `export default` in `src` (Bun would serve it on its own).
-- The folder boundaries above: shared folders can't import routes or the app, route features can't import each other, services and `src/lib` import only types from `elysia`, nothing imports `#/index`.
+- The folder boundaries above: shared folders can't import routes or the app, route features can't import each other, services and `src/lib` import only types from `elysia`, a route's `index.ts` doesn't import `t` (schemas go in `model.ts`), nothing imports `#/index`.
 
 `tsconfig.json` extends `@repo/typescript-config/bun.json`, which adds `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, `noPropertyAccessFromIndexSignature` and others to `strict`.
 

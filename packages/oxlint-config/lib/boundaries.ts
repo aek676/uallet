@@ -9,6 +9,7 @@ export type Pattern = {
   regex: string;
   message: string;
   allowTypeImports?: boolean;
+  importNames?: string[];
 };
 
 export const NO_PARENT_IMPORTS: Pattern = {

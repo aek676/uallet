@@ -119,6 +119,12 @@ const NO_ELYSIA_VALUES: Pattern = {
   message:
     "Services and src/lib don't depend on HTTP: return errors as values and map them to `status()` in the route.",
 };
+const NO_INLINE_SCHEMAS: Pattern = {
+  regex: "^elysia$",
+  importNames: ["t"],
+  message:
+    "Declare the schemas in the feature's model.ts and use them from there.",
+};
 
 const EVERYWHERE = [
   NO_PARENT_IMPORTS,
@@ -161,6 +167,10 @@ export function apiBoundaries(configUrl: string): OxlintConfig {
           {
             files: [`src/routes/${feature}/**`],
             rules: restrict(featurePatterns),
+          },
+          {
+            files: [`src/routes/${feature}/index.ts`],
+            rules: restrict([...featurePatterns, NO_INLINE_SCHEMAS]),
           },
           {
             files: [`src/routes/${feature}/service.ts`],
