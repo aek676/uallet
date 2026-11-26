@@ -1,4 +1,3 @@
-import type { TransactionSigner } from "@solana/kit";
 import { useBlocker } from "@tanstack/react-router";
 import { toast } from "sonner";
 
@@ -14,7 +13,6 @@ import { m } from "#/paraglide/messages.js";
 
 type PayChargeProps = {
   request: TransferRequest;
-  signer: TransactionSigner;
   onClose: () => void;
 };
 
@@ -22,8 +20,8 @@ type PayChargeProps = {
  * Paying a charge, from the confirmation to the result. Mount it with a new
  * `key` per charge: the payment lives as long as this component.
  */
-export function PayCharge({ request, signer, onClose }: PayChargeProps) {
-  const { pay, paying, signature, timing, failure } = usePayment(signer);
+export function PayCharge({ request, onClose }: PayChargeProps) {
+  const { pay, paying, signature, timing, failure } = usePayment();
   const sent = useSentPayment(request);
   const earlierPayment = useEarlierPayment(request);
 

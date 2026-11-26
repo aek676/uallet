@@ -104,7 +104,6 @@
   "wallet_link_invalid": "Este enlace no es un cobro válido.",
   "wallet_link_wrong_token": "Este cobro no es en {token}.",
   "wallet_link_no_reference": "Este cobro no tiene referencia: el comercio no podría confirmarlo.",
-  "wallet_link_memo": "Este cobro incluye un memo y Uallet no lo admite.",
   "wallet_link_self": "No puedes pagarte a ti mismo.",
   "wallet_cannot_pay_title": "No se puede pagar este cobro",
   "wallet_scan_title": "Escanea el QR",

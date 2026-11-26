@@ -104,7 +104,6 @@
   "wallet_link_invalid": "This link isn't a valid charge.",
   "wallet_link_wrong_token": "This charge isn't in {token}.",
   "wallet_link_no_reference": "This charge has no reference: the merchant couldn't confirm it.",
-  "wallet_link_memo": "This charge includes a memo, which Uallet doesn't support.",
   "wallet_link_self": "You can't pay yourself.",
   "wallet_cannot_pay_title": "This charge can't be paid",
   "wallet_scan_title": "Scan the QR code",

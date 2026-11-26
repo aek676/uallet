@@ -102,6 +102,11 @@ on `PATH`. Its tests run under Node (Vitest), like the rest.
   Amounts are `bigint` base units.
 - `@repo/payments` has no UI and makes no network calls.
 - Wallet transactions must be legacy or v0: Web3Auth's wallet can't sign v1.
+- Charge links are Solana Pay transaction requests to the API's `POST /pay`
+  (`VITE_PAYMENT_REQUEST_URL`). The API builds the transaction with
+  `buildPaymentTransaction` and the wallet rebuilds it and compares the bytes
+  before signing: change how payments are built only there, and keep `api`
+  and `wallet` on the same version.
 - User-facing text goes through Paraglide: add the key to **both**
   `packages/i18n/messages/en.json` and `es.json` (a test fails otherwise),
   prefixed `wallet_` / `merchant_` unless every app shares it. Import `m` from
@@ -116,8 +121,9 @@ on `PATH`. Its tests run under Node (Vitest), like the rest.
 
 ## Wallet to API
 
-- Call the API through `apiClient` from `#/lib/api-session` (Eden Treaty typed
-  from `api/app`, session and 401 retry included), never with a bare `fetch`.
+- Call the API through `api` from `useConnectedAccount()` (an `apiClient` from
+  `#/lib/api-session` that the login gate builds: Eden Treaty typed from
+  `api/app`, session and 401 retry included), never with a bare `fetch`.
   Treaty returns `{ data, error }`. A session or network failure is a 503
   `error` with the cause in `error.value` (wallet README, "API").
 - Only `#/lib/api-client` imports `@elysiajs/eden` and `api/app`, and `api/app`
@@ -142,8 +148,8 @@ on `PATH`. Its tests run under Node (Vitest), like the rest.
 ## Dev servers
 
 Ports are fixed: wallet 5173 and merchant 5175 (Vite `strictPort`), api 5177
-(`API_PORT` in the root `.env.schema`, which the wallet's `/api` proxy also
-reads).
+(`API_PORT` in the root `.env.schema`; the wallet's `/api` proxy targets
+`API_PUBLIC_URL`, derived from it).
 `aube run dev` opens Turborepo's TUI for all apps; start one app with
 `aube run dev -- --filter wallet` (through Turborepo) or
 `aube run dev --filter wallet` (aube's filter, runs `vite` directly).

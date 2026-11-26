@@ -26,7 +26,6 @@
     "@repo/ui": "workspace:*",
     "@solana/kit": "catalog:solana",
     "@solana/kit-plugin-rpc": "catalog:solana",
-    "@solana/kit-plugin-signer": "catalog:solana",
     "@solana/react": "catalog:solana",
     "@solana/wallet-account-signer": "catalog:solana",
     "@tanstack/react-form": "catalog:forms",

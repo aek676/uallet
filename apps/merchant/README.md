@@ -16,12 +16,13 @@ It doesn't need any funds: it only receives.
 
 In development they come from Infisical: follow the one-time setup in the [root README](../../README.md#environment-variables). They are declared in [`.env.schema`](.env.schema):
 
-| Variable                | Notes                                                                                                             |
-| ----------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| `VITE_MERCHANT_ADDRESS` | Solana address that receives the payments. From Infisical; to use your own, set it in `apps/merchant/.env.local`. |
-| `VITE_MERCHANT_NAME`    | Shown to the student when paying (Solana Pay `label`). At most 40 characters. Set in the schema.                  |
-| `VITE_SOLANA_RPC_URL`   | Solana devnet RPC, to detect payments (shared with wallet, in the root schema).                                   |
-| `VITE_SOLANA_WS_URL`    | Solana devnet WebSocket (shared, in the root schema).                                                             |
+| Variable                   | Notes                                                                                                                                                                                                                                                            |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `VITE_MERCHANT_ADDRESS`    | Solana address that receives the payments. From Infisical; to use your own, set it in `apps/merchant/.env.local`.                                                                                                                                                |
+| `VITE_MERCHANT_NAME`       | Shown to the student when paying (Solana Pay `label`). At most 40 characters. Set in the schema.                                                                                                                                                                 |
+| `VITE_SOLANA_RPC_URL`      | Solana devnet RPC, to detect payments (shared with wallet, in the root schema).                                                                                                                                                                                  |
+| `VITE_SOLANA_WS_URL`       | Solana devnet WebSocket (shared, in the root schema).                                                                                                                                                                                                            |
+| `VITE_PAYMENT_REQUEST_URL` | The API's payment endpoint, which the QR's transaction request points to (shared with wallet, in the root schema): `API_PUBLIC_URL` + `/pay`, don't set it. HTTPS, or `http` to `localhost` in dev: the schema rejects anything else, so `dev` and `build` fail. |
 
 Varlock validates them when Vite starts. **Everything here ends up in the browser bundle.** The address and the name are public anyway (they go in the QR code). A dedicated RPC URL embeds an API key: restrict it to your domains in the provider's dashboard.
 
@@ -74,8 +75,9 @@ English by default, Spanish as an option. The language is the one picked in the 
 ## Charges
 
 - Amount: up to 2 decimals, at most €100 (`MAX_CHARGE_EUROS`), so a typo can't become a big charge.
-- Concept: optional, at most 60 characters. It goes in the Solana Pay `message`: the student sees it, but it isn't stored on-chain.
+- Concept: optional, at most 60 characters. It goes in the charge's `message`: the student sees it, but it isn't stored on-chain.
 - Every charge gets a new `reference`, the address the merchant uses to find the payment.
+- The QR is a Solana Pay [transaction request](https://solana.com/docs/tools/solana-pay/specification/version1#specification-transaction-request) to the API's payment endpoint (`VITE_PAYMENT_REQUEST_URL`), with the charge in its query: `solana:` and the URL-encoded `<endpoint>?recipient=…&amount=…&spl-token=…&reference=…&label=…&message=…` (`createCharge`). The wallet asks the API for the transaction; the merchant never talks to the API, and still finds and validates the payment on-chain by its `reference`. Encoding the URL makes the link longer than a transfer request's (~340 characters instead of ~250 with a short concept), so the QR is a bit denser.
 
 The QR code is always black on white, even in dark mode: many phone cameras can't read an inverted QR. "Copy link" copies the `solana:` link, in case a camera fails.
 

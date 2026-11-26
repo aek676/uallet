@@ -3,10 +3,11 @@ import type { Address } from "@solana/kit";
 import { PAYMENT_TOKEN, type Token } from "@repo/payments/config";
 import { createReference } from "@repo/payments/reference";
 import {
-  encodeTransferRequest,
+  encodeTransactionRequest,
   type TransferRequest,
 } from "@repo/payments/solana-pay";
 
+import { ENV } from "#/config/env";
 import type { Merchant } from "#/config/merchant";
 
 export interface Charge {
@@ -25,12 +26,15 @@ export interface CreateChargeInput {
    * one: only pass a reference that came from `createCharge`.
    */
   reference?: Address;
+  /** The API's payment endpoint, `VITE_PAYMENT_REQUEST_URL` by default. */
+  endpoint?: string;
 }
 
 /**
- * A charge: its `reference` and the Solana Pay link the student scans. By
- * default every call creates a new reference, so two charges of the same
- * amount can't be confused.
+ * A charge: its `reference` and the Solana Pay link the student scans, a
+ * transaction request to the API with the charge in its query. By default
+ * every call creates a new reference, so two charges of the same amount
+ * can't be confused.
  */
 export function createCharge({
   merchant,
@@ -38,6 +42,7 @@ export function createCharge({
   concept,
   token = PAYMENT_TOKEN,
   reference = createReference(),
+  endpoint = ENV.paymentRequestUrl,
 }: CreateChargeInput): Charge {
   const message = concept?.trim();
 
@@ -53,6 +58,6 @@ export function createCharge({
   return {
     request,
     reference,
-    url: encodeTransferRequest(request, token.decimals),
+    url: encodeTransactionRequest(endpoint, request, token.decimals),
   };
 }

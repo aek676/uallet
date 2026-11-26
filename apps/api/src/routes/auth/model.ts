@@ -1,10 +1,6 @@
 import { t, type UnwrapSchema } from "elysia";
 
-function errorResponse<const Codes extends [string, ...string[]]>(
-  codes: Codes,
-) {
-  return t.Object({ error: t.UnionEnum(codes) });
-}
+import { errorResponse } from "#/plugins/error-responses";
 
 export const AuthModel = {
   sessionBody: t.Object({ address: t.String() }),

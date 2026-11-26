@@ -18,6 +18,8 @@ const config = {
   merchantAddress: address(ENV.VITE_MERCHANT_ADDRESS),
   /** Shown to the student when paying, e.g. "Cafetería Central". */
   merchantName: ENV.VITE_MERCHANT_NAME,
+  /** The API's payment endpoint: the QR is a transaction request to it. */
+  paymentRequestUrl: ENV.VITE_PAYMENT_REQUEST_URL,
   /** Solana devnet RPC. */
   solanaRpcUrl: ENV.VITE_SOLANA_RPC_URL,
   /** Solana devnet WebSocket, to detect payments as they land. */

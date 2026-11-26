@@ -8,7 +8,12 @@ import {
   type Token,
 } from "./config";
 import { createReference } from "./reference";
-import { encodeTransferRequest, parseTransferRequest } from "./solana-pay";
+import {
+  encodeTransactionRequest,
+  parseTransactionRequest,
+} from "./solana-pay";
+
+const ENDPOINT = "https://api.example.com/pay";
 
 describe("config", () => {
   it("pays with EURC on the classic Token program for now", () => {
@@ -30,8 +35,14 @@ describe("config", () => {
       reference: [createReference()],
     };
 
-    const link = encodeTransferRequest(request, campusToken.decimals);
-    expect(link).toContain("amount=1.2&");
-    expect(parseTransferRequest(link, campusToken.decimals)).toEqual(request);
+    const link = encodeTransactionRequest(
+      ENDPOINT,
+      request,
+      campusToken.decimals,
+    );
+    expect(decodeURIComponent(link)).toContain("&amount=1.2&");
+    expect(
+      parseTransactionRequest(link, ENDPOINT, campusToken.decimals),
+    ).toEqual(request);
   });
 });
