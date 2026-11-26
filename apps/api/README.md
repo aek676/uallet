@@ -17,14 +17,14 @@ bun --version   # 1.4.x
 
 Declared in [`.env.schema`](.env.schema), with the shared setup in the [root README](../../README.md#environment-variables):
 
-| Variable             | Notes                                                                                                                                                                       |
-| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `API_PORT`           | Port the server listens on. `5177`, from the root schema: the wallet's dev proxy reads it too.                                                                              |
-| `LOG_LEVEL`          | Minimum level the [logger](#logging) writes. `info` in the schema, `silent` in `.env.test`.                                                                                 |
-| `API_SESSION_KEY`    | Signs our [sessions](#sessions). Secret, from Infisical; a public placeholder in `.env.test`.                                                                               |
-| `WEB3AUTH_CLIENT_ID` | The wallet's client ID: identity tokens must carry it as audience. Read from the wallet's Infisical secret (`infisical("VITE_WEB3AUTH_CLIENT_ID")`), so one value for both. |
-| `WEB3AUTH_JWKS_URL`  | Web3Auth's signing keys. Defaults to `https://api.web3auth.io/citadel-service/.well-known/jwks.json` in the schema.                                                         |
-| `WEB3AUTH_ISSUER`    | `iss` of the identity tokens. Defaults to `web3auth.io` in the schema.                                                                                                      |
+| Variable             | Notes                                                                                                                                                                 |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `API_PORT`           | Port the server listens on. `5177`, from the root schema: the wallet's dev proxy reads it too.                                                                        |
+| `LOG_LEVEL`          | Minimum level the [logger](#logging) writes. `info` in the schema, `silent` in `.env.test`.                                                                           |
+| `API_SESSION_KEY`    | Signs our [sessions](#sessions). Secret, from Infisical; a public placeholder in `.env.test`.                                                                         |
+| `WEB3AUTH_CLIENT_ID` | The wallet's client ID: identity tokens must carry it as audience. Read from the Infisical secret the wallet reads too (`WEB3AUTH_CLIENT_ID`), so one value for both. |
+| `WEB3AUTH_JWKS_URL`  | Web3Auth's signing keys. Defaults to `https://api.web3auth.io/citadel-service/.well-known/jwks.json` in the schema.                                                   |
+| `WEB3AUTH_ISSUER`    | `iss` of the identity tokens. Defaults to `web3auth.io` in the schema.                                                                                                |
 
 Varlock loads and validates them when the server starts: [`src/index.ts`](src/index.ts) imports `varlock/auto-load` before anything else, so an invalid value stops it before it listens. The tests load them the same way, from `.env.test` (`setupFiles` in [`vitest.config.ts`](vitest.config.ts)). Read them through `#/config/env`. [`bunfig.toml`](bunfig.toml) turns off Bun's own `.env` loading, which would otherwise inject the raw `.env.local` values before Varlock resolves them.
 
