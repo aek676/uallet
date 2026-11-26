@@ -6,8 +6,10 @@ stay in each README; this links to them instead of repeating them.
 
 ## System context
 
-Today there is no backend. Both apps are static single-page apps that talk to Solana
-directly. The chain is the only state the two apps share.
+Today there is no backend in the payment flow. Both apps are static single-page
+apps that talk to Solana directly. The chain is the only state the two apps share. `apps/api` (Elysia on
+Bun) so far only authenticates wallet users (see [API sessions](#api-sessions));
+it will sponsor the wallet's transaction fees.
 
 ```mermaid
 flowchart LR
@@ -63,6 +65,18 @@ src/{components,config,hooks,lib,stores,utils,types}   shared (can't import feat
 
 Screens are composed in `src/app/routes`.
 
+`api` has its own layers, also enforced by lint (`@repo/oxlint-config/api`):
+
+```text
+src/index.ts       starts the server (the only place for Bun APIs)
+src/app.ts         composes the route features
+src/routes/<name>  one folder per feature: index (routes), model (schemas), service (logic)
+src/{config,lib,plugins}   shared (can't import routes or the app)
+```
+
+Services and `src/lib` don't import Elysia values: they return errors and the
+route maps them to HTTP statuses.
+
 ## Payment flow
 
 ```mermaid
@@ -104,6 +118,48 @@ sequenceDiagram
    `validatePayment`: it succeeded, it includes the reference, and the
    recipient's token accounts received exactly the amount. Anything else is
    ignored and the charge keeps waiting.
+
+## API sessions
+
+The wallet proves who the user is to `apps/api` with the MetaMask Embedded
+Wallets (Web3Auth) identity token, and gets a session of ours in exchange:
+
+```mermaid
+sequenceDiagram
+  participant W as Wallet app
+  participant A as API
+  participant J as Web3Auth JWKS
+  W->>W: web3Auth.getAuthTokenInfo() → idToken
+  W->>A: POST /auth/session (Bearer idToken, { address })
+  A->>J: signing keys (cached)
+  A->>A: verify ES256, iss, aud = client ID, exp; address ∈ ed25519 wallets
+  A-->>W: { token, expiresAt } (HS256, sub = address, 1 h)
+  W->>A: later requests: Bearer token
+```
+
+- The identity token is ES256, issuer `web3auth.io`, keys at
+  `https://api.web3auth.io/citadel-service/.well-known/jwks.json`. Web3Auth's
+  docs (`api-auth.web3auth.io`) are outdated for the v11 SDK.
+- Every Web3Auth project shares those keys: the audience (our client ID) is
+  what makes a token ours.
+- The token's `wallets` claim carries the user's ed25519 public keys, i.e. its
+  Solana addresses, so the address the wallet claims is checked against it
+  with no signature from the wallet.
+- The wallet's address is the token's `web3auth_app_key` ed25519 entry (seen
+  in a live login).
+- The identity token lasts 24 hours from login and the SDK doesn't refresh
+  it, hence our own session. Once it expires, the user has to log in again to
+  get a new session. The wallet keeps it in memory. The API signs sessions
+  with `API_SESSION_KEY` (Infisical), so they survive restarts and every
+  instance accepts them; changing the key ends them all.
+
+The wallet calls the API through `apiClient`, an Eden Treaty client typed from
+the API's `App` type (a type-only import, so no server code reaches the
+bundle). It sends the session as bearer and, on a 401, opens a new one and
+retries once. A route change in the API shows up as a type error in the wallet.
+
+Details: the [api](../apps/api/README.md#sessions) and
+[wallet](../apps/wallet/README.md#api) READMEs.
 
 ## Design decisions
 
@@ -196,4 +252,7 @@ Details and numbers: the _Known issues_ sections of the
 | Link checks (wallet)            | `apps/wallet/src/features/pay/utils/payment-link.ts`                       |
 | Sending a payment               | `apps/wallet/src/features/pay/hooks/use-payment.ts`                        |
 | Wallet and chain setup          | `apps/wallet/src/lib/web3auth.ts`, `payment-client.ts`, `solana-client.ts` |
+| API sessions (server)           | `apps/api/src/routes/auth/`, `apps/api/src/plugins/session-auth.ts`        |
+| API session (wallet)            | `apps/wallet/src/lib/api-session.ts`                                       |
+| API client (wallet)             | `apps/wallet/src/lib/api-client.ts`                                        |
 | Texts                           | `packages/i18n/messages/{en,es}.json`                                      |

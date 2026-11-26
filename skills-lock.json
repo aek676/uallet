@@ -1,17 +1,24 @@
 {
-  "version": 1,
+  "version": 2,
   "skills": {
+    "elysiajs": {
+      "source": "elysiajs/skills",
+      "commit": "1466d85aa4f2a0fec91f71311e65bbfa91aa7dc5",
+      "sourceType": "github",
+      "skillPath": "elysia/SKILL.md",
+      "computedHash": "a6c0405d2b902e2fe6227d612812d376f5ebb568ea55ec28634f92abf16485c4"
+    },
     "turborepo": {
       "source": "vercel/turborepo",
       "sourceType": "github",
       "skillPath": "skills/turborepo/SKILL.md",
-      "computedHash": "c83a6ff75c62092f71da91408164ed3426f11749b032fd23ecc855e27c2fb538"
+      "computedHash": "49bb6427015253ce5d93f15dfa6c9ade3f8528f0fbe54769b6da1e1458f058d4"
     },
     "varlock": {
       "source": "dmno-dev/varlock",
       "sourceType": "github",
       "skillPath": "skills/varlock/SKILL.md",
-      "computedHash": "dd6f7de5155f31c602c7b92361f832e32e12cb632feaadd0c0022740d0e5da5b"
+      "computedHash": ""
     }
   }
 }

@@ -1,16 +1,18 @@
 # AGENTS.md
 
 Turborepo + **aube** monorepo for a Solana (devnet) campus wallet. The READMEs
-(root, `apps/wallet`, `apps/merchant`, `packages/*`) are detailed and current:
-read the relevant one before changing behaviour, and update it when you change
-what it describes. `docs/overview.md` (purpose, roadmap) and
+(root, `apps/wallet`, `apps/merchant`, `apps/api`, `packages/*`) are detailed
+and current: read the relevant one before changing behaviour, and update it
+when you change what it describes. `docs/overview.md` (purpose, roadmap) and
 `docs/architecture.md` (payment flow, design decisions) give the big picture.
 
 ## Commands
 
-Use `aube` only (never npm/pnpm/npx/bun). Run binaries as `aube exec <bin>`:
-aube supplies the Node pinned in `devEngines`, which may be newer than `node`
-on `PATH`.
+Use `aube` to install and run scripts (never npm/pnpm/npx, nor `bun install`,
+`bun add` or `bunx`). Run binaries as `aube exec <bin>`: aube supplies the Node
+pinned in `devEngines`, which may be newer than `node` on `PATH`. Bun (1.4.x)
+is only the runtime of `apps/api`: its `dev` script runs `bun`, which must be
+on `PATH`. Its tests run under Node (Vitest), like the rest.
 
 | Goal                           | Command                                                                     |
 | ------------------------------ | --------------------------------------------------------------------------- |
@@ -29,9 +31,10 @@ on `PATH`.
   `test` and `dev`; for `lint` it skips `codegen`, so use the `turbo run` form.
 - CI runs format, lint, boundaries, build and test. Before finishing:
   `aube run format:fix && aube run lint && aube run test`.
-- Workspaces: `wallet`, `merchant`, `@repo/payments`, `@repo/i18n`,
+- Workspaces: `wallet`, `merchant`, `api`, `@repo/payments`, `@repo/i18n`,
   `@repo/ui`, `@repo/oxlint-config`, `@repo/typescript-config`. Packages have no
-  build step: apps import their TypeScript source.
+  build step: apps import their TypeScript source. The wallet also imports the
+  `App` type of `api` (`api/app`), types only.
 
 ## Environment (Varlock)
 
@@ -47,6 +50,9 @@ on `PATH`.
   `varlock/env` must stay named `ENV`: the Vite plugin rewrites the literal
   text `ENV.<KEY>`.
 - Every `VITE_*` value ends up in the browser bundle.
+- `apps/api` has no Vite: `src/index.ts` imports `varlock/auto-load` first, and
+  its `bunfig.toml` turns off Bun's own `.env` loading. Its variables are
+  server-only: never name them `VITE_*`.
 
 ## Generated files
 
@@ -64,15 +70,30 @@ on `PATH`.
   `src/features/<name>` -> `src/app`. Shared code can't import features; a
   feature can't import another feature or `src/app`. Compose features in
   `src/app`.
-- No `../` imports. `wallet` and `merchant` use `#/…`; `@repo/ui`
-  uses `#components/*`, `#lib/*`, `#hooks/*`. Only `wallet` and `merchant` lint
-  this; elsewhere it's a convention.
+- No `../` imports. `wallet`, `merchant` and `api` use `#/…`; `@repo/ui`
+  uses `#components/*`, `#lib/*`, `#hooks/*`. Only `wallet`, `merchant` and
+  `api` lint this; elsewhere it's a convention. `api` declares `#/*` twice:
+  `package.json#imports` (TypeScript, Vitest) and tsconfig `paths` (Bun 1.4
+  doesn't resolve `#/` imports). Keep them in sync.
+- `api` has its own layering (`@repo/oxlint-config/api`): shared folders
+  (`config`, `lib`, `plugins`) -> `src/routes/<name>/{index,model,service}.ts`
+  -> `src/app.ts` -> `src/index.ts`. A route feature can't import another
+  one. Services and `src/lib` import only types from Elysia: they return
+  errors as values and the route maps them to `status()`. Only
+  `src/index.ts` uses Bun APIs (`Bun`, `bun:*`); only `src/config/env.ts`
+  imports `varlock/env`. No `export default` in `src`. Log with `log` from
+  `#/lib/logger` (pino) or `ctx.log` in a handler, never `console`.
+- `api` lints strictly (`suspicious` and `perf` are errors, warnings fail,
+  unused `oxlint-disable` comments fail). Disable a rule only on the line,
+  naming it and saying why. Every route declares a `response` schema
+  (`src/app.test.ts` checks it).
 - No barrel files. Import modules by path: `@repo/payments/<module>`,
   `@repo/ui/components/<name>`, `@repo/i18n/locales`.
 - File and folder names are kebab-case.
 - oxfmt sorts imports and Tailwind classes: run `format:fix`, don't hand-sort.
-- Oxlint `extends` inherits only `rules`, `plugins` and `overrides`: redeclare
-  `ignorePatterns` and `settings` in each workspace's `oxlint.config.ts`.
+- Oxlint `extends` inherits only `rules`, `categories`, `plugins` and
+  `overrides`: redeclare `ignorePatterns` and `settings` in each workspace's
+  `oxlint.config.ts`.
 
 ## Domain rules
 
@@ -93,6 +114,18 @@ on `PATH`.
   `packages/ui` with aube activated (root README, "Adding shadcn/ui
   components").
 
+## Wallet to API
+
+- Call the API through `apiClient` from `#/lib/api-session` (Eden Treaty typed
+  from `api/app`, session and 401 retry included), never with a bare `fetch`.
+  Treaty returns `{ data, error }`. A session or network failure is a 503
+  `error` with the cause in `error.value` (wallet README, "API").
+- Only `#/lib/api-client` imports `@elysiajs/eden` and `api/app`, and `api/app`
+  only with `import type`: `api` exports it under the `types` condition, so a
+  value import doesn't resolve.
+- Elysia's types import from `bun`, so Bun globals type-check in the wallet.
+  Its lint config forbids `Bun`.
+
 ## Dependencies
 
 - Most versions live in catalogs in `aube-workspace.yaml` (`catalog:<name>`);
@@ -100,6 +133,7 @@ on `PATH`.
   `oxfmt`, `turbo`) is pinned in the root `package.json`, and the dependencies
   shadcn added to `@repo/ui` keep their own ranges. Commit `package.json`,
   `aube-workspace.yaml` and `aube-lock.yaml` together.
+- Bump `@elysiajs/eden` together with `elysia`.
 - Bump `oxlint-tsgolint` together with `typescript`. `zxing-wasm` must match
   the version `barcode-detector` pins.
 - The aube version is pinned twice: `devEngines` in `package.json` and
@@ -107,7 +141,9 @@ on `PATH`.
 
 ## Dev servers
 
-Ports are fixed with `strictPort`: wallet 5173, merchant 5175.
+Ports are fixed: wallet 5173 and merchant 5175 (Vite `strictPort`), api 5177
+(`API_PORT` in the root `.env.schema`, which the wallet's `/api` proxy also
+reads).
 `aube run dev` opens Turborepo's TUI for all apps; start one app with
 `aube run dev -- --filter wallet` (through Turborepo) or
 `aube run dev --filter wallet` (aube's filter, runs `vite` directly).
@@ -123,5 +159,14 @@ Ports are fixed with `strictPort`: wallet 5173, merchant 5175.
 
 ## Skills
 
-`.agents/skills/turborepo` and `.agents/skills/varlock` are committed (tracked
-in `skills-lock.json`). Load them before changing `turbo.json` or env config.
+`.agents/skills/turborepo`, `.agents/skills/varlock` and
+`.agents/skills/elysiajs` are committed (tracked in `skills-lock.json`). Load
+them before changing `turbo.json`, env config or `apps/api`.
+
+The `elysiajs` skill documents Elysia **2** and its Eden (`@elysia/eden`; we
+use `@elysiajs/eden` 1.4); `apps/api` is on **1.4**
+(`catalog:api` in `aube-workspace.yaml`). Where they differ, follow 1.4: route
+options go after the handler (`.get(path, handler, options)`), scopes are
+`'scoped'`, and `resolve`, `t.Transform` and `@elysiajs/*` plugins still
+exist. Check the installed types (`apps/api/node_modules/elysia`) and the v1
+docs (https://elysiajs.com/llms.txt). Don't migrate to 2 unasked.

@@ -6,6 +6,7 @@ import { LoadingScreen } from "#/components/loading-screen";
 import { LoginForm } from "#/features/auth/components/login-form";
 import { ConnectedAccountProvider } from "#/hooks/use-connected-account";
 import { useSolanaAccount } from "#/hooks/use-solana-account";
+import { useWarmApiSession } from "#/hooks/use-warm-api-session";
 
 /**
  * The login gate of every screen. It renders the login form in place of the
@@ -38,6 +39,9 @@ function AuthenticatedLayout() {
 
 function ConnectedLayout() {
   const account = useSolanaAccount();
+  useWarmApiSession(
+    account.status === "connected" ? account.address : undefined,
+  );
 
   if (account.status === "error") {
     return <LoadErrorScreen />;

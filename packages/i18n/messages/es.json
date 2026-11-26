@@ -89,6 +89,7 @@
   "wallet_account_address_copied": "Dirección copiada",
   "wallet_account_address_copy_failed": "No se ha podido copiar la dirección",
   "wallet_account_log_out": "Cerrar sesión",
+  "wallet_account_log_out_failed": "No se ha podido cerrar la sesión. Recarga la página y vuelve a intentarlo.",
   "wallet_balance_title": "Saldo",
   "wallet_balance_load_failed": "No se ha podido cargar el saldo.",
   "wallet_sol_balance_load_failed": "No se ha podido cargar el saldo de SOL.",

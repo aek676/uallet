@@ -14,4 +14,13 @@ export default defineConfig({
   settings: {
     tailwindcss: { entryPoint: "src/styles.css" },
   },
+  rules: {
+    "no-restricted-globals": [
+      "error",
+      {
+        name: "Bun",
+        message: "The wallet runs in a browser: there is no Bun.",
+      },
+    ],
+  },
 });

@@ -89,6 +89,7 @@
   "wallet_account_address_copied": "Address copied",
   "wallet_account_address_copy_failed": "Couldn't copy the address",
   "wallet_account_log_out": "Log out",
+  "wallet_account_log_out_failed": "Couldn't log out. Reload the page and try again.",
   "wallet_balance_title": "Balance",
   "wallet_balance_load_failed": "Couldn't load the balance.",
   "wallet_sol_balance_load_failed": "Couldn't load the SOL balance.",
