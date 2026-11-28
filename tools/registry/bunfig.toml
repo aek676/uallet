@@ -1,0 +1,3 @@
+# Varlock loads the env (`.env.schema`, `.env.test`, `.env.local`). Bun's own
+# `.env` loading would inject those files' raw values first, so turn it off.
+env = false
