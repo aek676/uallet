@@ -1,9 +1,9 @@
 # AGENTS.md
 
 Turborepo + **aube** monorepo for a Solana (devnet) campus wallet. The READMEs
-(root, `apps/wallet`, `apps/merchant`, `apps/api`, `packages/*`) are detailed
-and current: read the relevant one before changing behaviour, and update it
-when you change what it describes. `docs/overview.md` (purpose, roadmap) and
+(root, `apps/wallet`, `apps/merchant`, `apps/api`, `tools/registry`,
+`packages/*`) are detailed and current: read the relevant one before changing
+behaviour, and update it when you change what it describes. `docs/overview.md` (purpose, roadmap) and
 `docs/architecture.md` (payment flow, design decisions) give the big picture.
 
 ## Commands
@@ -11,8 +11,9 @@ when you change what it describes. `docs/overview.md` (purpose, roadmap) and
 Use `aube` to install and run scripts (never npm/pnpm/npx, nor `bun install`,
 `bun add` or `bunx`). Run binaries as `aube exec <bin>`: aube supplies the Node
 pinned in `devEngines`, which may be newer than `node` on `PATH`. Bun (1.4.x)
-is only the runtime of `apps/api`: its `dev` script runs `bun`, which must be
-on `PATH`. Its tests run under Node (Vitest), like the rest.
+is only the runtime of `apps/api` and of the `tools/registry` commands: they
+run `bun`, which must be on `PATH`. Their tests run under Node (Vitest), like
+the rest.
 
 | Goal                           | Command                                                                     |
 | ------------------------------ | --------------------------------------------------------------------------- |
@@ -31,8 +32,9 @@ on `PATH`. Its tests run under Node (Vitest), like the rest.
   `test` and `dev`; for `lint` it skips `codegen`, so use the `turbo run` form.
 - CI runs format, lint, boundaries, build and test. Before finishing:
   `aube run format:fix && aube run lint && aube run test`.
-- Workspaces: `wallet`, `merchant`, `api`, `@repo/payments`, `@repo/i18n`,
-  `@repo/ui`, `@repo/oxlint-config`, `@repo/typescript-config`. Packages have no
+- Workspaces: `wallet`, `merchant`, `api`, `registry` (`tools/registry`),
+  `@repo/payments`, `@repo/i18n`, `@repo/ui`, `@repo/oxlint-config`,
+  `@repo/typescript-config`. Packages have no
   build step: apps import their TypeScript source. The wallet also imports the
   `App` type of `api` (`api/app`), types only.
 
@@ -101,6 +103,11 @@ on `PATH`. Its tests run under Node (Vitest), like the rest.
   never assume the classic Token program (it will become a Token-2022 token).
   Amounts are `bigint` base units.
 - `@repo/payments` has no UI and makes no network calls.
+- A merchant is an address with a valid attestation in the merchant registry
+  (Solana Attestation Service, `MERCHANT_REGISTRY` in `@repo/payments/config`).
+  Read it only through `readMerchantAttestation`
+  (`@repo/payments/merchant-registry`), which validates the on-chain data;
+  write it only with `tools/registry`.
 - Wallet transactions must be legacy or v0: Web3Auth's wallet can't sign v1.
 - Charge links are Solana Pay transaction requests to the API's `POST /pay`
   (`VITE_PAYMENT_REQUEST_URL`). The API builds the transaction with

@@ -36,3 +36,19 @@ export const EURC = {
  * so switching to the UAL token (Token-2022) is a one-line change.
  */
 export const PAYMENT_TOKEN: Token = EURC;
+
+export interface MerchantRegistry {
+  authority: Address;
+  credential: Address;
+  schema: Address;
+}
+
+export const MERCHANT_CREDENTIAL_NAME = "Uallet";
+export const MERCHANT_SCHEMA_NAME = "merchant";
+export const MERCHANT_SCHEMA_VERSION = 1;
+
+export const MERCHANT_REGISTRY: MerchantRegistry = {
+  authority: address("E7WGiiArvJQXHBbBB25SrZN1GTXaqmx4nwG8Yg7jLvSc"),
+  credential: address("9vSq9z7RyXEuLwj69yNNFrpXeASebhxe8w1PQw1ucMBh"),
+  schema: address("6VR4Nz3bVbrwqdjg6PqFyxsx6fKKiYTXAoeq6xrqaqGB"),
+};

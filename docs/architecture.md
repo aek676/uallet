@@ -49,6 +49,7 @@ aube exec turbo run transit --graph   # the whole graph, as Graphviz DOT
 | `apps/wallet`                | Login, balances, scanning or pasting a link, paying, payment metrics.      |
 | `apps/merchant`              | The charge form, the QR, detecting and validating the payment.             |
 | `apps/api`                   | Sessions, and building the payment transaction of a charge.                |
+| `tools/registry`             | Commands to register merchants on-chain (the merchant registry).           |
 | `packages/payments`          | Token config, amounts, Solana Pay links, payment transactions, validation. |
 | `packages/i18n`              | English and Spanish texts as one Paraglide project; each app compiles it.  |
 | `packages/ui`                | shadcn/ui components on Base UI, Tailwind v4 tokens.                       |
@@ -196,6 +197,33 @@ Details: the [api](../apps/api/README.md#sessions) and
 | Sent payments and metrics stay on the device (`localStorage`, last 50).          | The API keeps nothing; the wallet also uses it to recognise payments it already sent.                                                                                                  |
 | Env values are validated at build time (Varlock) and end up in the bundle.       | A bad config fails `dev` and `build`, not a payment. Nothing secret goes in `VITE_*`.                                                                                                  |
 
+## Merchant registry
+
+Being a merchant means having an attestation from the university on the
+Solana Attestation Service (SAS): one per merchant, under the university's
+credential and the `merchant` schema, with the merchant's name. Its address is
+a PDA of the credential, the schema and the merchant's address, so anyone can
+find it from the address alone. `tools/registry` writes them (`merchant:add`,
+`merchant:remove`), signed by the credential's authority;
+`@repo/payments/merchant-registry` reads them.
+
+It's on-chain, not in the API's database, because the entries are few,
+public, rarely changed and written by one authority: the wallet will check a
+merchant against the chain itself, so a compromised API can't invent a
+merchant or a name. Registering also creates the merchant's token account for
+`PAYMENT_TOKEN`, so the sponsored fee payer never creates accounts.
+
+Today nothing reads it yet: the merchant app still charges for the address in
+its config, and the wallet shows the link's label. The API's merchant
+sessions and the wallet's verified names come next.
+
+The transactions that write it are built in `@repo/payments/merchant-registry`
+(`planMerchantRegistration`, `planMerchantRemoval`), so a planned admin app
+(#55) sends the same ones as the CLI, signed by each admin's own wallet: the
+keys that sign registrations never live on a server.
+
+Details: [`tools/registry`](../tools/registry/README.md).
+
 ## Trust model and limits
 
 - **The payer's only check is the confirmation screen.** Web3Auth signs without
@@ -250,9 +278,10 @@ Details and numbers: the _Known issues_ sections of the
     links. The address is today the payer's only check, so it can go only once
     verified merchants exist (registry).
   - `validatePayment` is unaffected: it reads balance changes, not who paid.
-- **Merchant registry, logins and backend verification.** `config/merchant.ts`
-  becomes a registry lookup; the merchant name becomes verified; a backend
-  re-validates payments.
+- **Merchant logins and backend verification.** The registry exists (see
+  [Merchant registry](#merchant-registry)). `config/merchant.ts` becomes the
+  logged-in merchant, checked against the registry by the API; the wallet
+  shows the attested name; a backend re-validates payments.
 - **Mainnet.** A dedicated RPC and a priority-fee decision (none on devnet).
   If Web3Auth is still in use by then, its mainnet network too.
 
@@ -280,6 +309,8 @@ Details and numbers: the _Known issues_ sections of the
 | Charge creation                 | `apps/merchant/src/features/charge/utils/create-charge.ts`                   |
 | Payment detection               | `apps/merchant/src/features/charge/utils/wait-for-payment.ts`                |
 | Merchant identity               | `apps/merchant/src/config/merchant.ts`                                       |
+| Merchant registry (read)        | `packages/payments/src/merchant-registry.ts`, `config.ts`                    |
+| Merchant registry (write)       | `tools/registry/src/commands/`                                               |
 | Link checks (wallet)            | `apps/wallet/src/features/pay/utils/payment-link.ts`                         |
 | Sending a payment               | `apps/wallet/src/features/pay/utils/send-payment.ts`, `hooks/use-payment.ts` |
 | Checking the API's transaction  | `apps/wallet/src/features/pay/utils/payment-transaction.ts`                  |

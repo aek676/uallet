@@ -1,0 +1,42 @@
+{
+  "name": "registry",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "imports": {
+    "#/*": "./src/*.ts"
+  },
+  "scripts": {
+    "registry:init": "bun src/commands/registry-init.ts",
+    "merchant:add": "bun src/commands/merchant-add.ts",
+    "merchant:remove": "bun src/commands/merchant-remove.ts",
+    "merchant:show": "bun src/commands/merchant-show.ts",
+    "codegen": "APP_ENV=test varlock codegen",
+    "lint": "oxlint --type-aware --type-check",
+    "lint:fix": "oxlint --type-aware --type-check --fix",
+    "test": "APP_ENV=test vitest run"
+  },
+  "dependencies": {
+    "@repo/payments": "workspace:*",
+    "@solana-program/token": "catalog:solana",
+    "@solana/attestation": "catalog:solana",
+    "@solana/kit": "catalog:solana",
+    "@solana/kit-plugin-rpc": "catalog:solana",
+    "@solana/kit-plugin-signer": "catalog:solana",
+    "varlock": "catalog:env"
+  },
+  "devDependencies": {
+    "@repo/oxlint-config": "workspace:*",
+    "@repo/typescript-config": "workspace:*",
+    "@types/bun": "catalog:api",
+    "@varlock/infisical-plugin": "catalog:env",
+    "oxlint": "catalog:lint",
+    "oxlint-tsgolint": "catalog:lint",
+    "typescript": "catalog:build",
+    "vite": "catalog:build",
+    "vitest": "catalog:test"
+  },
+  "engines": {
+    "bun": ">=1.4.0 <1.5.0"
+  }
+}
