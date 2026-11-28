@@ -46,18 +46,18 @@ Which extensions the final token enables is still to be decided.
 
 ## Today and planned
 
-| Area         | Today                                                                                   | Planned                            |
-| ------------ | --------------------------------------------------------------------------------------- | ---------------------------------- |
-| Network      | Solana devnet                                                                           | Mainnet                            |
-| Token        | EURC as a stand-in, behind `PAYMENT_TOKEN`                                              | The campus Token-2022 stablecoin   |
-| Network fee  | Paid by the payer, in SOL                                                               | Sponsored by the university        |
-| Wallet       | Embedded wallet (email or Google login)                                                 | A smart wallet (non-custodial)     |
-| Access       | Anyone who logs in (only the email form checks for a university address, in the client) | Members of the university          |
-| Merchant     | No login: one address per device, from config                                           | Merchant registry and logins       |
-| Verification | In the merchant's browser                                                               | Also in a backend                  |
-| Top-up       | Faucets (test funds)                                                                    | Euros into the campus bank account |
-| Cash out     | None                                                                                    | Merchants only                     |
-| Issuer       | Circle (EURC)                                                                           | To be defined (issuing, cash-out)  |
+| Area         | Today                                                                                   | Planned                             |
+| ------------ | --------------------------------------------------------------------------------------- | ----------------------------------- |
+| Network      | Solana devnet                                                                           | Mainnet                             |
+| Token        | EURC as a stand-in, behind `PAYMENT_TOKEN`                                              | The campus Token-2022 stablecoin    |
+| Network fee  | Paid by the payer, in SOL                                                               | Sponsored by the university         |
+| Wallet       | Embedded wallet (email or Google login)                                                 | A smart wallet (non-custodial)      |
+| Access       | Anyone who logs in (only the email form checks for a university address, in the client) | Members of the university           |
+| Merchant     | No login: one address per device, from config. The on-chain registry exists, unused yet | Logins checked against the registry |
+| Verification | In the merchant's browser                                                               | Also in a backend                   |
+| Top-up       | Faucets (test funds)                                                                    | Euros into the campus bank account  |
+| Cash out     | None                                                                                    | Merchants only                      |
+| Issuer       | Circle (EURC)                                                                           | To be defined (issuing, cash-out)   |
 
 ## What's in the repo
 

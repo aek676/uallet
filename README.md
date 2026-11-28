@@ -14,7 +14,8 @@ Monorepo ([Turborepo](https://turborepo.dev) + [aube](https://aube.jdx.dev)) for
 - `wallet`: the student wallet app ([Vite](https://vite.dev) + React). See its [README](apps/wallet/README.md) for setup
 - `merchant`: the shop app, which shows the Solana Pay QR code to charge ([Vite](https://vite.dev) + React). See its [README](apps/merchant/README.md) for setup
 - `api`: the backend ([Elysia](https://elysiajs.com) on [Bun](https://bun.com)), for now a health check and the wallet's sessions (Web3Auth identity token in, our session out); it will sponsor the fees of the wallet's payments. See its [README](apps/api/README.md)
-- `@repo/payments`: shared payment logic (payment token config, amounts and their formatting, token accounts, Solana Pay links)
+- `registry`: command-line tools to register merchants on-chain (the merchant registry, on the Solana Attestation Service), run with Bun. See its [README](tools/registry/README.md)
+- `@repo/payments`: shared payment logic (payment token config, amounts and their formatting, token accounts, Solana Pay links, reading the merchant registry)
 - `@repo/i18n`: the apps' texts in English and Spanish ([Paraglide JS](https://paraglidejs.com) project; each app compiles it)
 - `@repo/ui`: design system: [shadcn/ui](https://ui.shadcn.com) components (Base UI primitives) + Tailwind CSS v4 design tokens
 - `@repo/oxlint-config`: shared [Oxlint](https://oxc.rs/docs/guide/usage/linter.html) configuration (`@repo/oxlint-config/react` for React workspaces, `@repo/oxlint-config/api` for `api`)
@@ -24,7 +25,7 @@ Each package and app is 100% [TypeScript](https://www.typescriptlang.org/).
 
 ### Package manager and runtimes
 
-aube installs every dependency and runs every script; don't use `bun install`, `bun add` or `bunx`. Node (the version in `devEngines`, which aube provides) runs the tooling, the React apps' dev servers and all the tests. [Bun](https://bun.com) 1.4.x is only the runtime of `apps/api`: install it once (`curl -fsSL https://bun.com/install | bash`) so `bun` is on your `PATH` for `aube run dev`.
+aube installs every dependency and runs every script; don't use `bun install`, `bun add` or `bunx`. Node (the version in `devEngines`, which aube provides) runs the tooling, the React apps' dev servers and all the tests. [Bun](https://bun.com) 1.4.x is only the runtime of `apps/api` and of the `tools/registry` commands: install it once (`curl -fsSL https://bun.com/install | bash`) so `bun` is on your `PATH`.
 
 ### Utilities
 
