@@ -109,6 +109,9 @@ catalogs:
     '@solana-program/token':
       specifier: 0.18.0
       version: 0.18.0
+    '@solana/attestation':
+      specifier: 2.1.0
+      version: 2.1.0
     '@solana/kit':
       specifier: 8.6.0
       version: 8.6.0
@@ -530,6 +533,9 @@ importers:
       '@solana-program/token':
         specifier: catalog:solana
         version: 0.18.0(@solana/kit@8.6.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@7.0.2))
+      '@solana/attestation':
+        specifier: catalog:solana
+        version: 2.1.0(@solana/kit@8.6.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@7.0.2))
       '@solana/kit':
         specifier: catalog:solana
         version: 8.6.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@7.0.2)
@@ -1927,6 +1933,11 @@ packages:
     peerDependenciesMeta:
       typescript:
         optional: true
+
+  '@solana/attestation@2.1.0':
+    resolution: {integrity: sha512-4Ryt9k4mSbCl61cniXtwRSd3uRBcImXhDWgAlzEOGo+1ZpHgJr7Cmhfacd0WzsHb7Wu13Qnyz6CGG/PLC7VhHQ==}
+    peerDependencies:
+      '@solana/kit': ^8.0.0
 
   '@solana/client@1.7.0':
     resolution: {integrity: sha512-92QgeS2PlyCissESrP5XqzMU2IcyUOA5PYr5dqOIyDf/GaDep+WexTgmTGybgCsfmfbJAo2JsrpE9nEUYrJNlg==}
@@ -7593,6 +7604,10 @@ snapshots:
       '@solana/errors': 8.6.0(typescript@7.0.2)
     optionalDependencies:
       typescript: 7.0.2
+
+  '@solana/attestation@2.1.0(@solana/kit@8.6.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@7.0.2))':
+    dependencies:
+      '@solana/kit': 8.6.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@7.0.2)
 
   '@solana/client@1.7.0(@solana/sysvars@4.0.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@7.0.2))(@types/react@19.3.0)(fastestsmallesttextencoderdecoder@1.0.22)(react@19.3.1)(typescript@7.0.2)(use-sync-external-store@1.7.0(react@19.3.1))':
     dependencies:
